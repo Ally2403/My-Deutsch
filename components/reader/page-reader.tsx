@@ -166,14 +166,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
             className="absolute inset-0 h-full w-full select-none"
             draggable={false}
           />
-          {data && (
-            <TextLayer
-              page={data}
-              active={active}
-              highlight={highlight}
-              onWordClick={(token, rect) => setSelected({ page, token, rect })}
-            />
-          )}
+          {/* Zonas laterales antes de la capa de texto: quedan debajo y no tapan palabras. */}
           <button
             type="button"
             tabIndex={-1}
@@ -188,6 +181,14 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
             className="absolute inset-y-0 right-0 w-[8%]"
             onClick={() => go("next")}
           />
+          {data && (
+            <TextLayer
+              page={data}
+              active={active}
+              highlight={highlight}
+              onWordClick={(token, rect) => setSelected({ page, token, rect })}
+            />
+          )}
           {error && (
             <div
               role="alert"

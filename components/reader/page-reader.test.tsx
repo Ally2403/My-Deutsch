@@ -161,3 +161,17 @@ describe("PageReader: interruptor de sustantivos (RF-26)", () => {
     localStorage.clear();
   });
 });
+
+describe("PageReader: zonas de toque lateral", () => {
+  it("quedan debajo de la capa de texto para no tapar palabras de los márgenes", async () => {
+    const { container } = setup();
+    await screen.findByRole("button", { name: "Wort1" });
+    const layer = container.querySelector(".reader-text-layer")!;
+    const zones = container.querySelectorAll<HTMLElement>('button[aria-hidden="true"]');
+    expect(zones).toHaveLength(2);
+    for (const zone of zones) {
+      // Un hermano que aparece antes en el DOM se dibuja debajo.
+      expect(zone.compareDocumentPosition(layer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+  });
+});
