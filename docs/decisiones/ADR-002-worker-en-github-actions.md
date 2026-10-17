@@ -15,3 +15,6 @@ Un workflow `process-book.yml` que la API dispara con `repository_dispatch` y el
 
 ## Consecuencias
 Costo cero y potencia suficiente. Arranque de 1–2 minutos por trabajo (aceptable). En un repositorio privado hay 2 000 min/mes (≈ 80–100 libros); si el repositorio es público, los minutos son ilimitados, pero el código queda visible (los PDF nunca se suben al repositorio).
+
+## Nota (2026-10-17): repositorio público
+La usuaria decidió que el repositorio sea **público** (minutos de Actions ilimitados y runner de 4 vCPU). Como los logs y artefactos de los workflows de un repositorio público son visibles para cualquiera, el worker **nunca** escribe en el log texto OCR ni imágenes de las páginas, y no sube artefactos con contenido de los libros: solo registra identificadores, números de página, tiempos y métricas agregadas.

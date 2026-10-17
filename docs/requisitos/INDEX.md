@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8 | Ejercicios |
 | M-T | Transversal |
 
-## Requerimientos funcionales (37)
+## Requerimientos funcionales (39)
 
 | ID | Título | Módulo | Prioridad | Fase | Estado |
 |---|---|---|---|---|---|
@@ -58,6 +58,8 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md) | M-8 | Baja | 4 | Pendiente |
 | RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T | Alta | 3 | Pendiente |
 | RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md) | M-T | Baja | 5 | Pendiente |
+| RF-38 | [Enderezar y separar dobles páginas](funcionales/RF-38-enderezar-y-separar-dobles-paginas.md) | M-4 | Alta | 2 | Pendiente |
+| RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md) | M-6 | Alta | 2 | Pendiente |
 
 ## Requerimientos no funcionales (15)
 
