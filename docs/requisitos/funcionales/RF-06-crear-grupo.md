@@ -7,7 +7,7 @@
 | **Módulo** | M-2 Grupos |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-02](RF-02-iniciar-sesion-con-correo-y-contrasena.md) |
 | **Reglas de negocio** | RN-08, RN-09 |
 

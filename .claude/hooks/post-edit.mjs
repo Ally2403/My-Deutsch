@@ -13,7 +13,9 @@ const ext = extname(file);
 const notes = [];
 
 function run(cmd, args, cwd = projectDir) {
-  const r = spawnSync(cmd, args, { cwd, encoding: "utf8", shell: process.platform === "win32" });
+  // En Windows se usa shell (para .cmd); las rutas con espacios deben ir entre comillas.
+  const q = (a) => (process.platform === "win32" && /\s/.test(a) ? `"${a}"` : a);
+  const r = spawnSync(q(cmd), args.map(q), { cwd, encoding: "utf8", shell: process.platform === "win32" });
   return { ok: r.status === 0, out: `${r.stdout ?? ""}${r.stderr ?? ""}`.trim() };
 }
 
