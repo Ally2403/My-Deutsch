@@ -44,3 +44,7 @@ supabase/.temp/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Salidas de Playwright MCP
+.playwright-mcp/
+*-360.png
