@@ -36,17 +36,17 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-13 | [Ver estado del procesamiento](funcionales/RF-13-ver-estado-del-procesamiento.md) | M-3 | Media | 3 | Pendiente |
 | RF-14 | [Ver biblioteca del grupo](funcionales/RF-14-ver-biblioteca-del-grupo.md) | M-3 | Alta | 3 | Pendiente |
 | RF-15 | [Quitar libro de un grupo](funcionales/RF-15-quitar-libro-de-un-grupo.md) | M-3 | Baja | 4 | Pendiente |
-| RF-16 | [Pasar páginas](funcionales/RF-16-pasar-paginas.md) | M-5 | Alta | 3 | Pendiente |
-| RF-17 | [Texto seleccionable alineado al original](funcionales/RF-17-texto-seleccionable-alineado-al-original.md) | M-5 | Alta | 3 | Pendiente |
+| RF-16 | [Pasar páginas](funcionales/RF-16-pasar-paginas.md) | M-5 | Alta | 3 | En progreso |
+| RF-17 | [Texto seleccionable alineado al original](funcionales/RF-17-texto-seleccionable-alineado-al-original.md) | M-5 | Alta | 3 | En progreso |
 | RF-18 | [Modo lectura adaptado](funcionales/RF-18-modo-lectura-adaptado.md) | M-5 | Media | 4 | Pendiente |
 | RF-19 | [Zoom y ajuste de página](funcionales/RF-19-zoom-y-ajuste-de-pagina.md) | M-5 | Media | 3 | Pendiente |
 | RF-20 | [Recordar última página](funcionales/RF-20-recordar-ultima-pagina.md) | M-5 | Alta | 3 | Pendiente |
-| RF-21 | [Consultar palabra](funcionales/RF-21-consultar-palabra.md) | M-6 | Alta | 3 | Pendiente |
-| RF-22 | [Mostrar género y color del sustantivo](funcionales/RF-22-mostrar-genero-y-color-del-sustantivo.md) | M-6 | Alta | 3 | Pendiente |
+| RF-21 | [Consultar palabra](funcionales/RF-21-consultar-palabra.md) | M-6 | Alta | 3 | En progreso |
+| RF-22 | [Mostrar género y color del sustantivo](funcionales/RF-22-mostrar-genero-y-color-del-sustantivo.md) | M-6 | Alta | 3 | Hecho |
 | RF-23 | [Resolver formas flexionadas al lema](funcionales/RF-23-resolver-formas-flexionadas-al-lema.md) | M-6 | Alta | 3 | En progreso |
 | RF-24 | [Detectar verbos separables](funcionales/RF-24-detectar-verbos-separables.md) | M-6 | Media | 4 | Pendiente |
 | RF-25 | [Palabra no encontrada](funcionales/RF-25-palabra-no-encontrada.md) | M-6 | Media | 3 | Pendiente |
-| RF-26 | [Colorear todos los sustantivos](funcionales/RF-26-colorear-todos-los-sustantivos.md) | M-5 | Alta | 3 | Pendiente |
+| RF-26 | [Colorear todos los sustantivos](funcionales/RF-26-colorear-todos-los-sustantivos.md) | M-5 | Alta | 3 | En progreso |
 | RF-27 | [Guardar palabras en el diccionario personal](funcionales/RF-27-guardar-palabras-en-el-diccionario-personal.md) | M-7 | Alta | 4 | Pendiente |
 | RF-28 | [Indicar palabras ya vistas en el texto](funcionales/RF-28-indicar-palabras-ya-vistas-en-el-texto.md) | M-7 | Alta | 4 | Pendiente |
 | RF-29 | [Marcar palabra como conocida](funcionales/RF-29-marcar-palabra-como-conocida.md) | M-7 | Media | 4 | Pendiente |
@@ -66,7 +66,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 
 | ID | Título | Módulo | Prioridad | Fase | Estado |
 |---|---|---|---|---|---|
-| RNF-01 | [Tiempo de respuesta al consultar una palabra](no-funcionales/RNF-01-tiempo-de-respuesta-al-consultar-una-palabra.md) | M-6 | Alta | 3 | Pendiente |
+| RNF-01 | [Tiempo de respuesta al consultar una palabra](no-funcionales/RNF-01-tiempo-de-respuesta-al-consultar-una-palabra.md) | M-6 | Alta | 3 | En progreso |
 | RNF-02 | [Tiempo de cambio de página](no-funcionales/RNF-02-tiempo-de-cambio-de-pagina.md) | M-5 | Alta | 3 | Pendiente |
 | RNF-03 | [Precisión del OCR](no-funcionales/RNF-03-precision-del-ocr.md) | M-4 | Alta | 2 | En progreso |
 | RNF-04 | [Tiempo de procesamiento de un libro](no-funcionales/RNF-04-tiempo-de-procesamiento-de-un-libro.md) | M-4 | Media | 2 | Pendiente |
@@ -74,7 +74,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md) | M-T | Alta | 3 | Pendiente |
 | RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md) | M-T | Alta | 3 | Pendiente |
 | RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md) | M-T | Media | 5 | Pendiente |
-| RNF-09 | [Accesibilidad y contraste de colores de género](no-funcionales/RNF-09-accesibilidad-y-contraste-de-colores-de-genero.md) | M-T | Alta | 3 | Pendiente |
+| RNF-09 | [Accesibilidad y contraste de colores de género](no-funcionales/RNF-09-accesibilidad-y-contraste-de-colores-de-genero.md) | M-T | Alta | 3 | En progreso |
 | RNF-10 | [Concurrencia en el plan gratuito](no-funcionales/RNF-10-concurrencia-en-el-plan-gratuito.md) | M-T | Media | 5 | Pendiente |
 | RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md) | M-3 | Media | 3 | Pendiente |
 | RNF-12 | [Calidad y pruebas](no-funcionales/RNF-12-calidad-y-pruebas.md) | M-T | Media | 3 | Pendiente |

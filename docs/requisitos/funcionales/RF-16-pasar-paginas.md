@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-14](RF-14-ver-biblioteca-del-grupo.md) |
 | **Reglas de negocio** | RN-14 |
 
@@ -22,3 +22,12 @@ El usuario pidió que se lea como un libro normal.
 2. Las flechas ← → y AvPág/RePág cambian de página en computador.
 3. El selector permite saltar a cualquier página y muestra "página X de Y".
 4. Las páginas siguiente y anterior se precargan para cumplir RNF-02.
+
+## Verificación
+Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lector/demo`): Playwright en Chromium a 360, 768 y 1280 px contra la build de producción, y WebKit con perfil iPhone 13 emulado en Windows. No se ha probado con un libro real ni en un iPhone físico.
+
+1. ⚠ Parcial: con eventos de puntero táctiles sintéticos, un gesto que empieza a menos de 24 px del borde se ignora y uno desde 200 px cambia de página. No probado con el gesto real de iOS.
+2. ✅ Flechas y AvPág/RePág cambian de página.
+3. ✅ El selector salta a cualquier página, muestra «página X de Y» y rechaza valores fuera de rango.
+4. ✅ Pruebas unitarias: se precargan la página siguiente y la anterior (JSON e imagen). No se midió el efecto sobre RNF-02.
+Pendiente: la vista de dos páginas en pantallas anchas (opcional en la descripción) no está implementada.

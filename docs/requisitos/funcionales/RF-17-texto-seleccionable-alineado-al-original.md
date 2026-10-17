@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 
@@ -21,3 +21,11 @@ Mantiene la forma y el estilo del libro original (ilustraciones, tipografía, ej
 1. Al seleccionar con el dedo o el ratón, el resaltado coincide con las palabras visibles, con una desviación ≤ 2 % del ancho de la página.
 2. El texto copiado conserva los espacios y saltos de línea en orden de lectura.
 3. La alineación se mantiene al hacer zoom o rotar el dispositivo.
+
+## Verificación
+Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lector/demo`): Playwright en Chromium a 360, 768 y 1280 px contra la build de producción, y WebKit con perfil iPhone 13 emulado en Windows. No se ha probado con un libro real ni en un iPhone físico.
+
+1. ✅ Desviación entre la tinta de la imagen y la caja de cada palabra ≤ 2 % del ancho en las 3 resoluciones (comparación de píxeles en canvas).
+2. ✅ El texto seleccionado conserva espacios y un salto por línea, en orden de lectura.
+3. ✅ La capa sigue alineada con la imagen al girar el dispositivo. El zoom con pellizco no se probó.
+Pendiente: comprobar la alineación con páginas reales procesadas por el worker (RF-12).

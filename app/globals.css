@@ -45,3 +45,81 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Lector (RF-16, RF-17): capa de texto sobre la imagen de la página. */
+.reader-text-layer {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  line-height: 1;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.reader-word {
+  position: absolute;
+  cursor: pointer;
+  white-space: pre;
+  color: transparent;
+  font-size: 2.4cqw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Área táctil ≥ 44 px sin mover el texto. */
+.reader-word::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: max(100%, 44px);
+  transform: translateY(-50%);
+}
+
+.reader-word:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.reader-word::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: transparent;
+}
+
+/* Género (RN-01, RNF-09): color por token y borde inferior distinto por género. */
+.gender-m {
+  color: var(--gender-m);
+}
+.gender-n {
+  color: var(--gender-n);
+}
+.gender-f {
+  color: var(--gender-f);
+}
+
+.reader-word-active {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: 2px;
+}
+
+/* Resaltado de sustantivos (RF-26, RNF-09): opacidad ≤ 0.35 y un borde inferior distinto por género. */
+:root {
+  --highlight-alpha: 0.3;
+}
+.hl-m,
+.hl-n,
+.hl-f {
+  border-radius: 2px 2px 0 0;
+}
+.hl-m {
+  background: color-mix(in srgb, var(--gender-m) calc(var(--highlight-alpha) * 100%), transparent);
+  border-bottom: 3px solid var(--gender-m);
+}
+.hl-n {
+  background: color-mix(in srgb, var(--gender-n) calc(var(--highlight-alpha) * 100%), transparent);
+  border-bottom: 3px dotted var(--gender-n);
+}
+.hl-f {
+  background: color-mix(in srgb, var(--gender-f) calc(var(--highlight-alpha) * 100%), transparent);
+  border-bottom: 4px double var(--gender-f);
+}

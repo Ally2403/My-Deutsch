@@ -2,8 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "./database.types";
 
-/** Rutas que no exigen sesión (RF-40: inicio y privacidad son públicas). */
-const PUBLIC_PATHS = ["/", "/privacidad", "/login", "/registro", "/recuperar", "/auth"];
+/** Rutas que no exigen sesión (RF-40: inicio y privacidad; /lector/demo solo tiene contenido sintético). */
+const PUBLIC_PATHS = ["/", "/privacidad", "/login", "/registro", "/recuperar", "/auth", "/lector/demo"];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || (p !== "/" && pathname.startsWith(`${p}/`)));
