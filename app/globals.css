@@ -101,3 +101,25 @@ body {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
   border-radius: 2px;
 }
+
+/* Resaltado de sustantivos (RF-26, RNF-09): opacidad ≤ 0.35 y un borde inferior distinto por género. */
+:root {
+  --highlight-alpha: 0.3;
+}
+.hl-m,
+.hl-n,
+.hl-f {
+  border-radius: 2px 2px 0 0;
+}
+.hl-m {
+  background: color-mix(in srgb, var(--gender-m) calc(var(--highlight-alpha) * 100%), transparent);
+  border-bottom: 3px solid var(--gender-m);
+}
+.hl-n {
+  background: color-mix(in srgb, var(--gender-n) calc(var(--highlight-alpha) * 100%), transparent);
+  border-bottom: 3px dotted var(--gender-n);
+}
+.hl-f {
+  background: color-mix(in srgb, var(--gender-f) calc(var(--highlight-alpha) * 100%), transparent);
+  border-bottom: 4px double var(--gender-f);
+}

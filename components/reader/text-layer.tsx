@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
+import type { Gender } from "@/lib/domain/gender";
 import type { Box, PageData } from "@/lib/domain/page";
 
 type Props = {
@@ -8,6 +9,8 @@ type Props = {
   onWordClick: (tokenIndex: number, rect: DOMRect) => void;
   /** Palabras resaltadas, p. ej. la consultada y su pareja de verbo separable (RN-07). */
   active?: ReadonlySet<number>;
+  /** Género de los sustantivos a resaltar (RF-26); sin él no se colorea nada. */
+  highlight?: ReadonlyMap<number, Gender>;
 };
 
 const pct = (v: number) => `${+(v * 100).toFixed(3)}%`;
@@ -17,7 +20,7 @@ function boxStyle([x, y, w, h]: Box) {
 }
 
 /** Capa de texto transparente sobre la imagen: cada palabra ocupa su posición (RF-17). */
-export function TextLayer({ page, onWordClick, active }: Props) {
+export function TextLayer({ page, onWordClick, active, highlight }: Props) {
   const lineEnds = new Set(page.lines.map(([, last]) => last));
 
   return (
@@ -25,9 +28,14 @@ export function TextLayer({ page, onWordClick, active }: Props) {
       {page.tokens.map((token, i) => {
         const activate = (el: HTMLElement) =>
           onWordClick(i, el.getBoundingClientRect());
-        const cls = active?.has(i)
-          ? "reader-word reader-word-active"
-          : "reader-word";
+        const gender = highlight?.get(i);
+        const cls = [
+          "reader-word",
+          active?.has(i) && "reader-word-active",
+          gender && `hl-${gender}`,
+        ]
+          .filter(Boolean)
+          .join(" ");
         return (
           <Fragment key={i}>
             <span

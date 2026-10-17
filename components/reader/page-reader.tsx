@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { highlightFor } from "@/lib/domain/noun-highlight";
 import type { PageData } from "@/lib/domain/page";
 import {
   clampPage,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/domain/paging";
 import { pairOf } from "@/lib/domain/page-lookup";
 import { TextLayer } from "./text-layer";
+import { useHighlightPref } from "./use-highlight-pref";
 import { WordPanel } from "./word-panel";
 
 type Props = {
@@ -33,7 +35,12 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
   const [attempt, setAttempt] = useState(0);
   const [input, setInput] = useState("");
   const [inputError, setInputError] = useState(false);
-  const [selected, setSelected] = useState<{ page: number; token: number; rect: DOMRect } | null>(null);
+  const [highlightOn, setHighlightOn] = useHighlightPref();
+  const [selected, setSelected] = useState<{
+    page: number;
+    token: number;
+    rect: DOMRect;
+  } | null>(null);
   const cache = useRef(new Map<number, Promise<PageData>>());
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -103,11 +110,32 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
   const error = failed?.n === page && failed.attempt === attempt;
   const open = data && selected?.page === page ? selected : null;
   const pair = open ? pairOf(data!, open.token) : null;
-  const active = open ? new Set(pair === null ? [open.token] : [open.token, pair]) : undefined;
+  const active = open
+    ? new Set(pair === null ? [open.token] : [open.token, pair])
+    : undefined;
+  const highlight = useMemo(
+    () => (data && highlightOn ? highlightFor(data) : undefined),
+    [data, highlightOn],
+  );
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
 
   return (
     <div className="flex h-dvh flex-col">
+      <div className="flex justify-end border-b border-border px-3 py-1">
+        <button
+          type="button"
+          aria-pressed={highlightOn}
+          onClick={() => setHighlightOn(!highlightOn)}
+          className={
+            "min-h-11 rounded border px-3 text-sm " +
+            (highlightOn
+              ? "border-accent bg-accent/10 font-medium"
+              : "border-border")
+          }
+        >
+          Colorear sustantivos
+        </button>
+      </div>
       <div
         className="flex-1 touch-pan-y overflow-auto p-2"
         onPointerDown={(e) => {
@@ -142,6 +170,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
             <TextLayer
               page={data}
               active={active}
+              highlight={highlight}
               onWordClick={(token, rect) => setSelected({ page, token, rect })}
             />
           )}

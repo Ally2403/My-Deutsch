@@ -137,3 +137,27 @@ describe("PageReader con panel de palabra (RF-21 c4)", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 });
+
+describe("PageReader: interruptor de sustantivos (RF-26)", () => {
+  it("colorea los sustantivos al activarlo y lo desactiva al volver a pulsar", async () => {
+    localStorage.clear();
+    loadPage = vi.fn((n: number) =>
+      Promise.resolve({
+        ...make(n),
+        tokens: [{ t: `Haus${n}`, b: [0.1, 0.1, 0.1, 0.02] as const, l: 1 }],
+        lex: { "1": { lemma: "Haus", pos: "noun", g: ["n" as const], senses: [] } },
+      }),
+    );
+    setup();
+    const word = await screen.findByRole("button", { name: "Haus1" });
+    const toggle = screen.getByRole("button", { name: "Colorear sustantivos" });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    expect(word).not.toHaveClass("hl-n");
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(word).toHaveClass("hl-n");
+    fireEvent.click(toggle);
+    expect(word).not.toHaveClass("hl-n");
+    localStorage.clear();
+  });
+});

@@ -88,3 +88,11 @@ describe("TextLayer: palabras activas (RN-07)", () => {
     expect(screen.getByRole("button", { name: "Häuser" })).not.toHaveClass("reader-word-active");
   });
 });
+
+describe("TextLayer: resaltado de sustantivos (RF-26)", () => {
+  it("aplica la clase de género a las palabras indicadas", () => {
+    render(<TextLayer page={page} onWordClick={() => {}} highlight={new Map([[0, "n"]])} />);
+    expect(screen.getByRole("button", { name: "Häuser" })).toHaveClass("hl-n");
+    expect(screen.getByRole("button", { name: "sind" })).not.toHaveClass("hl-n");
+  });
+});
