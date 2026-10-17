@@ -1,4 +1,5 @@
-**Fase actual:** 2 · Spike técnico (rama `feat/RNF-03-spike-ocr`).
-**Hecho:** la usuaria aprobó los requisitos de la Fase 1 (2026-10-17) y los nuevos RF-38 (doble página girada) y RF-39 (palabras cortadas con guion). Repositorio público (nota en ADR-002).
-**Siguiente paso:** OCR de las 5 hojas de `samples/Der Schatz-3-7.pdf` (10 páginas lógicas) con Tesseract en Docker → medir RNF-03, RF-38 y RF-39 → conjunto de 300 palabras para RF-23.
+**Fase actual:** 2 · Spike técnico — **terminado** (rama `feat/RNF-03-spike-ocr`, resultados en `docs/spike-fase-2.md`).
+**Hecho:** requisitos de la Fase 1 aprobados (2026-10-17) + RF-38 y RF-39. Spike: RNF-03 98,5 % / 99,0 % umlauts, RF-38 10/10 páginas, RF-39 96,7 %, RF-23 97,4 %. ADR-005 aceptada. Repositorio público (nota en ADR-002).
+**Siguiente paso:** Fase 3 (MVP vertical) → cambiar a Sonnet 5.5; la usuaria crea el proyecto de Supabase y el cliente OAuth de Google; fijar contratos (migraciones con RLS, tipos, JSON de página).
+**Pendiente de verificar:** RNF-04 en GitHub Actions (estimado 8–17 min por 200 páginas).
 **Bloqueos:** faltan el proyecto de Supabase y el cliente OAuth de Google (Fase 3).

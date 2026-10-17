@@ -7,7 +7,7 @@
 | **Módulo** | M-4 Procesamiento (worker) |
 | **Prioridad** | Alta |
 | **Fase** | 2 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-12](../funcionales/RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 
@@ -20,3 +20,6 @@ Cada error de OCR produce una consulta de palabra fallida o incorrecta.
 ## Criterios de aceptación
 1. Sobre 5 páginas de referencia transcritas a mano (definidas en la Fase 2), la precisión a nivel de palabra es ≥ 95 %.
 2. Los umlauts y la ß se reconocen correctamente en ≥ 98 % de sus apariciones en esas páginas.
+
+## Verificación
+Spike (2026-10-17, `docs/spike-fase-2.md`): 98,5 % de palabras y 99,0 % de umlauts/ß en 5 páginas de referencia. ✅ Criterios 1 y 2 verificados en el spike; falta confirmarlos en el worker de la Fase 3.

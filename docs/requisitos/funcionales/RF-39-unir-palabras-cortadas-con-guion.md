@@ -7,7 +7,7 @@
 | **Módulo** | M-6 Léxico |
 | **Prioridad** | Alta |
 | **Fase** | 2 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md), [RF-23](RF-23-resolver-formas-flexionadas-al-lema.md) |
 | **Reglas de negocio** | RN-06 |
 
@@ -22,3 +22,6 @@ En los libros escaneados los cortes de línea son frecuentes; tratar cada mitad 
 2. Los guiones que son parte de la palabra se conservan ("E-Mail", "Ost-West"); si la unión sin guion no existe en el léxico y la forma con guion sí, se conserva el guion.
 3. El JSON de página guarda una sola entrada de token con dos cajas (ver docs/04).
 4. Al tocar cualquiera de las dos partes, el panel muestra la palabra unida y se resaltan ambas partes.
+
+## Verificación
+Spike (2026-10-17): criterio 1 ✅ (29/30 = 96,7 %); 2 ✅ solo con pruebas unitarias (no hay casos en la muestra); 3 y 4 quedan para la Fase 3 (JSON de página y lector).
