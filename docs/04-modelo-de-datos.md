@@ -127,7 +127,7 @@ No se guarda en Postgres: se sirve desde Storage como archivo estático (rápido
   "fields": [[0.12, 0.71, 0.30, 0.02]],
   "tokens": [
     { "t": "Häuser", "b": [0.112, 0.081, 0.064, 0.018], "l": 431, "c": 0.97 },
-    { "t": "ruft",   "b": [0.30, 0.12, 0.04, 0.018],  "l": 902, "sep": 14 },
+    { "t": "ging",   "b": [0.30, 0.12, 0.04, 0.018],  "l": 902, "f": "pret" },
     { "t": "Normalerweise", "b": [0.80, 0.30, 0.12, 0.018], "b2": [0.10, 0.32, 0.03, 0.018], "l": 1205 }
   ],
   "lex": {
@@ -137,7 +137,9 @@ No se guarda en Postgres: se sirve desde Storage como archivo estático (rápido
   }
 }
 ```
-`b` = caja relativa [x, y, ancho, alto] (0–1) · `l` = id de léxico · `c` = confianza del OCR · `sep` = índice del token pareja de un verbo separable · `b2` = caja de la segunda parte de una palabra cortada con guion al final de línea (RF-39) · `m` = traducción automática.
+`b` = caja relativa [x, y, ancho, alto] (0–1) · `l` = id de léxico · `c` = confianza del OCR · `sep` = índice del token pareja de un verbo separable · `b2` = caja de la segunda parte de una palabra cortada con guion al final de línea (RF-39) · `m` = traducción automática · `f` = forma del token respecto a su lema (`pret` pretérito, `part` participio, `pres` presente, `pl` plural, `comp` comparativo, `sup` superlativo; RF-21).
+
+`lines` y `paragraphs` son rangos `[primer, último]` de índices de `tokens`, **ambos inclusivos**. `lib/domain/page.ts` (`parsePage`) valida el archivo: `v` igual a 1, cajas entre 0 y 1, cada `l` presente en `lex`, `sep` dentro de los tokens, `f` conocida y máximo 5 acepciones por entrada (RN-12).
 
 `number` es el índice de la página lógica (una hoja doble del PDF produce dos, RF-38) y `printed_number` el número impreso en el pie, si se detecta.
 
