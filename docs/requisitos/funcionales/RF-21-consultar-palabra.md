@@ -1,0 +1,25 @@
+# RF-21 — Consultar palabra
+
+| Campo | Valor |
+|---|---|
+| **ID** | RF-21 |
+| **Título** | Consultar palabra |
+| **Módulo** | M-6 Léxico |
+| **Prioridad** | Alta |
+| **Fase** | 3 |
+| **Estado** | Pendiente |
+| **Dependencias** | [RF-17](RF-17-texto-seleccionable-alineado-al-original.md) |
+| **Reglas de negocio** | RN-05, RN-06, RN-12 |
+
+## Descripción
+Al tocar (o hacer clic en) una palabra, se abre un panel con la palabra tal como aparece, su lema, su tipo de palabra y hasta 5 significados en español. En móvil el panel es una hoja inferior; en computador, una tarjeta junto a la palabra.
+
+## Justificación
+Es la función central: reduce el tiempo de traducción, que es el mayor cuello de botella al leer.
+
+## Criterios de aceptación
+1. El panel aparece en < 300 ms (RNF-01), sin llamadas a servicios externos.
+2. Muestra lema, tipo de palabra en español (sustantivo, verbo, adjetivo…), hasta 5 acepciones y la etiqueta "traducción automática" cuando aplique.
+3. Para verbos muestra el infinitivo y la forma consultada (p. ej. "ging → gehen, pretérito").
+4. Se cierra al tocar fuera, deslizar hacia abajo o presionar Esc, sin cambiar de página.
+5. Registra la consulta según RN-05.

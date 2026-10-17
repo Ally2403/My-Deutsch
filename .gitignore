@@ -1,0 +1,46 @@
+# Dependencias y builds
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# Python (worker)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Libros y material con derechos de autor: nunca al repositorio
+*.pdf
+samples/
+worker/spike/data/
+
+# Documentos personales/académicos
+*.docx
+
+# Datos pesados del léxico
+*.sqlite
+*.jsonl
+*.jsonl.gz
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Claude Code (ajustes personales)
+.claude/settings.local.json
+
+# Sistema
+.DS_Store
+Thumbs.db
