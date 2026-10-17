@@ -52,7 +52,7 @@ export function TextLayer({ page, onWordClick, active, highlight }: Props) {
                 }
               }}
             >
-              {token.t}
+              {token.t}{" "}
             </span>
             {token.b2 && (
               <span

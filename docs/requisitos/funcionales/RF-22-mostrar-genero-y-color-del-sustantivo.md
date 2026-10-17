@@ -7,7 +7,7 @@
 | **Módulo** | M-6 Léxico |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-21](RF-21-consultar-palabra.md) |
 | **Reglas de negocio** | RN-01 |
 
@@ -21,3 +21,10 @@ Memorizar el género con color es la técnica que usa el curso.
 1. der → azul, das → verde, die → rojo, en tonos que cumplen RNF-09.
 2. Los casos de varios géneros y solo plural se muestran como indica RN-01.
 3. El color nunca es la única señal: siempre se muestra también el artículo escrito.
+
+## Verificación
+Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lector/demo`): Playwright en Chromium a 360, 768 y 1280 px contra la build de producción, y WebKit con perfil iPhone 13 emulado en Windows. No se ha probado con un libro real ni en un iPhone físico.
+
+1. ✅ der azul, das verde, die rojo con los tokens `--gender-*`, que cumplen RNF-09 c1.
+2. ✅ Varios géneros («der/das Teil» + «varios géneros») y solo plural (gris + «solo plural»); los nombres propios no se colorean.
+3. ✅ El artículo se escribe siempre.
