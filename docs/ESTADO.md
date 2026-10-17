@@ -4,3 +4,7 @@
 **Google OAuth:** cliente en modo *Testing* (solo usuarios de prueba). Para publicarlo hace falta la página de inicio y la política de privacidad en el dominio de Vercel → proponer RF-40 (página de privacidad) al iniciar la Fase 3.
 **Pendiente de verificar:** RNF-04 en GitHub Actions (estimado 8–17 min por 200 páginas).
 **Bloqueos:** faltan el proyecto de Supabase y el cliente OAuth de Google (Fase 3).
+
+## Pendientes de seguridad (Fase 3)
+- **`submit_book` confía en el SHA-256 que envía el cliente (RN-02):** quien conozca la huella de un libro, sin tener el archivo, podría vincularlo a su grupo. Antes de habilitar RF-11, `submit_book` debe dejar el libro en estado pendiente y vincularlo al grupo solo cuando el worker calcule la huella del archivo subido y coincida (el worker solo calcula el hash, no repite el OCR). Hoy no es explotable: la base está vacía y no hay interfaz.
+- **Límite de intentos en `join_group`** (código de 8 caracteres): proponer un requisito nuevo.
