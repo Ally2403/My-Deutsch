@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8 | Ejercicios |
 | M-T | Transversal |
 
-## Requerimientos funcionales (39)
+## Requerimientos funcionales (40)
 
 | ID | Título | Módulo | Prioridad | Fase | Estado |
 |---|---|---|---|---|---|
@@ -60,6 +60,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md) | M-T | Baja | 5 | Pendiente |
 | RF-38 | [Enderezar y separar dobles páginas](funcionales/RF-38-enderezar-y-separar-dobles-paginas.md) | M-4 | Alta | 2 | En progreso |
 | RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md) | M-6 | Alta | 2 | En progreso |
+| RF-40 | [Página de inicio pública y política de privacidad](funcionales/RF-40-pagina-de-privacidad-y-de-inicio-publica.md) | M-1 | Alta | 3 | Pendiente |
 
 ## Requerimientos no funcionales (15)
 

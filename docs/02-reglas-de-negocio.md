@@ -18,7 +18,7 @@
 
 **RN-09 · Invitaciones.** Cada grupo tiene un código de invitación de 8 caracteres alfanuméricos (sin caracteres ambiguos como 0/O, 1/I) y un enlace equivalente. Solo el administrador puede regenerarlo; al hacerlo, el código anterior deja de funcionar. Un grupo admite hasta 50 miembros.
 
-**RN-10 · Límites de subida y cola.** Se aceptan solo PDF de hasta 100 MB y 400 páginas. Cada usuario puede tener **un** libro en procesamiento a la vez. Los procesamientos se atienden en orden de llegada (FIFO).
+**RN-10 · Límites de subida y cola.** Se aceptan solo PDF de hasta 50 MB y 400 páginas. Cada usuario puede tener **un** libro en procesamiento a la vez. Los procesamientos se atienden en orden de llegada (FIFO).
 
 **RN-11 · Eliminación de libros.** Cuando un libro deja de estar vinculado a cualquier grupo, sus archivos se eliminan después de 7 días (período de recuperación). Las entradas del diccionario personal se conservan, porque referencian el lema; su referencia de origen pasa a mostrarse como "libro eliminado". Las anotaciones de ese libro se eliminan junto con él.
 
