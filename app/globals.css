@@ -85,3 +85,19 @@ body {
   background: color-mix(in srgb, var(--accent) 35%, transparent);
   color: transparent;
 }
+
+/* Género (RN-01, RNF-09): color por token y borde inferior distinto por género. */
+.gender-m {
+  color: var(--gender-m);
+}
+.gender-n {
+  color: var(--gender-n);
+}
+.gender-f {
+  color: var(--gender-f);
+}
+
+.reader-word-active {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: 2px;
+}

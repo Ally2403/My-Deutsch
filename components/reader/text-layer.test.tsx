@@ -80,3 +80,11 @@ describe("TextLayer (RF-17)", () => {
     expect(container.querySelectorAll("br")).toHaveLength(2);
   });
 });
+
+describe("TextLayer: palabras activas (RN-07)", () => {
+  it("marca las palabras indicadas en active", () => {
+    render(<TextLayer page={page} onWordClick={() => {}} active={new Set([1])} />);
+    expect(screen.getByRole("button", { name: "sind" })).toHaveClass("reader-word-active");
+    expect(screen.getByRole("button", { name: "Häuser" })).not.toHaveClass("reader-word-active");
+  });
+});

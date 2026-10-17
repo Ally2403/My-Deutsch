@@ -117,3 +117,23 @@ describe("PageReader (RF-16)", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("PageReader con panel de palabra (RF-21 c4)", () => {
+  it("tocar una palabra abre el panel y Escape lo cierra sin cambiar de página", async () => {
+    setup();
+    fireEvent.click(await screen.findByRole("button", { name: "Wort1" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByText("página 1 de 3")).toBeInTheDocument();
+  });
+
+  it("al cambiar de página se cierra el panel", async () => {
+    setup();
+    fireEvent.click(await screen.findByRole("button", { name: "Wort1" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
+    await screen.findByRole("button", { name: "Wort2" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});

@@ -10,7 +10,9 @@ import {
   swipeDirection,
   type Direction,
 } from "@/lib/domain/paging";
+import { pairOf } from "@/lib/domain/page-lookup";
 import { TextLayer } from "./text-layer";
+import { WordPanel } from "./word-panel";
 
 type Props = {
   total: number;
@@ -31,6 +33,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
   const [attempt, setAttempt] = useState(0);
   const [input, setInput] = useState("");
   const [inputError, setInputError] = useState(false);
+  const [selected, setSelected] = useState<{ page: number; token: number; rect: DOMRect } | null>(null);
   const cache = useRef(new Map<number, Promise<PageData>>());
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -98,6 +101,9 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
 
   const data = loaded?.n === page ? loaded.data : null;
   const error = failed?.n === page && failed.attempt === attempt;
+  const open = data && selected?.page === page ? selected : null;
+  const pair = open ? pairOf(data!, open.token) : null;
+  const active = open ? new Set(pair === null ? [open.token] : [open.token, pair]) : undefined;
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
 
   return (
@@ -132,7 +138,13 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
             className="absolute inset-0 h-full w-full select-none"
             draggable={false}
           />
-          {data && <TextLayer page={data} onWordClick={() => {}} />}
+          {data && (
+            <TextLayer
+              page={data}
+              active={active}
+              onWordClick={(token, rect) => setSelected({ page, token, rect })}
+            />
+          )}
           <button
             type="button"
             tabIndex={-1}
@@ -168,6 +180,16 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
           )}
         </div>
       </div>
+
+      {data && open && (
+        <WordPanel
+          page={data}
+          tokenIndex={open.token}
+          pageNumber={page}
+          anchor={open.rect}
+          onClose={() => setSelected(null)}
+        />
+      )}
 
       <nav
         aria-label="Páginas"
