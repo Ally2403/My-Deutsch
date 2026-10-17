@@ -11,4 +11,12 @@ describe("safeNext", () => {
     expect(safeNext("/\\malo.com")).toBe("/grupos");
     expect(safeNext(null)).toBe("/grupos");
   });
+  it("rechaza caracteres de control que el navegador ignora", () => {
+    expect(safeNext("/\t/malo.com")).toBe("/grupos");
+    expect(safeNext("/\n/malo.com")).toBe("/grupos");
+    expect(safeNext("/\r/malo.com")).toBe("/grupos");
+  });
+  it("devuelve la ruta normalizada del mismo origen", () => {
+    expect(safeNext("/a/../grupos?x=1#h")).toBe("/grupos?x=1#h");
+  });
 });
