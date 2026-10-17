@@ -13,6 +13,7 @@ Web app (PWA) que convierte libros de alemán escaneados en PDF en libros intera
 3. Flujo: skill `brainstorming` → `writing-plans` → TDD (`test-driven-development`) → verificación real en el navegador (Playwright 360/768/1280 + WebKit iPhone) → `verification-before-completion`. Para trabajo independiente, usa `subagent-driven-development` con worktrees.
 4. No cambies una decisión de un ADR sin escribir un ADR nuevo que la reemplace.
 5. Commits pequeños en ramas `feat/RF-xx-...`; nunca hagas push forzado a `main`.
+6. **Claude nunca se agrega como autor ni coautor**: sin `Co-Authored-By`, sin "Generated with Claude Code" ni ninguna otra atribución en commits, PR, issues o archivos. La autora es la usuaria.
 
 ## Stack y comandos
 - App: Next.js (App Router) + TypeScript estricto + Tailwind + shadcn/ui, en Vercel. `pnpm dev` · `pnpm typecheck` · `pnpm lint` · `pnpm test` (Vitest) · `pnpm test:quick` (lo usa el hook Stop) · `pnpm e2e` (Playwright).
