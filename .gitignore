@@ -52,3 +52,7 @@ Thumbs.db
 # Playwright
 test-results/
 playwright-report/
+
+# Worker (entrega local): léxico y libros procesados, nunca se versionan
+worker/.local/
+public/local-book/
