@@ -18,7 +18,7 @@ Un miembro sube un PDF a un grupo indicando el título del libro. El sistema cal
 Es la entrada de contenido de toda la aplicación.
 
 ## Criterios de aceptación
-1. Un PDF válido (≤ 100 MB, ≤ 400 páginas) queda en estado "En cola" y aparece en la biblioteca del grupo.
+1. Un PDF válido (≤ 50 MB, ≤ 400 páginas) queda en estado "En cola" y aparece en la biblioteca del grupo.
 2. Un archivo que no es PDF, o que supera los límites, se rechaza antes de subirlo completo, con un mensaje que indica el límite.
 3. Si la huella ya existe (RN-02), el libro queda disponible al instante, sin reprocesarse.
 4. Si el usuario ya tiene un libro en procesamiento, se muestra "Espera a que termine tu libro actual".

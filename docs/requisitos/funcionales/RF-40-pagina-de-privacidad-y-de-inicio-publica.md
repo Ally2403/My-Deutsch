@@ -7,7 +7,7 @@
 | **Módulo** | M-1 Cuenta |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Propuesto (pendiente de aprobación) |
+| **Estado** | Pendiente (aprobado 2026-10-17) |
 | **Dependencias** | [RF-03](RF-03-iniciar-sesion-con-google.md) |
 | **Reglas de negocio** | RN-03, RN-04 |
 
