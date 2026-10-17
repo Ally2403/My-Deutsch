@@ -16,6 +16,10 @@ describe("safeNext", () => {
     expect(safeNext("/\n/malo.com")).toBe("/grupos");
     expect(safeNext("/\r/malo.com")).toBe("/grupos");
   });
+  it("rechaza rutas que al normalizarse empiezan con //", () => {
+    expect(safeNext("/.//malo.com")).toBe("/grupos");
+    expect(safeNext("/a/..//malo.com")).toBe("/grupos");
+  });
   it("devuelve la ruta normalizada del mismo origen", () => {
     expect(safeNext("/a/../grupos?x=1#h")).toBe("/grupos?x=1#h");
   });

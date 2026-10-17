@@ -12,7 +12,12 @@ export function safeNext(
   try {
     const url = new URL(next, BASE);
     if (url.origin !== BASE) return fallback;
-    return url.pathname + url.search + url.hash;
+    const out = url.pathname + url.search + url.hash;
+    // La normalización puede producir "//host" (p. ej. "/a/..//malo.com"): se valida también la salida.
+    if (!out.startsWith("/") || out.startsWith("//") || CONTROL_OR_BACKSLASH.test(out)) {
+      return fallback;
+    }
+    return out;
   } catch {
     return fallback;
   }
