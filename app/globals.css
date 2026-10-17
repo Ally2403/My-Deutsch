@@ -45,3 +45,43 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Lector (RF-16, RF-17): capa de texto sobre la imagen de la página. */
+.reader-text-layer {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  line-height: 1;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.reader-word {
+  position: absolute;
+  cursor: pointer;
+  white-space: pre;
+  color: transparent;
+  font-size: 2.4cqw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Área táctil ≥ 44 px sin mover el texto. */
+.reader-word::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: max(100%, 44px);
+  transform: translateY(-50%);
+}
+
+.reader-word:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.reader-word::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: transparent;
+}
