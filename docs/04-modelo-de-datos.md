@@ -65,6 +65,7 @@ erDiagram
   pages {
     uuid book_id PK,FK
     int number PK
+    int printed_number "nullable, RF-38"
     int width
     int height
     text image_path "pages/{book}/{n}.webp"
@@ -126,7 +127,8 @@ No se guarda en Postgres: se sirve desde Storage como archivo estático (rápido
   "fields": [[0.12, 0.71, 0.30, 0.02]],
   "tokens": [
     { "t": "Häuser", "b": [0.112, 0.081, 0.064, 0.018], "l": 431, "c": 0.97 },
-    { "t": "ruft",   "b": [0.30, 0.12, 0.04, 0.018],  "l": 902, "sep": 14 }
+    { "t": "ruft",   "b": [0.30, 0.12, 0.04, 0.018],  "l": 902, "sep": 14 },
+    { "t": "Normalerweise", "b": [0.80, 0.30, 0.12, 0.018], "b2": [0.10, 0.32, 0.03, 0.018], "l": 1205 }
   ],
   "lex": {
     "431": { "lemma": "Haus", "pos": "noun", "g": ["n"], "pl": "Häuser",
@@ -135,7 +137,9 @@ No se guarda en Postgres: se sirve desde Storage como archivo estático (rápido
   }
 }
 ```
-`b` = caja relativa [x, y, ancho, alto] (0–1) · `l` = id de léxico · `c` = confianza del OCR · `sep` = índice del token pareja de un verbo separable · `m` = traducción automática.
+`b` = caja relativa [x, y, ancho, alto] (0–1) · `l` = id de léxico · `c` = confianza del OCR · `sep` = índice del token pareja de un verbo separable · `b2` = caja de la segunda parte de una palabra cortada con guion al final de línea (RF-39) · `m` = traducción automática.
+
+`number` es el índice de la página lógica (una hoja doble del PDF produce dos, RF-38) y `printed_number` el número impreso en el pie, si se detecta.
 
 ## Políticas RLS (resumen)
 - `profiles`: cada usuario lee y edita la suya; los miembros de un grupo en común pueden leer `display_name` y `avatar_url`.

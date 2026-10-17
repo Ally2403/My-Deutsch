@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8 | Ejercicios |
 | M-T | Transversal |
 
-## Requerimientos funcionales (37)
+## Requerimientos funcionales (39)
 
 | ID | Título | Módulo | Prioridad | Fase | Estado |
 |---|---|---|---|---|---|
@@ -43,7 +43,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-20 | [Recordar última página](funcionales/RF-20-recordar-ultima-pagina.md) | M-5 | Alta | 3 | Pendiente |
 | RF-21 | [Consultar palabra](funcionales/RF-21-consultar-palabra.md) | M-6 | Alta | 3 | Pendiente |
 | RF-22 | [Mostrar género y color del sustantivo](funcionales/RF-22-mostrar-genero-y-color-del-sustantivo.md) | M-6 | Alta | 3 | Pendiente |
-| RF-23 | [Resolver formas flexionadas al lema](funcionales/RF-23-resolver-formas-flexionadas-al-lema.md) | M-6 | Alta | 3 | Pendiente |
+| RF-23 | [Resolver formas flexionadas al lema](funcionales/RF-23-resolver-formas-flexionadas-al-lema.md) | M-6 | Alta | 3 | En progreso |
 | RF-24 | [Detectar verbos separables](funcionales/RF-24-detectar-verbos-separables.md) | M-6 | Media | 4 | Pendiente |
 | RF-25 | [Palabra no encontrada](funcionales/RF-25-palabra-no-encontrada.md) | M-6 | Media | 3 | Pendiente |
 | RF-26 | [Colorear todos los sustantivos](funcionales/RF-26-colorear-todos-los-sustantivos.md) | M-5 | Alta | 3 | Pendiente |
@@ -58,6 +58,8 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md) | M-8 | Baja | 4 | Pendiente |
 | RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T | Alta | 3 | Pendiente |
 | RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md) | M-T | Baja | 5 | Pendiente |
+| RF-38 | [Enderezar y separar dobles páginas](funcionales/RF-38-enderezar-y-separar-dobles-paginas.md) | M-4 | Alta | 2 | En progreso |
+| RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md) | M-6 | Alta | 2 | En progreso |
 
 ## Requerimientos no funcionales (15)
 
@@ -65,7 +67,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 |---|---|---|---|---|---|
 | RNF-01 | [Tiempo de respuesta al consultar una palabra](no-funcionales/RNF-01-tiempo-de-respuesta-al-consultar-una-palabra.md) | M-6 | Alta | 3 | Pendiente |
 | RNF-02 | [Tiempo de cambio de página](no-funcionales/RNF-02-tiempo-de-cambio-de-pagina.md) | M-5 | Alta | 3 | Pendiente |
-| RNF-03 | [Precisión del OCR](no-funcionales/RNF-03-precision-del-ocr.md) | M-4 | Alta | 2 | Pendiente |
+| RNF-03 | [Precisión del OCR](no-funcionales/RNF-03-precision-del-ocr.md) | M-4 | Alta | 2 | En progreso |
 | RNF-04 | [Tiempo de procesamiento de un libro](no-funcionales/RNF-04-tiempo-de-procesamiento-de-un-libro.md) | M-4 | Media | 2 | Pendiente |
 | RNF-05 | [Autenticación segura](no-funcionales/RNF-05-autenticacion-segura.md) | M-1 | Alta | 3 | Pendiente |
 | RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md) | M-T | Alta | 3 | Pendiente |
