@@ -16,3 +16,10 @@
 - RN-03: `/grupos` sin sesión → `/login?next=/grupos` ✅
 - RF-40 criterio 1: `/privacidad` legible a 360 px ✅
 - Sin verificar: registro con correo real (RF-01 c1/c2), ingreso exitoso (RF-02 c1, c4), recuperar contraseña (RF-04), Google completo, 768/1280 px y WebKit.
+
+## Verificación de grupos en navegador (2026-10-17, localhost, 360 px, usuarios de prueba ya borrados)
+- RF-06 ✅ (nombre validado 3–60 en pruebas unitarias; creador como administrador; código de 8 caracteres y botón "Compartir enlace").
+- RF-07 criterios 1–3 ✅ (con enlace o código; código inexistente → "Código no válido"; unirse dos veces no duplica; sin sesión el enlace pasa por /login y vuelve). Criterio 4 (grupo lleno, 50) sin probar en navegador.
+- RF-08 ✅ (nombre, foto/inicial y rol; sin vocabulario ni progreso).
+- RF-02 c1 ✅ ingreso correcto; RF-04 c1 ✅ cerrar sesión redirige a /login.
+- Corregido: `createClient()` del servidor llama a `connection()` (error `Date.now()` de Cache Components).

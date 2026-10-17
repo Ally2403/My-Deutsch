@@ -7,7 +7,7 @@
 | **Módulo** | M-2 Grupos |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-06](RF-06-crear-grupo.md) |
 | **Reglas de negocio** | RN-09 |
 

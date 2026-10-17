@@ -26,9 +26,9 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-03 | [Iniciar sesión con Google](funcionales/RF-03-iniciar-sesion-con-google.md) | M-1 | Alta | 3 | En progreso |
 | RF-04 | [Cerrar sesión y recuperar contraseña](funcionales/RF-04-cerrar-sesion-y-recuperar-contrasena.md) | M-1 | Media | 3 | En progreso |
 | RF-05 | [Gestionar perfil](funcionales/RF-05-gestionar-perfil.md) | M-1 | Baja | 4 | Pendiente |
-| RF-06 | [Crear grupo](funcionales/RF-06-crear-grupo.md) | M-2 | Alta | 3 | Pendiente |
-| RF-07 | [Unirse a un grupo](funcionales/RF-07-unirse-a-un-grupo.md) | M-2 | Alta | 3 | Pendiente |
-| RF-08 | [Ver miembros del grupo](funcionales/RF-08-ver-miembros-del-grupo.md) | M-2 | Media | 3 | Pendiente |
+| RF-06 | [Crear grupo](funcionales/RF-06-crear-grupo.md) | M-2 | Alta | 3 | Hecho |
+| RF-07 | [Unirse a un grupo](funcionales/RF-07-unirse-a-un-grupo.md) | M-2 | Alta | 3 | En progreso |
+| RF-08 | [Ver miembros del grupo](funcionales/RF-08-ver-miembros-del-grupo.md) | M-2 | Media | 3 | Hecho |
 | RF-09 | [Administrar grupo](funcionales/RF-09-administrar-grupo.md) | M-2 | Media | 4 | Pendiente |
 | RF-10 | [Salir de un grupo](funcionales/RF-10-salir-de-un-grupo.md) | M-2 | Media | 4 | Pendiente |
 | RF-11 | [Subir PDF escaneado a un grupo](funcionales/RF-11-subir-pdf-escaneado-a-un-grupo.md) | M-3 | Alta | 3 | Pendiente |

@@ -7,7 +7,7 @@
 | **Módulo** | M-2 Grupos |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-07](RF-07-unirse-a-un-grupo.md) |
 | **Reglas de negocio** | RN-04 |
 
