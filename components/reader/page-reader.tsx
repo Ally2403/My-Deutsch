@@ -81,8 +81,7 @@ export function PageReader({
         if (!cancelled) setLoaded({ n: page, data });
       },
       (e: unknown) => {
-        const message =
-          e instanceof Error && e.message ? e.message : null;
+        const message = e instanceof Error && e.message ? e.message : null;
         if (!cancelled) setFailed({ n: page, attempt, message });
       },
     );
@@ -119,7 +118,7 @@ export function PageReader({
   }
 
   const data = loaded?.n === page ? loaded.data : null;
-  const error = failed?.n === page && failed.attempt === attempt;
+  const error = !data && failed?.n === page && failed.attempt === attempt;
   const errorMessage = error ? failed.message : null;
   const open = data && selected?.page === page ? selected : null;
   const pair = open ? pairOf(data!, open.token) : null;

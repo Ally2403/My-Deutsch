@@ -232,3 +232,26 @@ describe("PageReader: errores y altura", () => {
     expect(b.container.firstElementChild).toHaveClass("h-dvh");
   });
 });
+
+describe("PageReader: error obsoleto al volver", () => {
+  it("si la página 3 falló y al volver carga bien, no queda el alert", async () => {
+    let fail3 = true;
+    loadPage.mockImplementation((n: number) =>
+      n === 3 && fail3
+        ? Promise.reject(new Error("Esta página aún se está procesando"))
+        : Promise.resolve(make(n)),
+    );
+    setup(5);
+    await screen.findByRole("button", { name: "Wort1" });
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    await screen.findByRole("button", { name: "Wort2" });
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    expect(await screen.findByRole("alert")).toHaveTextContent(/aún se está procesando/);
+    fail3 = false;
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    await screen.findByRole("button", { name: "Wort4" });
+    fireEvent.keyDown(window, { key: "ArrowLeft" });
+    expect(await screen.findByRole("button", { name: "Wort3" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+});
