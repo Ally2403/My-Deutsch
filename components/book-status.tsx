@@ -10,7 +10,11 @@ import {
   summarizeError,
   type BookStatusInput,
 } from "@/lib/domain/book-status";
-import { RETRY_DISPATCH_FAILED_MESSAGE, apiErrorMessage } from "@/lib/domain/upload";
+import {
+  RETRY_DISPATCH_FAILED_MESSAGE,
+  apiErrorMessage,
+  looksLikeSessionLoss,
+} from "@/lib/domain/upload";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -130,6 +134,11 @@ export function BookStatus({
       const res = await fetch(`/api/libros/${bookId}/reintentar`, {
         method: "POST",
       });
+      if (looksLikeSessionLoss(res)) {
+        // Redirección a /login o HTML: la sesión caducó; nunca se toma como «En cola».
+        if (mounted.current) setRetryError(apiErrorMessage("not_authenticated"));
+        return;
+      }
       let code = "unexpected";
       if (!res.ok) {
         try {

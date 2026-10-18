@@ -339,6 +339,33 @@ describe("BookStatus (RF-13)", () => {
       expect(screen.getByRole("button", { name: "Reintentar" })).toBeEnabled();
     });
 
+    it.each([
+      [
+        "redirigida a /login",
+        { ok: true, status: 200, redirected: true, headers: new Headers({ "content-type": "text/html" }), json: async () => ({}) },
+      ],
+      [
+        "200 con HTML",
+        { ok: true, status: 200, redirected: false, headers: new Headers({ "content-type": "text/html" }), json: async () => ({}) },
+      ],
+      [
+        "401 JSON",
+        { ok: false, status: 401, redirected: false, headers: new Headers({ "content-type": "application/json" }), json: async () => ({ error: "not_authenticated" }) },
+      ],
+    ])("respuesta %s: sesión caducada, no pasa a En cola", async (_n, res) => {
+      fetchMock.mockResolvedValue(res);
+      render(<BookStatus bookId="b1" initial={errored} canRetry />);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
+      });
+      expect(screen.getAllByRole("alert").map((a) => a.textContent)).toContain(
+        "Tu sesión caducó. Vuelve a iniciar sesión",
+      );
+      expect(screen.queryByText("En cola")).toBeNull();
+      expect(h.refresh).not.toHaveBeenCalled();
+      expect(screen.getByRole("button", { name: "Reintentar" })).toBeEnabled();
+    });
+
     it("502 dispatch_failed: el reintento quedó registrado, pasa a En cola, refresca y reanuda el sondeo", async () => {
       fetchMock.mockResolvedValue({
         ok: false,
