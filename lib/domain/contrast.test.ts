@@ -46,3 +46,13 @@ describe("resaltado de sustantivos (RF-26 c2)", () => {
     expect(css).toMatch(/\.hl-f[^}]*border-bottom:[^;]*double/);
   });
 });
+
+describe("marcado de plurales (RF-41, RNF-09)", () => {
+  it("el texto oscuro de la etiqueta «plural» cumple 4,5:1 sobre el amarillo en ambos temas", () => {
+    expect(contrastRatio("#171717", light.plural)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio("#171717", dark.plural)).toBeGreaterThanOrEqual(4.5);
+  });
+  it("el marcado lleva un borde superior sólido, no solo color", () => {
+    expect(css).toMatch(/\.pl-mark[^}]*border-top:[^;]*solid/);
+  });
+});

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { highlightFor } from "@/lib/domain/noun-highlight";
+import { highlightFor, pluralFor } from "@/lib/domain/noun-highlight";
 import type { PageData } from "@/lib/domain/page";
 import {
   clampPage,
@@ -13,7 +13,7 @@ import {
 } from "@/lib/domain/paging";
 import { pairOf } from "@/lib/domain/page-lookup";
 import { TextLayer } from "./text-layer";
-import { useHighlightPref } from "./use-highlight-pref";
+import { useHighlightPref, usePluralPref } from "./use-highlight-pref";
 import { WordPanel } from "./word-panel";
 
 type Props = {
@@ -36,6 +36,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
   const [input, setInput] = useState("");
   const [inputError, setInputError] = useState(false);
   const [highlightOn, setHighlightOn] = useHighlightPref();
+  const [pluralsOn, setPluralsOn] = usePluralPref();
   const [selected, setSelected] = useState<{
     page: number;
     token: number;
@@ -117,11 +118,28 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
     () => (data && highlightOn ? highlightFor(data) : undefined),
     [data, highlightOn],
   );
+  const plurals = useMemo(
+    () => (data && pluralsOn ? pluralFor(data) : undefined),
+    [data, pluralsOn],
+  );
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
 
   return (
     <div className="flex h-dvh flex-col">
-      <div className="flex justify-end border-b border-border px-3 py-1">
+      <div className="flex flex-wrap justify-end gap-2 border-b border-border px-3 py-1">
+        <button
+          type="button"
+          aria-pressed={pluralsOn}
+          onClick={() => setPluralsOn(!pluralsOn)}
+          className={
+            "min-h-11 rounded border px-3 text-sm " +
+            (pluralsOn
+              ? "border-accent bg-accent/10 font-medium"
+              : "border-border")
+          }
+        >
+          Marcar plurales
+        </button>
         <button
           type="button"
           aria-pressed={highlightOn}
@@ -186,6 +204,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
               page={data}
               active={active}
               highlight={highlight}
+              plurals={plurals}
               onWordClick={(token, rect) => setSelected({ page, token, rect })}
             />
           )}

@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from lexicon.build import build_lexicon
-from lexicon.resolve import resolve
+from lexicon.resolve import compound_entry, resolve
 from lexicon.store import Lexicon
 
 
@@ -27,7 +27,7 @@ ENTRIES = [
     _e("der", "article", [("die", ["nominative", "feminine"])]),
     _e("Fahrrad", "noun", [("Fahrrädern", ["dative", "plural"])]),
     _e("murmeln", "verb"),
-    _e("Schatz", "noun", [("Schätze", ["plural"])]),
+    _e("Schatz", "noun", [("Schätze", ["plural"])], [{"glosses": ["x"], "tags": ["masculine"]}]),
     _e("Gerät", "noun", [("Geräte", ["plural"])]),
     _e("Habe", "noun"),
     _e("haben", "verb", [("habe", ["present"])]),
@@ -104,3 +104,15 @@ def test_alternative_spellings_are_not_indexed(lex):
 def test_pos_of_lists_every_type_of_a_lemma(lex):
     assert lex.pos_of("Haus") == ["noun"]
     assert lex.pos_of("Xyzzy") == []
+
+
+def test_compound_entry_takes_gender_and_plural_from_its_head(lex):
+    e = compound_entry("Kunstschatz", lex)
+    assert (e.lemma, e.pos, e.genders, e.plural) == ("Kunstschatz", "noun", ["m"], "Kunstschätze")
+    assert e.glosses_en == [] and e.glosses_es == []
+
+
+def test_compound_entry_is_none_for_real_lemmas_and_unknown_words(lex):
+    assert compound_entry("Haus", lex) is None
+    assert compound_entry("Schatz", lex) is None
+    assert compound_entry("Xyzzy", lex) is None

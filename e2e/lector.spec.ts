@@ -20,6 +20,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     if (!sessionStorage.getItem("e2e-init")) {
       localStorage.removeItem("my-deutsch:highlight");
+      localStorage.removeItem("my-deutsch:plurals");
       sessionStorage.setItem("e2e-init", "1");
     }
   });
@@ -401,4 +402,39 @@ test("Panel: hoja inferior en móvil y tarjeta junto a la palabra en PC", async 
   await page.screenshot({
     path: `test-results/panel-${test.info().project.name}.png`,
   });
+});
+
+test("RF-41: «Marcar plurales» marca los plurales en amarillo con borde superior y se recuerda", async ({
+  page,
+}) => {
+  await ready(page);
+  const toggle = page.getByRole("button", { name: "Marcar plurales" });
+  const plural = page.getByRole("button", { name: "Häuser", exact: true });
+  const singular = page.getByRole("button", { name: "Haus.", exact: true });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await toggle.click();
+  await expect(plural).toHaveClass(/pl-mark/);
+  await expect(singular).not.toHaveClass(/pl-mark/);
+  const border = await plural.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { width: s.borderTopWidth, style: s.borderTopStyle, color: s.borderTopColor };
+  });
+  expect(border).toEqual({ width: "3px", style: "solid", color: "rgb(234, 179, 8)" });
+
+  // Convive con «Colorear sustantivos»: el género sigue en el borde inferior.
+  await page.getByRole("button", { name: "Colorear sustantivos" }).click();
+  await expect(plural).toHaveClass(/pl-mark/);
+  await expect(plural).toHaveClass(/hl-n/);
+
+  // El panel muestra la etiqueta escrita.
+  await plural.click();
+  await expect(page.getByRole("dialog").locator(".plural-badge")).toHaveText("plural");
+  await page.keyboard.press("Escape");
+
+  // Persiste al recargar.
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Marcar plurales" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });

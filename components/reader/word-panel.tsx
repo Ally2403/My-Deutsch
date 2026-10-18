@@ -180,7 +180,15 @@ export function WordPanel({
             <p className="mt-1 text-sm text-muted">
               {posLabel(entry.pos)}
               {formNote && ` · ${form} → ${entry.lemma}, ${formNote}`}
+              {entry.pos === "noun" && token.f === "pl" && (
+                <span className="plural-badge ml-2">plural</span>
+              )}
             </p>
+            {senses.length === 0 && (
+              <p className="mt-3 text-sm text-muted">
+                Todavía no hay significados para esta palabra.
+              </p>
+            )}
             <ol className="mt-3 list-decimal space-y-1 pl-5">
               {senses.map((s, i) => (
                 <li key={i}>

@@ -11,6 +11,7 @@
   --gender-n: #15803d;
   --gender-f: #b91c1c;
   --gender-none: #525252;
+  --plural: #eab308;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,6 +25,7 @@
     --gender-n: #86efac;
     --gender-f: #fca5a5;
     --gender-none: #a3a3a3;
+    --plural: #facc15;
   }
 }
 
@@ -122,4 +124,24 @@ body {
 .hl-f {
   background: color-mix(in srgb, var(--gender-f) calc(var(--highlight-alpha) * 100%), transparent);
   border-bottom: 4px double var(--gender-f);
+}
+
+/* Plurales (RF-41, RNF-09): fondo amarillo con opacidad ≤ 0.35 y borde superior sólido, para que
+   no dependa solo del color. Va después de .hl-*: si coinciden, gana el amarillo y el género
+   sigue visible en el borde inferior. */
+.pl-mark {
+  background: color-mix(in srgb, var(--plural) calc(var(--highlight-alpha) * 100%), transparent);
+  border-top: 3px solid var(--plural);
+  border-radius: 2px;
+}
+
+/* Etiqueta «plural» del panel: texto oscuro sobre amarillo sólido (≥ 4,5:1 en ambos temas). */
+.plural-badge {
+  display: inline-block;
+  padding: 0 0.4rem;
+  border-radius: 0.25rem;
+  background: var(--plural);
+  color: #171717;
+  font-size: 0.75rem;
+  font-weight: 600;
 }

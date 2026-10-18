@@ -175,3 +175,29 @@ describe("PageReader: zonas de toque lateral", () => {
     }
   });
 });
+
+describe("PageReader: interruptor de plurales (RF-41)", () => {
+  it("marca los plurales sin depender del interruptor de género y lo recuerda", async () => {
+    localStorage.clear();
+    loadPage = vi.fn((n: number) =>
+      Promise.resolve({
+        ...make(n),
+        tokens: [{ t: `Haeuser${n}`, b: [0.1, 0.1, 0.1, 0.02] as const, l: 1, f: "pl" }],
+        lex: { "1": { lemma: "Haus", pos: "noun", g: ["n" as const], senses: [] } },
+      }),
+    );
+    setup();
+    const word = await screen.findByRole("button", { name: "Haeuser1" });
+    const toggle = screen.getByRole("button", { name: "Marcar plurales" });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    expect(word).not.toHaveClass("pl-mark");
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(word).toHaveClass("pl-mark");
+    expect(word).not.toHaveClass("hl-n");
+    expect(localStorage.getItem("my-deutsch:plurals")).toBe("1");
+    fireEvent.click(toggle);
+    expect(word).not.toHaveClass("pl-mark");
+    localStorage.clear();
+  });
+});

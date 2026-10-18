@@ -221,3 +221,22 @@ describe("WordPanel (RF-21, RF-22)", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 });
+
+describe("WordPanel: plural y sin significados (RF-41, RF-21)", () => {
+  it("muestra la etiqueta «plural» solo para sustantivos en plural", () => {
+    const { container, unmount } = open(0);
+    expect(container.ownerDocument.querySelector(".plural-badge")).toHaveTextContent("plural");
+    unmount();
+    open(8);
+    expect(document.querySelector(".plural-badge")).toBeNull();
+  });
+
+  it("avisa cuando la entrada no tiene significados", () => {
+    const empty = {
+      ...page,
+      lex: { ...page.lex, "431": { ...page.lex["431"], senses: [] } },
+    };
+    render(<WordPanel page={empty} tokenIndex={8} pageNumber={1} onClose={() => {}} anchor={null} />);
+    expect(screen.getByRole("dialog")).toHaveTextContent("Todavía no hay significados");
+  });
+});
