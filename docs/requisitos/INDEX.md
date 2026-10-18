@@ -33,8 +33,8 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-10 | [Salir de un grupo](funcionales/RF-10-salir-de-un-grupo.md)                                                                    | M-2    | Media     | 4    | Pendiente   |
 | RF-11 | [Subir PDF escaneado a un grupo](funcionales/RF-11-subir-pdf-escaneado-a-un-grupo.md)                                          | M-3    | Alta      | 3    | En progreso |
 | RF-12 | [Procesar libro en segundo plano](funcionales/RF-12-procesar-libro-en-segundo-plano.md)                                        | M-4    | Alta      | 3    | En progreso |
-| RF-13 | [Ver estado del procesamiento](funcionales/RF-13-ver-estado-del-procesamiento.md)                                              | M-3    | Media     | 3    | Pendiente   |
-| RF-14 | [Ver biblioteca del grupo](funcionales/RF-14-ver-biblioteca-del-grupo.md)                                                      | M-3    | Alta      | 3    | Pendiente   |
+| RF-13 | [Ver estado del procesamiento](funcionales/RF-13-ver-estado-del-procesamiento.md)                                              | M-3    | Media     | 3    | En progreso |
+| RF-14 | [Ver biblioteca del grupo](funcionales/RF-14-ver-biblioteca-del-grupo.md)                                                      | M-3    | Alta      | 3    | En progreso |
 | RF-15 | [Quitar libro de un grupo](funcionales/RF-15-quitar-libro-de-un-grupo.md)                                                      | M-3    | Baja      | 4    | Pendiente   |
 | RF-16 | [Pasar páginas](funcionales/RF-16-pasar-paginas.md)                                                                            | M-5    | Alta      | 3    | En progreso |
 | RF-17 | [Texto seleccionable alineado al original](funcionales/RF-17-texto-seleccionable-alineado-al-original.md)                      | M-5    | Alta      | 3    | En progreso |
@@ -77,7 +77,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md)                                                               | M-T    | Media     | 5    | Pendiente   |
 | RNF-09 | [Accesibilidad y contraste de colores de género](no-funcionales/RNF-09-accesibilidad-y-contraste-de-colores-de-genero.md) | M-T    | Alta      | 3    | En progreso |
 | RNF-10 | [Concurrencia en el plan gratuito](no-funcionales/RNF-10-concurrencia-en-el-plan-gratuito.md)                             | M-T    | Media     | 5    | Pendiente   |
-| RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md)                                                         | M-3    | Media     | 3    | Pendiente   |
+| RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md)                                                         | M-3    | Media     | 3    | En progreso |
 | RNF-12 | [Calidad y pruebas](no-funcionales/RNF-12-calidad-y-pruebas.md)                                                           | M-T    | Media     | 3    | Pendiente   |
 | RNF-13 | [Portabilidad de datos y respaldo](no-funcionales/RNF-13-portabilidad-de-datos-y-respaldo.md)                             | M-T    | Baja      | 5    | Pendiente   |
 | RNF-14 | [Guardado fiable de anotaciones](no-funcionales/RNF-14-guardado-fiable-de-anotaciones.md)                                 | M-8    | Media     | 3    | Pendiente   |

@@ -37,3 +37,10 @@ Entrega 2c (2026-10-18, `POST /api/libros/finalizar`; pruebas Vitest con dobles,
 - Brecha conocida: si el disparo a GitHub falla, el libro queda `queued` (API: 502 `dispatch_failed` con `book_id`) hasta que 2d agregue «Reintentar».
 
 Criterios 2 (rechazo en el navegador antes de subir) y 5 (barra y reanudación): sin verificar (pantalla de subida, entrega 2d).
+
+Entrega 2d (2026-10-18, pantalla `UploadBook` + subida TUS; Vitest 353/353, typecheck y lint limpios; build de producción en una copia sin errores):
+
+- ✅ (pruebas) Criterio 2: título vacío o de más de 200 caracteres, archivo vacío, de más de 50 MB o sin cabecera `%PDF` se rechazan antes de subir, con mensaje que nombra el límite.
+- ✅ (pruebas) Criterio 4: «Espera a que termine tu libro actual» (HTTP 429 de la API o `busy` de `submit_book`); `busy` en la base garantizado por el índice único parcial de `jobs`.
+- ✅ (pruebas, con TUS simulado) Criterio 5: la subida usa `tus-js-client` 4.3.1 con trozos de 6 MiB, reintentos y reanudación (`findPreviousUploads`); el `objectName` se conserva en `localStorage` para reanudar sin crear una segunda solicitud; un 409 de creación cuenta como «ya subido».
+- Sin verificar: criterio 1 y la reanudación de verdad contra Supabase Storage (cortar la conexión en un iPhone real); flujo completo con sesión real (subir → En cola → Listo); el comportamiento real de TUS ante un `HEAD` tras completar y la caducidad de subidas parciales.
