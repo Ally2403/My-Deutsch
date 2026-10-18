@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { Button, Input, OutlineButton } from "@/components/ui";
 import {
   apiErrorMessage,
+  looksLikeSessionLoss,
   validatePdfFile,
   validateTitle,
 } from "@/lib/domain/upload";
@@ -136,6 +137,12 @@ export function UploadBook({ groupId }: { groupId: string }) {
       setError(apiErrorMessage("unexpected"));
       return;
     }
+    if (looksLikeSessionLoss(res)) {
+      // Sesión perdida (redirección a /login o HTML): no es éxito; se conserva todo para reanudar.
+      savePending(groupId, { ...pending, submissionId });
+      setError(apiErrorMessage("not_authenticated"));
+      return;
+    }
     if (res.ok) {
       clearPending(groupId);
       formRef.current?.reset();
@@ -158,6 +165,8 @@ export function UploadBook({ groupId }: { groupId: string }) {
       setProgress(0);
       router.refresh();
     }
+    // 409 not_pending: el libro ya existe (otra pestaña o intento anterior); se actualiza la lista.
+    if (res.status === 409 && code === "not_pending") router.refresh();
     setError(apiErrorMessage(code));
   }
 
@@ -246,7 +255,12 @@ export function UploadBook({ groupId }: { groupId: string }) {
   const busy = phase !== "idle";
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-3">
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      aria-busy={phase === "saving"}
+      className="flex flex-col gap-3"
+    >
       <label className="flex flex-col gap-1">
         Título
         <Input ref={titleRef} name="title" maxLength={200} disabled={busy} />
@@ -283,6 +297,11 @@ export function UploadBook({ groupId }: { groupId: string }) {
           </div>
           <span className="text-sm">{progress} %</span>
         </div>
+      )}
+      {phase === "saving" && (
+        <p role="status" className="text-sm">
+          Verificando tu archivo…
+        </p>
       )}
       {error && (
         <p role="alert" className="text-gender-f">

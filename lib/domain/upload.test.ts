@@ -3,6 +3,7 @@ import {
   MAX_TITLE_LENGTH,
   MAX_UPLOAD_BYTES,
   apiErrorMessage,
+  looksLikeSessionLoss,
   validatePdfFile,
   validateTitle,
 } from "./upload";
@@ -90,6 +91,38 @@ describe("apiErrorMessage", () => {
       if (c !== "unexpected") expect(m).not.toBe(fallback);
     }
     expect(apiErrorMessage("too_large")).toContain("50 MB");
+  });
+});
+
+describe("mensajes de sesión y de disparo fallido (RF-11)", () => {
+  it("sesión caducada", () => {
+    expect(apiErrorMessage("not_authenticated")).toBe(
+      "Tu sesión caducó. Vuelve a iniciar sesión",
+    );
+  });
+  it("dispatch_failed no promete «Reintentar» al instante (aparece a los 5 min)", () => {
+    expect(apiErrorMessage("dispatch_failed")).toBe(
+      "El libro quedó registrado, pero no pudo iniciar el procesamiento. En unos minutos podrás usar «Reintentar» en la biblioteca",
+    );
+  });
+  it("looksLikeSessionLoss: redirección o contenido que no es JSON", () => {
+    const h = (ct: string | null) => ({ get: () => ct });
+    expect(looksLikeSessionLoss({ ok: true, redirected: true })).toBe(true);
+    expect(
+      looksLikeSessionLoss({ ok: true, redirected: false, headers: h("text/html") }),
+    ).toBe(true);
+    expect(
+      looksLikeSessionLoss({
+        ok: true,
+        redirected: false,
+        headers: h("application/json"),
+      }),
+    ).toBe(false);
+    // Sin cabeceras (dobles de prueba) o respuestas de error: no es pérdida de sesión.
+    expect(looksLikeSessionLoss({ ok: true })).toBe(false);
+    expect(
+      looksLikeSessionLoss({ ok: false, headers: h("text/html") }),
+    ).toBe(false);
   });
 });
 

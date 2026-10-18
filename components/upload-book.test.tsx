@@ -96,7 +96,7 @@ beforeEach(() => {
     h.order.push("fetch");
     return new Response(
       JSON.stringify({ book_id: "b1", reused: false, status: "pending" }),
-      { status: 200 },
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   });
   vi.stubGlobal("fetch", fetchMock);
@@ -246,7 +246,88 @@ describe("UploadBook", () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
-  it("401 y 500 de finalizar son transitorios: conservan la clave", async () => {
+  it("401 de finalizar: sesión caducada, conserva la clave y el formulario", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "not_authenticated" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    render(<UploadBook groupId="g1" />);
+    fill("Mi título", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Tu sesión caducó. Vuelve a iniciar sesión",
+    );
+    expect(localStorage.getItem(KEY)).toContain("sub-1");
+    expect(screen.getByLabelText("Título")).toHaveValue("Mi título");
+    expect(h.refresh).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      "respuesta redirigida (a /login)",
+      () => {
+        const r = new Response("<html>login</html>", {
+          status: 200,
+          headers: { "Content-Type": "text/html" },
+        });
+        Object.defineProperty(r, "redirected", { value: true });
+        return r;
+      },
+    ],
+    [
+      "200 con HTML",
+      () =>
+        new Response("<html>login</html>", {
+          status: 200,
+          headers: { "Content-Type": "text/html" },
+        }),
+    ],
+  ])("%s no se toma como éxito: conserva clave y formulario", async (_n, make) => {
+    fetchMock.mockResolvedValueOnce(make());
+    render(<UploadBook groupId="g1" />);
+    fill("Mi título", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Tu sesión caducó. Vuelve a iniciar sesión",
+    );
+    expect(localStorage.getItem(KEY)).toContain("sub-1");
+    expect(screen.getByLabelText("Título")).toHaveValue("Mi título");
+    expect(h.refresh).not.toHaveBeenCalled();
+  });
+
+  it("mientras finalizar tarda muestra «Verificando tu archivo…» y aria-busy", async () => {
+    fetchMock.mockImplementationOnce(() => new Promise(() => undefined));
+    const { container } = render(<UploadBook groupId="g1" />);
+    expect(container.querySelector("form")).not.toHaveAttribute("aria-busy", "true");
+    fill("T", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    expect(await screen.findByText("Verificando tu archivo…")).toBeInTheDocument();
+    expect(container.querySelector("form")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByRole("button", { name: "Subir libro" })).toBeDisabled();
+  });
+
+  it("409 not_pending refresca la biblioteca (el libro ya existe)", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "not_pending" }), { status: 409 }),
+    );
+    render(<UploadBook groupId="g1" />);
+    fill("T", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    await screen.findByRole("alert");
+    expect(h.refresh).toHaveBeenCalled();
+  });
+
+  it("500 de finalizar es transitorio: conserva la clave", async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ error: "unexpected" }), { status: 500 }),
     );
