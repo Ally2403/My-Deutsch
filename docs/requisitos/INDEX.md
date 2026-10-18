@@ -63,7 +63,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-40 | [Página de inicio pública y política de privacidad](funcionales/RF-40-pagina-de-privacidad-y-de-inicio-publica.md)             | M-1    | Alta      | 3    | En progreso |
 | RF-41 | [Marcar plurales en amarillo](funcionales/RF-41-marcar-plurales-en-amarillo.md)                                                | M-5    | Media     | 3    | En progreso |
 
-## Requerimientos no funcionales (15)
+## Requerimientos no funcionales (17)
 
 | ID     | Título                                                                                                                    | Módulo | Prioridad | Fase | Estado      |
 | ------ | ------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---- | ----------- |
