@@ -17,6 +17,7 @@ describe("isPublicPath", () => {
 
   it("el ejemplo del lector (contenido sintético) es público, el resto del lector no", () => {
     expect(isPublicPath("/lector/demo")).toBe(true);
+    expect(isPublicPath("/lector/local")).toBe(true); // solo existe en desarrollo (404 en producción)
     expect(isPublicPath("/lector")).toBe(false);
     expect(isPublicPath("/lector/demoX")).toBe(false);
   });
