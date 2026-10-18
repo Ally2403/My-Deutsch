@@ -62,6 +62,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md)                                      | M-6    | Alta      | 2    | En progreso |
 | RF-40 | [Página de inicio pública y política de privacidad](funcionales/RF-40-pagina-de-privacidad-y-de-inicio-publica.md)             | M-1    | Alta      | 3    | En progreso |
 | RF-41 | [Marcar plurales en amarillo](funcionales/RF-41-marcar-plurales-en-amarillo.md)                                                | M-5    | Media     | 3    | En progreso |
+| RF-42 | [Diseño visual y experiencia móvil](funcionales/RF-42-diseno-visual-y-experiencia-movil.md) | M-1    | Alta      | 3    | Pendiente   |
 
 ## Requerimientos no funcionales (17)
 
