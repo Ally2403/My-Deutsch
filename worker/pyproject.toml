@@ -13,7 +13,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # Traducción automática en→es (pesada: arrastra torch). Solo para ejecutar el worker real.
-argos = ["argostranslate>=1.9"]
+argos = ["argostranslate>=1.9,<2"]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]

@@ -787,7 +787,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "argostranslate", marker = "extra == 'argos'", specifier = ">=1.9" },
+    { name = "argostranslate", marker = "extra == 'argos'", specifier = ">=1.9,<2" },
     { name = "de-core-news-md", url = "https://github.com/explosion/spacy-models/releases/download/de_core_news_md-3.8.0/de_core_news_md-3.8.0-py3-none-any.whl" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "pillow", specifier = ">=10.4" },

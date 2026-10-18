@@ -66,3 +66,25 @@ def test_a_failing_translator_drops_the_sense_without_breaking():
 @pytest.mark.slow
 def test_argos_translates_a_simple_word():
     assert "casa" in ArgosTranslator().translate("house").lower()
+
+
+def test_argos_fails_closed_when_the_model_is_not_installed(monkeypatch):
+    monkeypatch.setattr("lexicon.translate._load_translation", lambda: None)
+    with pytest.raises(RuntimeError, match="no está instalado"):
+        ArgosTranslator()
+
+
+def test_model_checksum_must_match_before_installing(tmp_path):
+    from lexicon.translate import verify_sha256
+
+    f = tmp_path / "modelo.argosmodel"
+    f.write_bytes(b"contenido")
+    good = "3ed0e87b36cb1b62d1ba4ee4af5d8b29ac1de0adc6e8c31f8bbb98e1ea1fc3a8"
+    import hashlib
+
+    real = hashlib.sha256(b"contenido").hexdigest()
+    verify_sha256(f, real)
+    with pytest.raises(ValueError, match="no coincide"):
+        verify_sha256(f, good)
+    with pytest.raises(ValueError, match="no coincide"):
+        verify_sha256(f, "")

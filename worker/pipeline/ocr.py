@@ -9,9 +9,17 @@ import numpy as np
 import pymupdf
 
 
+OCR_TIMEOUT_S = 180  # un PDF subido por un usuario no debe poder colgar el worker
+
+
 def tesseract(png: bytes, *args: str) -> str:
     cmd = ["tesseract", "stdin", "stdout", *args]
-    return subprocess.run(cmd, input=png, capture_output=True, check=True).stdout.decode()
+    try:
+        return subprocess.run(
+            cmd, input=png, capture_output=True, check=True, timeout=OCR_TIMEOUT_S
+        ).stdout.decode()
+    except subprocess.TimeoutExpired as exc:
+        raise TimeoutError(f"Tesseract excedió {OCR_TIMEOUT_S} s en una página") from exc
 
 
 def osd_rotation(png: bytes) -> int:
