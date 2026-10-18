@@ -30,6 +30,12 @@ class Lexicon:
         row = self._db.execute("SELECT 1 FROM entries WHERE lemma = ? LIMIT 1", (word,)).fetchone()
         return row is not None
 
+    def pos_of(self, lemma: str) -> list[str]:
+        rows = self._db.execute(
+            "SELECT pos FROM entries WHERE lemma = ? ORDER BY pos", (lemma,)
+        ).fetchall()
+        return [pos for (pos,) in rows]
+
     def entry(self, lemma: str, pos: str) -> Entry | None:
         row = self._db.execute(
             "SELECT genders, plural, glosses_en, glosses_es "
