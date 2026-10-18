@@ -104,7 +104,7 @@ describe("PageReader (RF-16)", () => {
   });
 
   it("muestra un error con reintento si la página no carga", async () => {
-    loadPage.mockRejectedValueOnce(new Error("red"));
+    loadPage.mockRejectedValueOnce(new Error(""));
     setup();
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "No se pudo cargar",
@@ -199,5 +199,36 @@ describe("PageReader: interruptor de plurales (RF-41)", () => {
     fireEvent.click(toggle);
     expect(word).not.toHaveClass("pl-mark");
     localStorage.clear();
+  });
+});
+
+describe("PageReader: errores y altura", () => {
+  it("muestra el mensaje del Error de loadPage y mantiene «Reintentar»", async () => {
+    loadPage.mockRejectedValue(new Error("Esta página aún se está procesando"));
+    const { container } = setup();
+    expect(
+      await screen.findByText(/Esta página aún se está procesando/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reintentar" })).toBeInTheDocument();
+    expect(container.querySelector("img")).toBeNull();
+  });
+
+  it("con un rechazo sin mensaje conserva el texto actual", async () => {
+    loadPage.mockRejectedValue("boom");
+    setup();
+    expect(
+      await screen.findByText(/No se pudo cargar la página\./),
+    ).toBeInTheDocument();
+  });
+
+  it("heightClassName reemplaza h-dvh; sin prop se conserva", () => {
+    const a = render(
+      <PageReader total={1} loadPage={loadPage} imageUrl={(n) => `/p/${n}.webp`} heightClassName="h-full" />,
+    );
+    expect(a.container.firstElementChild).toHaveClass("h-full");
+    expect(a.container.firstElementChild).not.toHaveClass("h-dvh");
+    a.unmount();
+    const b = setup(1);
+    expect(b.container.firstElementChild).toHaveClass("h-dvh");
   });
 });

@@ -76,8 +76,8 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <header className="mx-auto w-full max-w-md px-4 pt-4">
-        <p className="mb-2 text-sm">
+      <header className="mx-auto w-full max-w-md shrink-0 px-4 pt-2">
+        <p className="text-sm">
           <Link
             href={backHref(groupIds, mine)}
             className="inline-flex min-h-11 items-center underline"
@@ -85,9 +85,9 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
             ← Biblioteca
           </Link>
         </p>
-        <h1 className="text-2xl font-bold">{book.title}</h1>
+        <h1 className="truncate text-xl font-bold">{book.title}</h1>
         {showStatus && (
-          <div className="mt-3 mb-3">
+          <div className="my-2">
             <BookStatus
               bookId={book.id}
               initial={{
@@ -109,7 +109,9 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
         )}
       </header>
       {chooseView(total) === "reader" && (
-        <BookReader bookId={book.id} total={total} />
+        <div className="min-h-0 flex-1">
+          <BookReader bookId={book.id} total={total} />
+        </div>
       )}
     </>
   );
@@ -121,7 +123,7 @@ export default function LibroPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <main className="flex-1">
+    <main className="flex h-dvh min-h-0 flex-col">
       <Suspense fallback={<p className="p-4 text-muted">Cargando…</p>}>
         <Libro params={params} />
       </Suspense>

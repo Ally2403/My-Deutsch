@@ -21,5 +21,12 @@ export function createLoaders(bookId: string) {
 
 export function BookReader({ bookId, total }: { bookId: string; total: number }) {
   const { loadPage, imageUrl } = useMemo(() => createLoaders(bookId), [bookId]);
-  return <PageReader total={total} loadPage={loadPage} imageUrl={imageUrl} />;
+  return (
+    <PageReader
+      total={total}
+      loadPage={loadPage}
+      imageUrl={imageUrl}
+      heightClassName="h-full"
+    />
+  );
 }
