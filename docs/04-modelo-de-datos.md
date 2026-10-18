@@ -147,6 +147,8 @@ No se guarda en Postgres: se sirve desde Storage como archivo estático (rápido
 - `profiles`: cada usuario lee y edita la suya; los miembros de un grupo en común pueden leer `display_name` y `avatar_url`.
 - `groups`, `group_members`, `group_books`: lectura para miembros; escritura de administración solo para `role = 'admin'` (las funciones `join_group(code)` y `leave_group(id)` son `security definer` y aplican RN-08 y RN-09).
 - `books`, `pages`, `jobs`: lectura si existe una fila en `group_books` de un grupo del usuario; escritura solo con el service role (worker).
+- `book_submissions` (RF-11): solicitud de subida pendiente → verificada o rechazada. El usuario solo lee las suyas; las crea `submit_book(grupo, título, ruta)` (comprueba membresía, que la ruta sea `uploads/{uid}/…`, que el archivo exista y RN-10) y solo el service role las resuelve con `finalize_submission(id, sha256)`/`reject_submission(id, motivo)`: la huella la calcula el servidor, nunca el navegador (RN-02).
+- `join_attempts` (RNF-17): intentos fallidos de `join_group`; sin acceso para usuarios, solo la función. 10 fallos por hora bloquean; un código inexistente devuelve `null` (lanzar un error deshace el registro del intento).
 - `lexicon`: lectura para cualquier usuario autenticado; escritura solo con el service role.
 - `user_words`, `reading_progress`, `annotations`: `user_id = auth.uid()` para todas las operaciones (RN-04).
 - Storage `pages/`: lectura con la misma condición que `books`; `uploads/`: cada usuario escribe solo en `uploads/{auth.uid()}/`.

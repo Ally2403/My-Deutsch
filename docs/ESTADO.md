@@ -2,12 +2,15 @@
 
 **Hecho y fusionado en `main` (PR #1–#8):** ingreso con correo y Google, grupos, lector (panel, colores de género, plurales en amarillo RF-41), esquema BD con RLS, worker local (OCR → JSON v1 + WebP, reanudable, léxico SQLite de Wiktionary, traducción Argos con huella fijada). Sitio: https://my-deutsch.vercel.app (solo la app Next; `vercel.json` con un servicio).
 
-**Siguiente: entrega 2 del worker (RF-11, RF-13, RF-14).** La usuaria eligió **disparar el worker con un token de GitHub** (no revisar la cola cada 5 min). Orden propuesto:
-1. Seguridad primero (RN-02): `submit_book` deja el libro «pendiente»; el worker calcula el SHA-256 del archivo subido y solo entonces lo vincula al grupo. Añadir límite de intentos en `join_group` (requisito nuevo a proponer).
-2. Workflow `process-book.yml` (`repository_dispatch` con `book_id`), el worker lee el PDF de Storage y publica páginas, `pages`, `jobs` y estado del libro; mapear los ids de léxico locales (`lexicon.json`) a `lexicon.id` de Postgres.
-3. Ruta de API en Vercel que dispara el workflow. **La usuaria debe crear** un token fino de GitHub con permiso solo de Actions (escritura) sobre este repositorio y guardarlo como variable de servidor en Vercel; el worker usa la service role key como secreto de GitHub Actions. Claude nunca lee ni escribe esos valores.
-4. Pantalla de subida con progreso y reanudación (RF-11), estado «Procesando X/Y» (RF-13), biblioteca del grupo y ruta real `/libros/[id]` (RF-14).
-Antes de codificar: `brainstorming` → `writing-plans` → TDD (CLAUDE.md). Cada cambio cita su RF/RNF.
+**Entrega 2 (rama `feat/RF-11-subida-de-libros`, diseño en `docs/superpowers/specs/2026-10-18-subida-de-libros-design.md`, aprobado por la usuaria).** Se parte en 2a–2d; un plan por parte en `docs/superpowers/plans/`.
+- **2a HECHA (migraciones aplicadas al proyecto Supabase real `rgzguilhkilaizamvyuq`, pgTAP 8/8 + 21/21 + 22/22):** `submit_book(grupo, título, ruta)` solo crea una solicitud pendiente (`book_submissions`); `finalize_submission(id, sha256)` y `reject_submission(id, motivo)` son solo del service role y vinculan/crean el libro con la huella calculada por el servidor (RN-02); `join_group` limita los intentos fallidos (RNF-17; un código inexistente devuelve `null`, la app lo trata como «Código no válido»).
+- **2b SIGUIENTE (plan por escribir con `writing-plans`):** el worker publica imágenes WebP y JSON en el bucket `pages/<book_id>/`, crea `pages`, actualiza `jobs.pages_done`, mapea los ids de léxico locales a `lexicon.id` de Postgres, recalcula la huella y rechaza más de 400 páginas; workflow `process-book.yml` (`repository_dispatch` con `book_id`).
+- **2c:** ruta de API en Vercel: lee el PDF de Storage, calcula SHA-256, llama a `finalize_submission` (service role) y dispara el workflow con `GITHUB_DISPATCH_TOKEN` (ya guardado en Vercel).
+- **2d:** pantalla de subida reanudable con progreso (RF-11), estado «Procesando X/Y» (RF-13), biblioteca del grupo y `/libros/[id]` (RF-14).
+- **A cargo de la usuaria antes de 2b/2c:** guardar `SUPABASE_SERVICE_ROLE_KEY` en Vercel (variable de servidor) y `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` como secretos de GitHub Actions. Claude nunca lee ni escribe esos valores y mantiene `.env.example`.
+- Pruebas pgTAP: no hay Supabase CLI; se ejecutan con `execute_sql` del MCP de Supabase sobre el proyecto (terminan en `rollback`). Las pruebas de `rls.test.sql` asumen que no hay grupos ni libros reales.
+- Rama sin fusionar ni publicar: pendiente la revisión final y el PR.
+Cada cambio cita su RF/RNF. Flujo: `writing-plans` → TDD → verificación.
 
 **Cómo trabajar aquí:** worker en Docker (`./worker/run.sh uv run pytest`; con traducción `uv run --extra argos`; para reprocesar un libro desde cero, la opción force de `pipeline.run`); léxico en `worker/.local/lexicon.sqlite` (`python -m lexicon.build`, ~45 s); libro de prueba en `samples/Der Schatz-3-7.pdf` (no se versiona); ver páginas reales en `/lector/local` tras `node scripts/link-local-book.mjs`. Verificar producción desde una copia o puerto aparte, sin `pnpm build` mientras ella tiene `pnpm dev` (comparten `.next`; reiniciar `pnpm dev` si no ve estilos nuevos).
 

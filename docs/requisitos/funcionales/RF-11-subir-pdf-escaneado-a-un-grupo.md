@@ -7,7 +7,7 @@
 | **Módulo** | M-3 Biblioteca |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-07](RF-07-unirse-a-un-grupo.md) |
 | **Reglas de negocio** | RN-02, RN-10 |
 
@@ -23,3 +23,10 @@ Es la entrada de contenido de toda la aplicación.
 3. Si la huella ya existe (RN-02), el libro queda disponible al instante, sin reprocesarse.
 4. Si el usuario ya tiene un libro en procesamiento, se muestra "Espera a que termine tu libro actual".
 5. La subida muestra una barra de progreso y se puede reanudar si se corta la conexión en móvil.
+
+## Verificación
+Entrega 2a (2026-10-18, solo base de datos, pgTAP sobre el proyecto Supabase; `supabase/tests/book_submissions.test.sql`, 21/21):
+
+3. ✅ (parte de base de datos) Con la misma huella el libro se vincula al otro grupo sin crear un `job` nuevo; la huella la calcula el servidor (RN-02).
+4. ✅ (parte de base de datos) `submit_book` rechaza con `busy` si hay un libro en procesamiento o una solicitud pendiente reciente (15 min); se vuelve a comprobar al finalizar.
+1, 2 y 5: sin verificar (necesitan la ruta de API y la pantalla de subida, entregas 2c y 2d).

@@ -52,6 +52,57 @@ export type Database = {
         };
         Relationships: [];
       };
+      book_submissions: {
+        Row: {
+          book_id: string | null;
+          created_at: string;
+          error: string | null;
+          group_id: string;
+          id: string;
+          status: string;
+          title: string;
+          upload_path: string;
+          user_id: string;
+        };
+        Insert: {
+          book_id?: string | null;
+          created_at?: string;
+          error?: string | null;
+          group_id: string;
+          id?: string;
+          status?: string;
+          title: string;
+          upload_path: string;
+          user_id: string;
+        };
+        Update: {
+          book_id?: string | null;
+          created_at?: string;
+          error?: string | null;
+          group_id?: string;
+          id?: string;
+          status?: string;
+          title?: string;
+          upload_path?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "book_submissions_book_id_fkey";
+            columns: ["book_id"];
+            isOneToOne: false;
+            referencedRelation: "books";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "book_submissions_group_id_fkey";
+            columns: ["group_id"];
+            isOneToOne: false;
+            referencedRelation: "groups";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       books: {
         Row: {
           created_at: string;
@@ -178,6 +229,12 @@ export type Database = {
           invite_code?: string;
           name?: string;
         };
+        Relationships: [];
+      };
+      join_attempts: {
+        Row: { attempted_at: string; id: number; user_id: string };
+        Insert: { attempted_at?: string; id?: never; user_id: string };
+        Update: { attempted_at?: string; id?: never; user_id?: string };
         Relationships: [];
       };
       jobs: {
@@ -412,21 +469,27 @@ export type Database = {
     Functions: {
       can_read_book: { Args: { bid: string }; Returns: boolean };
       create_group: { Args: { p_name: string }; Returns: string };
+      finalize_submission: {
+        Args: { p_sha256: string; p_submission: string };
+        Returns: Json;
+      };
       is_group_admin: { Args: { gid: string }; Returns: boolean };
       is_group_member: { Args: { gid: string }; Returns: boolean };
       join_group: { Args: { p_code: string }; Returns: string };
       leave_group: { Args: { p_group: string }; Returns: undefined };
       regenerate_invite: { Args: { p_group: string }; Returns: string };
+      reject_submission: {
+        Args: { p_reason: string; p_submission: string };
+        Returns: undefined;
+      };
       shares_group_with: { Args: { uid: string }; Returns: boolean };
-      storage_book_readable: { Args: { object_name: string }; Returns: boolean };
+      storage_book_readable: {
+        Args: { object_name: string };
+        Returns: boolean;
+      };
       submit_book: {
-        Args: {
-          p_group: string;
-          p_sha256: string;
-          p_title: string;
-          p_upload_path: string;
-        };
-        Returns: Json;
+        Args: { p_group: string; p_title: string; p_upload_path: string };
+        Returns: string;
       };
     };
     Enums: {
