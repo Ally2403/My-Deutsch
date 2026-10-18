@@ -98,9 +98,9 @@ select is((select status from public.books), 'queued', 'el libro nace en cola');
 select is((select count(*)::int from public.jobs), 1, 'se crea un job');
 select is((select status from public.book_submissions where id = (select id from s1)), 'verified',
   'la solicitud queda verificada');
-select throws_ok(
-  format('select public.finalize_submission(%L, repeat(%L, 64))', (select id from s1), 'a'),
-  'P0001', 'not_pending', 'no se finaliza dos veces');
+select is(
+  public.finalize_submission((select id from s1), repeat('a', 64)) ->> 'rejected', 'not_pending',
+  'no se finaliza dos veces (idempotente, sin error)');
 
 -- B sube el mismo archivo a otro grupo: se reutiliza el libro, sin job nuevo.
 select pg_temp.act_as('bbbbbbbb-0000-0000-0000-000000000002');

@@ -482,6 +482,7 @@ export type Database = {
         Args: { p_reason: string; p_submission: string };
         Returns: undefined;
       };
+      request_retry: { Args: { p_book: string }; Returns: Json };
       shares_group_with: { Args: { uid: string }; Returns: boolean };
       storage_book_readable: {
         Args: { object_name: string };
