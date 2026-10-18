@@ -111,6 +111,7 @@ describe("POST /api/libros/finalizar", () => {
     ["too_large", 422],
     ["forbidden", 422],
     ["busy", 429],
+    ["not_pending", 409],
     ["unexpected", 500],
   ])("código %s → %i", async (code, status) => {
     h.finalizeSubmission.mockResolvedValue({ ok: false, code });

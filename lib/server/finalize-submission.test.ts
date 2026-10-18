@@ -172,9 +172,19 @@ describe("finalizeSubmission", () => {
     },
   );
 
+  it("el RPC responde not_pending: not_pending, sin borrar el objeto ni disparar", async () => {
+    const d = deps({
+      rpcFinalize: vi.fn().mockResolvedValue({ rejected: "not_pending" }),
+    });
+    const r = await finalizeSubmission(d, SUB);
+    expect(r).toEqual({ ok: false, code: "not_pending" });
+    expect(d.deleteUpload).not.toHaveBeenCalled();
+    expect(d.dispatch).not.toHaveBeenCalled();
+  });
+
   it("el RPC lanza: unexpected, sin disparar", async () => {
     const d = deps({
-      rpcFinalize: vi.fn().mockRejectedValue(new Error("not_pending")),
+      rpcFinalize: vi.fn().mockRejectedValue(new Error("db caída")),
     });
     const r = await finalizeSubmission(d, SUB);
     expect(r).toEqual({ ok: false, code: "unexpected" });

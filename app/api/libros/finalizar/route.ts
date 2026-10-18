@@ -16,6 +16,7 @@ const STATUS: Record<string, number> = {
   too_large: 422,
   forbidden: 422,
   busy: 429,
+  not_pending: 409,
   dispatch_failed: 502,
   unexpected: 500,
 };

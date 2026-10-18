@@ -25,6 +25,7 @@ export type FinalizeResult =
         | "too_large"
         | "busy"
         | "forbidden"
+        | "not_pending"
         | "dispatch_failed"
         | "unexpected";
       bookId?: string;
@@ -98,6 +99,8 @@ export async function finalizeSubmission(
     await tryDelete(deps, sub.upload_path);
     return { ok: false, code: r.rejected };
   }
+  // Otra petición ya la tomó y está usando el objeto: no se borra.
+  if (r.rejected === "not_pending") return { ok: false, code: "not_pending" };
   const bookId = r.book_id;
   if (
     typeof bookId !== "string" ||
