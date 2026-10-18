@@ -11,7 +11,7 @@ export class DispatchError extends Error {
   }
 }
 
-// ADR-002: dispara process-book.yml con repository_dispatch.
+// ADR-006: dispara process-book.yml con workflow_dispatch (token con permiso Actions: escritura).
 export async function dispatchProcessBook(
   bookId: string,
   opts: { token: string | undefined; repo?: string; fetchImpl?: typeof fetch },
@@ -23,7 +23,7 @@ export async function dispatchProcessBook(
   let status: number;
   try {
     const response = await doFetch(
-      `https://api.github.com/repos/${repo}/dispatches`,
+      `https://api.github.com/repos/${repo}/actions/workflows/process-book.yml/dispatches`,
       {
         method: "POST",
         headers: {
@@ -34,8 +34,8 @@ export async function dispatchProcessBook(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          event_type: "process-book",
-          client_payload: { book_id: bookId },
+          ref: "main",
+          inputs: { book_id: bookId },
         }),
         signal: AbortSignal.timeout(10_000),
       },
@@ -44,5 +44,9 @@ export async function dispatchProcessBook(
   } catch {
     throw new DispatchError();
   }
-  if (status !== 204) throw new DispatchError();
+  if (status !== 204) {
+    // Solo el estado HTTP, para diagnosticar permisos del token; nunca el token ni el cuerpo.
+    console.error("dispatch: GitHub respondió con estado", status);
+    throw new DispatchError();
+  }
 }

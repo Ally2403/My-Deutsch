@@ -1,5 +1,5 @@
-# RF-12 · ADR-002: procesa un libro subido y lo publica en Supabase.
-# Lo dispara la API de Vercel con repository_dispatch (client_payload.book_id) o a mano.
+# RF-12 · ADR-002 y ADR-006: procesa un libro subido y lo publica en Supabase.
+# Lo dispara la API de Vercel con workflow_dispatch (inputs.book_id) o a mano.
 # El repositorio es público: no se imprime texto de los libros ni se suben artefactos.
 name: process-book
 
