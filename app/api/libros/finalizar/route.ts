@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { finalizeSubmission, type FinalizeDeps } from "@/lib/server/finalize-submission";
+import { openUpload } from "@/lib/server/open-upload";
 import { dispatchProcessBook } from "@/lib/server/github-dispatch";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -25,11 +26,7 @@ const fail = (error: string, status: number, extra?: Record<string, string>) =>
 function adminDeps(): FinalizeDeps {
   const admin = createAdminClient();
   return {
-    async openUpload(path) {
-      const { data, error } = await admin.storage.from("uploads").download(path);
-      if (error || !data) return null;
-      return data.stream();
-    },
+    openUpload: (path) => openUpload(admin.storage.from("uploads"), path),
     async deleteUpload(path) {
       await admin.storage.from("uploads").remove([path]);
     },
