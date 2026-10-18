@@ -11,6 +11,7 @@ const h = vi.hoisted(() => ({
     abort: ReturnType<typeof vi.fn>;
   }>,
   previous: [] as unknown[],
+  rejectFind: false,
 }));
 
 vi.mock("tus-js-client", () => ({
@@ -18,7 +19,10 @@ vi.mock("tus-js-client", () => ({
     file: unknown;
     options: Record<string, unknown>;
     previous = h.previous;
-    findPreviousUploads = vi.fn(async () => this.previous);
+    findPreviousUploads = vi.fn(async () => {
+      if (h.rejectFind) throw new Error("x");
+      return this.previous;
+    });
     resumeFromPreviousUpload = vi.fn();
     start = vi.fn();
     abort = vi.fn(async () => undefined);
@@ -46,6 +50,7 @@ const base = () => ({
 beforeEach(() => {
   h.instances.length = 0;
   h.previous = [];
+  h.rejectFind = false;
 });
 
 describe("startResumableUpload", () => {
@@ -91,9 +96,24 @@ describe("startResumableUpload", () => {
   });
 
   it("si findPreviousUploads falla, inicia igual", async () => {
+    h.rejectFind = true;
     startResumableUpload(base()).start();
-    h.instances[0].findPreviousUploads.mockRejectedValueOnce(new Error("x"));
     await vi.waitFor(() => expect(h.instances[0].start).toHaveBeenCalled());
+    expect(h.instances[0].findPreviousUploads).toHaveBeenCalled();
+    expect(h.instances[0].resumeFromPreviousUpload).not.toHaveBeenCalled();
+  });
+
+  it("no reintenta el 409 de creación (el objeto ya existe)", () => {
+    startResumableUpload(base());
+    const o = h.instances[0].options as {
+      onShouldRetry(e: unknown, n: number, o: unknown): boolean;
+    };
+    const err = (status: number) => ({
+      originalResponse: { getStatus: () => status },
+    });
+    expect(o.onShouldRetry(err(409), 0, {})).toBe(false);
+    expect(o.onShouldRetry(err(500), 0, {})).toBe(true);
+    expect(o.onShouldRetry(new Error("red"), 0, {})).toBe(true);
   });
 
   it("reenvía progreso, éxito y error; abort llama a tus abort", async () => {

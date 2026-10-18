@@ -43,7 +43,7 @@ const API_MESSAGES: Record<string, string> = {
   forbidden: "No tienes permiso para hacer esto",
   busy: "Espera a que termine tu libro actual",
   dispatch_failed:
-    "No pudimos iniciar el procesamiento. Inténtalo de nuevo en unos minutos",
+    "El libro quedó registrado pero no pudo iniciar el procesamiento. Usa «Reintentar» en la biblioteca",
   not_retryable: "Este libro no se puede reintentar ahora",
   not_pending: "Esta solicitud ya fue procesada",
   not_authenticated: "Inicia sesión para continuar",

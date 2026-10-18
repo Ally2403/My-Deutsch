@@ -1,4 +1,5 @@
 import { Upload } from "tus-js-client";
+import { isObjectAlreadyExists } from "./tus-errors";
 
 /** RF-11: subida reanudable (TUS) a Supabase Storage. Sin React. */
 
@@ -32,6 +33,8 @@ export function startResumableUpload(args: {
       cacheControl: "3600",
     },
     chunkSize: CHUNK_SIZE,
+    // 409 = el objeto ya existe: reintentar solo haría esperar ~38 s en vano.
+    onShouldRetry: (err) => !isObjectAlreadyExists(err),
     onProgress: (sent, total) => args.onProgress(sent, total ?? args.file.size),
     onSuccess: () => args.onSuccess(),
     onError: (err) => args.onError(err),

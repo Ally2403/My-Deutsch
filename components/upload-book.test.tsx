@@ -212,23 +212,54 @@ describe("UploadBook", () => {
     expect(alert).toHaveTextContent("No se pudo completar");
   });
 
-  it("busy del API (409) muestra el texto exacto y limpia la clave", async () => {
+  it("busy del API (429) muestra el texto exacto, limpia la clave y permite subir de nuevo", async () => {
     fetchMock.mockResolvedValueOnce(
-      new Response(JSON.stringify({ error: "busy" }), { status: 409 }),
+      new Response(JSON.stringify({ error: "busy" }), { status: 429 }),
     );
     render(<UploadBook groupId="g1" />);
     fill("T", pdf());
     submit();
     await waitFor(() => expect(h.start).toHaveBeenCalled());
+    const first = h.startArgs!.objectName;
     await finishUpload();
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Espera a que termine tu libro actual",
     );
     expect(localStorage.getItem(KEY)).toBeNull();
     expect(h.refresh).not.toHaveBeenCalled();
+    h.startArgs = null;
+    submit();
+    await waitFor(() => expect(h.startArgs).not.toBeNull());
+    expect(h.startArgs!.objectName).not.toBe(first);
   });
 
-  it("502 dispatch_failed: mensaje, conserva la clave y refresca; el reintento no vuelve a registrar", async () => {
+  it("409 not_pending es definitivo: limpia la clave", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "not_pending" }), { status: 409 }),
+    );
+    render(<UploadBook groupId="g1" />);
+    fill("T", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    expect(await screen.findByRole("alert")).toHaveTextContent("ya fue procesada");
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
+  it("401 y 500 de finalizar son transitorios: conservan la clave", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "unexpected" }), { status: 500 }),
+    );
+    render(<UploadBook groupId="g1" />);
+    fill("T", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    await screen.findByRole("alert");
+    expect(localStorage.getItem(KEY)).toContain("sub-1");
+  });
+
+  it("502 dispatch_failed: limpia clave y formulario, refresca y no vuelve a llamar a finalizar", async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ error: "dispatch_failed" }), {
         status: 502,
@@ -240,16 +271,29 @@ describe("UploadBook", () => {
     await waitFor(() => expect(h.start).toHaveBeenCalled());
     await finishUpload();
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "No pudimos iniciar",
+      "Reintentar",
     );
     expect(h.refresh).toHaveBeenCalled();
-    expect(localStorage.getItem(KEY)).toContain("sub-1");
-    h.startArgs = null;
-    h.rpc.mockClear();
+    expect(localStorage.getItem(KEY)).toBeNull();
+    expect(screen.getByLabelText("Título")).toHaveValue("");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("409 de TUS (objeto ya existe) cuenta como subido y sigue a submit_book", async () => {
+    render(<UploadBook groupId="g1" />);
+    fill("T", pdf());
     submit();
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-    expect(h.rpc).not.toHaveBeenCalled();
-    expect(h.startArgs).toBeNull();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await act(async () => {
+      h.startArgs!.onError(
+        Object.assign(new Error("tus: unexpected response"), {
+          originalResponse: { getStatus: () => 409 },
+        }),
+      );
+    });
+    await waitFor(() => expect(h.refresh).toHaveBeenCalled());
+    expect(h.rpc).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("doble toque llama a submit_book una sola vez", async () => {

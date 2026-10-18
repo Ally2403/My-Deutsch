@@ -9,6 +9,7 @@ import {
   validateTitle,
 } from "@/lib/domain/upload";
 import { createClient } from "@/lib/supabase/client";
+import { isObjectAlreadyExists } from "@/lib/upload/tus-errors";
 import {
   startResumableUpload,
   type UploadHandle,
@@ -74,7 +75,9 @@ const RPC_DEFINITIVE = new Set([
   "invalid_title",
 ]);
 const RPC_KNOWN = new Set(["busy", ...RPC_DEFINITIVE]);
-const HTTP_DEFINITIVE = new Set([400, 404, 409, 422]);
+// Alineado con STATUS de app/api/libros/finalizar/route.ts: 401 y 500 son
+// transitorios; el resto cierra la solicitud en el servidor.
+const HTTP_DEFINITIVE = new Set([400, 404, 409, 422, 429, 502]);
 
 function rpcMessage(code: string): string {
   if (code === "invalid_title") return "El título no es válido";
@@ -149,7 +152,12 @@ export function UploadBook({ groupId }: { groupId: string }) {
     }
     if (HTTP_DEFINITIVE.has(res.status)) clearPending(groupId);
     else savePending(groupId, { ...pending, submissionId });
-    if (res.status === 502) router.refresh(); // el libro quedó registrado
+    if (res.status === 502) {
+      // El libro ya quedó registrado y en cola: se reintenta desde la biblioteca.
+      formRef.current?.reset();
+      setProgress(0);
+      router.refresh();
+    }
     setError(apiErrorMessage(code));
   }
 
@@ -211,11 +219,14 @@ export function UploadBook({ groupId }: { groupId: string }) {
         try {
           await uploadFile(file, pending.objectName, session.access_token);
         } catch (err) {
-          if (!(err instanceof Cancelled))
-            setError(
-              "No se pudo subir el archivo. Revisa tu conexión e inténtalo de nuevo",
-            );
-          return;
+          // 409: la subida anterior sí terminó en el servidor; se sigue a submit_book.
+          if (!isObjectAlreadyExists(err)) {
+            if (!(err instanceof Cancelled))
+              setError(
+                "No se pudo subir el archivo. Revisa tu conexión e inténtalo de nuevo",
+              );
+            return;
+          }
         } finally {
           handleRef.current = null;
         }
