@@ -5,7 +5,7 @@ léxico; (c) reglas de respaldo (zu-infinitivo, terminación de adjetivo, compue
 propia forma sin tipo. Resultado del spike: 97,4 % en 307 formas (docs/spike-fase-2.md).
 """
 
-from lexicon.store import Lexicon
+from lexicon.store import Entry, Lexicon
 
 POS = {  # spaCy (UD) → tipos del JSON compatibles, en orden de preferencia
     "NOUN": ["noun", "propn"],
@@ -57,14 +57,32 @@ def _from_table(text: str, wanted: list[str], spacy_lemma: str, lex: Lexicon):
     return None
 
 
-def _compound(text: str, lex: Lexicon) -> str | None:
-    """Kunstschätze → Kunst + Schätze → Kunstschatz (cabeza más larga conocida, ≥ 3 letras)."""
+def _compound_parts(text: str, lex: Lexicon) -> tuple[str, str] | None:
+    """Kunstschätze → («Kunst», «Schatz»): cabeza más larga conocida, de ≥ 3 letras."""
     for cut in range(1, len(text) - 2):
         head = text[cut:].capitalize()
         lemmas = {lemma for lemma, pos in lex.lookup_form(head) if pos == "noun"}
         if lemmas and text[:cut].isalpha():
-            return text[:cut] + _pick(lemmas, head, head).lower()
+            return text[:cut], _pick(lemmas, head, head)
     return None
+
+
+def _compound(text: str, lex: Lexicon) -> str | None:
+    parts = _compound_parts(text, lex)
+    return parts[0] + parts[1].lower() if parts else None
+
+
+def compound_entry(lemma: str, lex: Lexicon) -> Entry | None:
+    """Entrada de un sustantivo compuesto sin entrada propia: en alemán el género y el plural
+    son los de su última palabra (Kunst|schatz → der, Kunstschätze). Sin acepciones propias."""
+    if lex.is_lemma(lemma):
+        return None
+    parts = _compound_parts(lemma, lex)
+    head = lex.entry(parts[1], "noun") if parts else None
+    if parts is None or head is None:
+        return None
+    plural = parts[0] + head.plural[0].lower() + head.plural[1:] if head.plural else None
+    return Entry(lemma, "noun", list(head.genders), plural, [], [])
 
 
 def resolve(text: str, spacy_pos: str, spacy_lemma: str, lex: Lexicon) -> tuple[str, str | None]:

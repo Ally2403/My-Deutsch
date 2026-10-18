@@ -33,6 +33,12 @@ ENTRIES = [
     _e(
         "Haus", "noun", [("Häuser", ["plural"])], translations=[{"lang_code": "es", "word": "casa"}]
     ),
+    _e(
+        "Schatz",
+        "noun",
+        [("Schätze", ["plural"])],
+        senses=[{"glosses": ["treasure"], "tags": ["masculine"]}],
+    ),
     _e("Leute", "noun", senses=[{"glosses": ["people"], "tags": ["plural-only"]}]),
     _e("gehen", "verb", [("ging", ["past"])], senses=[{"glosses": [f"g{i}"]} for i in range(8)]),
 ]
@@ -247,3 +253,16 @@ def test_webp_size_rejects_absurd_geometry_before_resizing():
     with pytest.raises(ValueError, match="demasiado grande"):
         render_webp(np.zeros((MAX_INPUT_PIXELS // 1000 + 1, 1000), np.uint8))
     assert webp_size((2263, 1600)) == (1600, 2263)
+
+
+def test_compound_without_its_own_entry_is_colored_by_its_head(lex):
+    p = page([tok("Kunstschätze")], [Analyzed("Kunstschatz", "noun", "pl", None)], lex)
+    entry = p["lex"][str(p["tokens"][0]["l"])]
+    assert entry == {
+        "lemma": "Kunstschatz",
+        "pos": "noun",
+        "g": ["m"],
+        "pl": "Kunstschätze",
+        "senses": [],
+    }
+    validate_page(p)

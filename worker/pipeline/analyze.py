@@ -20,6 +20,8 @@ class Analyzed:
 
 def form_tag(morph: dict[str, str], pos: str, text: str, lemma: str) -> str | None:
     """Etiqueta de la forma del token respecto a su lema, o None si es la forma base."""
+    if pos == "noun" and morph.get("Number") == "Plur":
+        return "pl"  # también cuando coincide con el singular (die Lehrer) o es solo plural
     if text.lower() == lemma.lower():
         return None
     if pos == "verb":
@@ -29,8 +31,6 @@ def form_tag(morph: dict[str, str], pos: str, text: str, lemma: str) -> str | No
             return "pret"
         if morph.get("VerbForm") == "Fin" and morph.get("Tense") == "Pres":
             return "pres"
-    elif pos == "noun" and morph.get("Number") == "Plur":
-        return "pl"
     elif pos == "adj":
         if morph.get("Degree") == "Cmp":
             return "comp"

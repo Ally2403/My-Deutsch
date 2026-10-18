@@ -2,6 +2,7 @@
 
 from collections.abc import Iterable
 
+from lexicon.resolve import compound_entry
 from lexicon.store import Lexicon
 from lexicon.translate import MAX_SENSES, Translator, senses_for
 from pipeline.analyze import Analyzed
@@ -23,6 +24,8 @@ class LexRegistry:
         if key in self._ids:
             return self._ids[key]
         entry = lex.entry(lemma, pos)
+        if entry is None and pos == "noun":
+            entry = compound_entry(lemma, lex)  # género y plural de su última palabra
         if entry is None:
             return None
         data: dict = {"lemma": lemma, "pos": pos}
