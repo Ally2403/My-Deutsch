@@ -51,3 +51,19 @@ describe("useHighlightPref (RF-26 c3)", () => {
     expect(result.current[0]).toBe(false);
   });
 });
+
+describe("usePluralPref (RF-41 c5)", () => {
+  it("es independiente de la preferencia de colorear y persiste", async () => {
+    const { usePluralPref } = await import("./use-highlight-pref");
+    const plural = renderHook(() => usePluralPref());
+    const color = renderHook(() => useHighlightPref());
+    expect(plural.result.current[0]).toBe(false);
+    act(() => plural.result.current[1](true));
+    expect(localStorage.getItem("my-deutsch:plurals")).toBe("1");
+    expect(color.result.current[0]).toBe(false);
+    plural.unmount();
+    const again = renderHook(() => usePluralPref());
+    expect(again.result.current[0]).toBe(true);
+    act(() => again.result.current[1](false));
+  });
+});

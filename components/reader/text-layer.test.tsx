@@ -96,3 +96,20 @@ describe("TextLayer: resaltado de sustantivos (RF-26)", () => {
     expect(screen.getByRole("button", { name: "sind" })).not.toHaveClass("hl-n");
   });
 });
+
+describe("TextLayer: plurales (RF-41)", () => {
+  it("marca con pl-mark las palabras en plural, junto al género si está activo", () => {
+    render(
+      <TextLayer
+        page={page}
+        onWordClick={() => {}}
+        plurals={new Set([0])}
+        highlight={new Map([[0, "n"]])}
+      />,
+    );
+    const word = screen.getByRole("button", { name: "Häuser" });
+    expect(word).toHaveClass("pl-mark");
+    expect(word).toHaveClass("hl-n");
+    expect(screen.getByRole("button", { name: "sind" })).not.toHaveClass("pl-mark");
+  });
+});

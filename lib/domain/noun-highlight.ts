@@ -13,3 +13,13 @@ export function highlightFor(page: PageData): Map<number, Gender> {
   });
   return map;
 }
+
+/** Índices de los sustantivos en plural: los que cambian de forma, los iguales al singular y los de
+ *  solo plural (RF-41). El worker etiqueta `f: "pl"` solo en sustantivos. */
+export function pluralFor(page: PageData): Set<number> {
+  const set = new Set<number>();
+  page.tokens.forEach((t, i) => {
+    if (t.f === "pl") set.add(i);
+  });
+  return set;
+}

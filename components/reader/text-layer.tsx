@@ -11,6 +11,8 @@ type Props = {
   active?: ReadonlySet<number>;
   /** Género de los sustantivos a resaltar (RF-26); sin él no se colorea nada. */
   highlight?: ReadonlyMap<number, Gender>;
+  /** Sustantivos en plural a marcar en amarillo (RF-41). */
+  plurals?: ReadonlySet<number>;
 };
 
 const pct = (v: number) => `${+(v * 100).toFixed(3)}%`;
@@ -20,7 +22,7 @@ function boxStyle([x, y, w, h]: Box) {
 }
 
 /** Capa de texto transparente sobre la imagen: cada palabra ocupa su posición (RF-17). */
-export function TextLayer({ page, onWordClick, active, highlight }: Props) {
+export function TextLayer({ page, onWordClick, active, highlight, plurals }: Props) {
   const lineEnds = new Set(page.lines.map(([, last]) => last));
 
   return (
@@ -33,6 +35,7 @@ export function TextLayer({ page, onWordClick, active, highlight }: Props) {
           "reader-word",
           active?.has(i) && "reader-word-active",
           gender && `hl-${gender}`,
+          plurals?.has(i) && "pl-mark",
         ]
           .filter(Boolean)
           .join(" ");
