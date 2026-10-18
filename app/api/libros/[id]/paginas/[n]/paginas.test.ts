@@ -61,7 +61,7 @@ beforeEach(() => {
   h.download.mockImplementation(async () => ({ data: new Blob(["{\"ok\":1}"]), error: null }));
 });
 
-describe.each(routes)("GET /api/libros/[id]/paginas/[n]/%s", (_name, get, type, objectPath) => {
+describe.each(routes)("GET /api/libros/[id]/paginas/[n]/%s", (name, get, type, objectPath) => {
   it.each(["0", "401", "abc", "1.5", "01", "-1", "", "1e2", " 1", "999999999999"])(
     "n=%j inválido: 400 sin tocar la base",
     async (n) => {
@@ -111,7 +111,11 @@ describe.each(routes)("GET /api/libros/[id]/paginas/[n]/%s", (_name, get, type, 
     const r = await call(get, BOOK, "1");
     expect(r.status).toBe(200);
     expect(r.headers.get("content-type")).toBe(type);
-    expect(r.headers.get("cache-control")).toBe("private, max-age=3600");
+    // RNF-05: las imágenes (inmutables por página) se cachean 7 días; el JSON, 1 hora.
+    expect(r.headers.get("cache-control")).toBe(
+      name === "imagen" ? "private, max-age=604800" : "private, max-age=3600",
+    );
+    expect(r.headers.get("x-content-type-options")).toBe("nosniff");
     expect(await r.text()).toBe('{"ok":1}');
   });
 

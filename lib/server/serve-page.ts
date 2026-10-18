@@ -10,6 +10,13 @@ const fail = (error: string, status: number) => NextResponse.json({ error }, { s
 
 type PageKind = { column: "image_path" | "tokens_path"; contentType: string };
 
+// RNF-05: la imagen de una página no cambia, así que se cachea 7 días en el dispositivo
+// (ahorra egress de Storage); el JSON de tokens puede reprocesarse y se queda en 1 hora.
+const CACHE_CONTROL: Record<PageKind["column"], string> = {
+  image_path: "private, max-age=604800",
+  tokens_path: "private, max-age=3600",
+};
+
 // RF-14 · RN-03 · RNF-06: sirve un objeto de página con la sesión de la persona (RLS en la fila
 // de `pages` y en el objeto de Storage). La ruta sale siempre de la fila; nunca de la entrada.
 export async function servePage(
@@ -50,6 +57,10 @@ export async function servePage(
 
   return new Response(blob.stream(), {
     status: 200,
-    headers: { "Content-Type": kind.contentType, "Cache-Control": "private, max-age=3600" },
+    headers: {
+      "Content-Type": kind.contentType,
+      "Cache-Control": CACHE_CONTROL[kind.column],
+      "X-Content-Type-Options": "nosniff",
+    },
   });
 }
