@@ -90,6 +90,41 @@ describe("canRetry (RF-13)", () => {
   });
 });
 
+describe("canRetry con libro atascado en cola (RF-13)", () => {
+  const now = new Date("2026-10-18T12:00:00Z");
+  const queued = {
+    status: "queued",
+    uploadedBy: "u1",
+    userId: "u1",
+    isAdmin: false,
+    jobCreatedAt: "2026-10-18T11:50:00Z",
+    jobStartedAt: null,
+    now,
+  };
+  it("permite si lleva más de 5 minutos en cola sin empezar", () => {
+    expect(canRetry(queued)).toBe(true);
+    expect(canRetry({ ...queued, userId: "u2", isAdmin: true })).toBe(true);
+  });
+  it("niega si lleva menos de 5 minutos o justo 5", () => {
+    expect(canRetry({ ...queued, jobCreatedAt: "2026-10-18T11:57:00Z" })).toBe(
+      false,
+    );
+    expect(canRetry({ ...queued, jobCreatedAt: "2026-10-18T11:55:00Z" })).toBe(
+      false,
+    );
+  });
+  it("niega si el job ya empezó, no hay job o la fecha es inválida", () => {
+    expect(canRetry({ ...queued, jobStartedAt: "2026-10-18T11:51:00Z" })).toBe(
+      false,
+    );
+    expect(canRetry({ ...queued, jobCreatedAt: null })).toBe(false);
+    expect(canRetry({ ...queued, jobCreatedAt: "basura" })).toBe(false);
+  });
+  it("niega a terceros", () => {
+    expect(canRetry({ ...queued, userId: "u2" })).toBe(false);
+  });
+});
+
 describe("summarizeError", () => {
   it("traduce cada código del worker", () => {
     for (const c of [

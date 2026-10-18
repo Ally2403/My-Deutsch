@@ -1,11 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { BookCard } from "@/components/book-card";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
+import { UploadBook } from "@/components/upload-book";
+import { canRetry } from "@/lib/domain/book-status";
 import { createClient } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+type JobRow = {
+  book_id: string;
+  status: string;
+  pages_done: number;
+  error: string | null;
+  created_at: string;
+  started_at: string | null;
+};
 
 async function Grupo({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,6 +46,48 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
     );
   const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
 
+  // RF-13, RF-14: libros del grupo; RLS filtra lo visible (RN-03).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAdmin =
+    !!user &&
+    (members ?? []).some((m) => m.user_id === user.id && m.role === "admin");
+  const { data: links } = await supabase
+    .from("group_books")
+    .select("book_id, added_at")
+    .eq("group_id", id)
+    .order("added_at", { ascending: false });
+  const bookIds = (links ?? []).map((l) => l.book_id);
+  const [booksRes, jobsRes, coversRes] = bookIds.length
+    ? await Promise.all([
+        supabase
+          .from("books")
+          .select("id, title, status, page_count, uploaded_by")
+          .in("id", bookIds),
+        supabase
+          .from("jobs")
+          .select("book_id, status, pages_done, error, created_at, started_at")
+          .in("book_id", bookIds)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("pages")
+          .select("book_id")
+          .in("book_id", bookIds)
+          .eq("number", 1),
+      ])
+    : [null, null, null];
+  const booksById = new Map((booksRes?.data ?? []).map((b) => [b.id, b]));
+  // Más reciente primero: el primero de cada libro es su último job.
+  const lastJob = new Map<string, JobRow>();
+  for (const j of jobsRes?.data ?? [])
+    if (!lastJob.has(j.book_id)) lastJob.set(j.book_id, j);
+  const withPages = new Set((coversRes?.data ?? []).map((p) => p.book_id));
+  const books = bookIds.flatMap((bid) => {
+    const b = booksById.get(bid);
+    return b ? [b] : [];
+  });
+
   return (
     <>
       <h1 className="text-2xl font-bold">{group.name}</h1>
@@ -43,7 +97,45 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
       </div>
 
       <h2 className="mt-8 text-lg font-semibold">Libros</h2>
-      <p className="mt-2 text-muted">Aún no hay libros en este grupo.</p>
+      <div className="mt-3">
+        <UploadBook groupId={group.id} />
+      </div>
+      {books.length === 0 ? (
+        <p className="mt-4 text-muted">Aún no hay libros en este grupo.</p>
+      ) : (
+        <ul className="mt-4 flex flex-col gap-3">
+          {books.map((b) => {
+            const job = lastJob.get(b.id);
+            return (
+              <BookCard
+                key={b.id}
+                id={b.id}
+                title={b.title}
+                pageCount={b.page_count}
+                hasPublishedPages={withPages.has(b.id)}
+                canRetry={
+                  !!user &&
+                  canRetry({
+                    status: b.status,
+                    uploadedBy: b.uploaded_by,
+                    userId: user.id,
+                    isAdmin,
+                    jobCreatedAt: job?.created_at ?? null,
+                    jobStartedAt: job?.started_at ?? null,
+                  })
+                }
+                status={{
+                  bookStatus: b.status,
+                  jobStatus: job?.status ?? null,
+                  pagesDone: job?.pages_done ?? 0,
+                  pageCount: b.page_count,
+                  error: job?.error ?? null,
+                }}
+              />
+            );
+          })}
+        </ul>
+      )}
 
       <h2 className="mt-8 text-lg font-semibold">
         Miembros ({members?.length ?? 0})

@@ -44,7 +44,7 @@ const API_MESSAGES: Record<string, string> = {
   busy: "Espera a que termine tu libro actual",
   dispatch_failed:
     "El libro quedó registrado pero no pudo iniciar el procesamiento. Usa «Reintentar» en la biblioteca",
-  not_retryable: "Este libro no se puede reintentar ahora",
+  not_retryable: "Aún no se puede reintentar. Espera unos minutos e inténtalo de nuevo",
   not_pending: "Esta solicitud ya fue procesada",
   not_authenticated: "Inicia sesión para continuar",
   not_found: "No encontramos ese libro",

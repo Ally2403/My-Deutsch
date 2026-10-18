@@ -92,3 +92,11 @@ describe("apiErrorMessage", () => {
     expect(apiErrorMessage("too_large")).toContain("50 MB");
   });
 });
+
+describe("not_retryable (RF-13)", () => {
+  it("explica que hay que esperar", () => {
+    expect(apiErrorMessage("not_retryable")).toBe(
+      "Aún no se puede reintentar. Espera unos minutos e inténtalo de nuevo",
+    );
+  });
+});

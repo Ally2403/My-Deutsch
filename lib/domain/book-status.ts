@@ -47,14 +47,27 @@ export function describeStatus(i: BookStatusInput): Described {
   return { label: "En cola", tone: "pending", progress: null };
 }
 
+/** Igual que request_retry (SQL): un libro en cola sin empezar tras 5 min perdió su disparo. */
+export const STALE_QUEUE_MS = 5 * 60 * 1000;
+
 export function canRetry(i: {
   status: string;
   uploadedBy: string | null;
   userId: string;
   isAdmin: boolean;
+  jobCreatedAt?: string | null;
+  jobStartedAt?: string | null;
+  now?: Date;
 }): boolean {
-  if (i.status !== "error") return false;
-  return i.isAdmin || (i.uploadedBy !== null && i.uploadedBy === i.userId);
+  const allowed =
+    i.isAdmin || (i.uploadedBy !== null && i.uploadedBy === i.userId);
+  if (!allowed) return false;
+  if (i.status === "error") return true;
+  if (i.status !== "queued") return false;
+  if (!i.jobCreatedAt || i.jobStartedAt) return false;
+  const created = Date.parse(i.jobCreatedAt);
+  if (Number.isNaN(created)) return false;
+  return (i.now ?? new Date()).getTime() - created > STALE_QUEUE_MS;
 }
 
 const GENERIC_ERROR = "No se pudo procesar el libro. Inténtalo de nuevo";
