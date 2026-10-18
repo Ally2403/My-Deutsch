@@ -34,3 +34,10 @@ Entrega 1 (2026-10-17): worker ejecutado en local (Docker, imagen del spike) sob
 Medidas (10 páginas): 94,6 % de las palabras con letras obtienen entrada de léxico; entre las mayúsculas a mitad de oración, el resto son sobre todo nombres propios (correcto, RN-01) y 12 % no está en Wiktionary (nombres, compuestos o errores del OCR). Alineación caja/tinta: mediana 0,07 %, p95 0,20 %, máximo 4,7 % del ancho. Números impresos 4–13 inferidos correctamente.
 
 Pendiente: traducción automática con Argos (aprovisionar el modelo y fijar su SHA-256), publicación en Supabase y Actions (entrega 2).
+
+Entrega 2b (2026-10-18): `worker/publish/` + `.github/workflows/process-book.yml`. Probado con un cliente de Supabase simulado (`httpx.MockTransport`) y un PDF sintético; **no se ha ejecutado todavía en GitHub Actions ni contra la base real**.
+
+1. ✅ (simulado) Cada página se publica en `pages/<book_id>/<n>.webp|json` con ids de léxico de Postgres (`tests/test_publish_job.py`).
+2. ⚠ Parcial: el avance se publica por página (`jobs.pages_done`), pero un reintento reprocesa desde la primera hoja (el runner de Actions es nuevo en cada ejecución); las páginas se vuelven a subir sin duplicarse.
+3. ✅ (simulado) Al terminar: libro y trabajo en «ready», `page_count` y confianza media; el PDF subido se borra. Si falla, el libro queda en «error» con un código (`hash_mismatch`, `invalid_pdf`, `too_many_pages`, `empty_book`, `processing_failed`, `publish_failed`).
+4. ⚠ RNF-04 sin medir en Actions. RN-02 (huella recalculada) y RN-10 (≤ 400 páginas del PDF) probados en simulación.

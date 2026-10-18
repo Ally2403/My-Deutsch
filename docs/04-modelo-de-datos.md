@@ -57,6 +57,7 @@ erDiagram
     uuid book_id FK
     uuid requested_by FK
     int pages_done
+    int pages_total
     text status
     text error
     timestamptz started_at
@@ -68,8 +69,8 @@ erDiagram
     int printed_number "nullable, RF-38"
     int width
     int height
-    text image_path "pages/{book}/{n}.webp"
-    text tokens_path "pages/{book}/{n}.json"
+    text image_path "{book}/{n}.webp (relativa al bucket pages)"
+    text tokens_path "{book}/{n}.json (relativa al bucket pages)"
     real ocr_confidence
   }
   lexicon {
