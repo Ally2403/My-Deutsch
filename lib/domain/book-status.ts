@@ -61,6 +61,9 @@ export function resolvePageCount(
 /** Igual que request_retry (SQL): un libro en cola sin empezar tras 5 min perdió su disparo. */
 export const STALE_QUEUE_MS = 5 * 60 * 1000;
 
+/** Igual que request_retry (SQL): un job «processing» con más de 6 h perdió su runner (timeout del workflow: 300 min). */
+export const STALE_PROCESSING_MS = 6 * 60 * 60 * 1000;
+
 export function isOwnerOrAdmin(i: {
   uploadedBy: string | null;
   userId: string;
@@ -80,16 +83,23 @@ export function canRetry(i: {
 }): boolean {
   if (!isOwnerOrAdmin(i)) return false;
   if (i.status === "error") return true;
+  const nowMs = (i.now ?? new Date()).getTime();
+  if (i.status === "processing") {
+    if (!i.jobStartedAt) return false;
+    const started = Date.parse(i.jobStartedAt);
+    if (Number.isNaN(started)) return false;
+    return nowMs - started > STALE_PROCESSING_MS;
+  }
   if (i.status !== "queued") return false;
   if (!i.jobCreatedAt || i.jobStartedAt) return false;
   const created = Date.parse(i.jobCreatedAt);
   if (Number.isNaN(created)) return false;
-  return (i.now ?? new Date()).getTime() - created > STALE_QUEUE_MS;
+  return nowMs - created > STALE_QUEUE_MS;
 }
 
 const GENERIC_ERROR = "No se pudo procesar el libro. Inténtalo de nuevo";
 
-/** Códigos de worker/publish/job.py (JobError.code) y 'superseded' de la base. */
+/** Códigos de worker/publish/job.py (JobError.code) y 'superseded'/'stalled' de la base. */
 const ERROR_SUMMARIES: Record<string, string> = {
   invalid_pdf: "El PDF no se pudo leer o está dañado",
   empty_book: "El PDF no tiene páginas",
@@ -99,6 +109,7 @@ const ERROR_SUMMARIES: Record<string, string> = {
   publish_failed: "No se pudo guardar el libro procesado",
   processing_failed: "Falló el procesamiento del libro",
   superseded: "Se reemplazó por un nuevo intento",
+  stalled: "El procesamiento se interrumpió. Inténtalo de nuevo",
 };
 
 export function summarizeError(raw: string | null): string {

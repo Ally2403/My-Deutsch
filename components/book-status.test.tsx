@@ -425,6 +425,42 @@ describe("BookStatus (RF-13)", () => {
     });
   });
 
+  describe("procesamiento atascado sin recargar", () => {
+    it("aparece Reintentar al cumplirse 6 h tras un ciclo de sondeo", async () => {
+      vi.setSystemTime(new Date("2026-10-18T12:00:00Z"));
+      const started = "2026-10-18T06:00:05Z"; // faltan 5 s para las 6 h
+      h.book.mockResolvedValue({
+        data: { status: "processing", page_count: 200 },
+        error: null,
+      });
+      h.job.mockResolvedValue({
+        data: {
+          status: "processing",
+          pages_done: 12,
+          error: null,
+          created_at: started,
+          started_at: started,
+        },
+        error: null,
+      });
+      render(
+        <BookStatus
+          bookId="b1"
+          initial={processing}
+          canRetry={false}
+          ownerOrAdmin
+          jobCreatedAt={started}
+          jobStartedAt={started}
+        />,
+      );
+      expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
+      await tick(10_000);
+      expect(
+        screen.getByRole("button", { name: "Reintentar" }),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("cola atascada sin recargar", () => {
     const queuedInit: BookStatusInput = {
       bookStatus: "queued",

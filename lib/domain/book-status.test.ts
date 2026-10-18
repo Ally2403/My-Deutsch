@@ -131,6 +131,40 @@ describe("canRetry con libro atascado en cola (RF-13)", () => {
   });
 });
 
+describe("canRetry con libro atascado en procesamiento (RF-13)", () => {
+  const now = new Date("2026-10-18T12:00:00Z");
+  const processing = {
+    status: "processing",
+    uploadedBy: "u1",
+    userId: "u1",
+    isAdmin: false,
+    jobCreatedAt: "2026-10-18T05:00:00Z",
+    jobStartedAt: "2026-10-18T05:00:00Z", // hace 7 h
+    now,
+  };
+  it("permite si el job empezó hace más de 6 horas (el workflow vence a los 300 min)", () => {
+    expect(canRetry(processing)).toBe(true);
+    expect(canRetry({ ...processing, userId: "u2", isAdmin: true })).toBe(true);
+  });
+  it("niega con 6 horas justas o menos, sin inicio o con fecha inválida", () => {
+    expect(canRetry({ ...processing, jobStartedAt: "2026-10-18T06:00:00Z" })).toBe(false);
+    expect(canRetry({ ...processing, jobStartedAt: "2026-10-18T11:00:00Z" })).toBe(false);
+    expect(canRetry({ ...processing, jobStartedAt: null })).toBe(false);
+    expect(canRetry({ ...processing, jobStartedAt: "basura" })).toBe(false);
+  });
+  it("niega a terceros", () => {
+    expect(canRetry({ ...processing, userId: "u2" })).toBe(false);
+  });
+});
+
+describe("summarizeError stalled", () => {
+  it("frase corta en español para un trabajo interrumpido", () => {
+    expect(summarizeError("stalled")).toBe(
+      "El procesamiento se interrumpió. Inténtalo de nuevo",
+    );
+  });
+});
+
 describe("summarizeError", () => {
   it("traduce cada código del worker", () => {
     for (const c of [
