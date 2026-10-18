@@ -2,17 +2,17 @@
 
 from pipeline.geometry import Word
 
-MARGIN = 0.05  # franja exterior del ancho donde viven las pestañas laterales
+MARGIN = 0.03  # franja exterior del ancho donde viven las pestañas laterales
 MARGIN_MIN_CONF = 60.0
-MARGIN_MAX_LEN = 3
+# Un número o una letra de ejercicio también vive en el margen: se descarta por baja
+# confianza, nunca por ser corto (medido: el filtro por longitud quitaba 52 palabras válidas).
 
 
 def _is_noise(w: Word) -> bool:
     if not any(c.isalnum() for c in w.text):
         return True  # «.........», «=», «»»
     cx = w.box[0] + w.box[2] / 2
-    in_margin = cx < MARGIN or cx > 1 - MARGIN
-    return in_margin and (w.conf < MARGIN_MIN_CONF or len(w.text) <= MARGIN_MAX_LEN)
+    return (cx < MARGIN or cx > 1 - MARGIN) and w.conf < MARGIN_MIN_CONF
 
 
 def drop_noise(words: list[Word]) -> list[Word]:

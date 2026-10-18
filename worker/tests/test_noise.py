@@ -11,16 +11,22 @@ def test_removes_words_without_letters_or_digits():
     assert [x.text for x in kept] == ["Haus"]
 
 
-def test_removes_short_or_unsure_words_in_the_outer_margin():
+def test_removes_unsure_words_in_the_outer_margin():
     kept = drop_noise(
-        [w("ı8", 0.02, conf=40.0), w("53", 0.97, conf=90.0), w("Üb", 0.03, conf=70.0)]
+        [w("ı8", 0.02, conf=40.0), w("53", 0.985, conf=45.0), w("Üb", 0.01, conf=59.0)]
     )
     assert kept == []
 
 
-def test_keeps_confident_long_words_at_the_edge():
-    kept = drop_noise([w("Wohnung", 0.03, conf=90.0)])
-    assert [x.text for x in kept] == ["Wohnung"]
+def test_keeps_confident_short_words_at_the_edge_such_as_exercise_numbers():
+    kept = drop_noise(
+        [w("3", 0.02, conf=90.0), w("a)", 0.025, conf=85.0), w("Wohnung", 0.03, conf=90.0)]
+    )
+    assert [x.text for x in kept] == ["3", "a)", "Wohnung"]
+
+
+def test_only_the_outermost_strip_is_treated_as_margin():
+    assert [x.text for x in drop_noise([w("ı8", 0.05, conf=40.0)])] == ["ı8"]
 
 
 def test_keeps_exercise_numbers_and_short_words_in_the_body():
