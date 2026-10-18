@@ -1,0 +1,80 @@
+# RF-12 · ADR-002: procesa un libro subido y lo publica en Supabase.
+# Lo dispara la API de Vercel con repository_dispatch (client_payload.book_id) o a mano.
+# El repositorio es público: no se imprime texto de los libros ni se suben artefactos.
+name: process-book
+
+on:
+  repository_dispatch:
+    types: [process-book]
+  workflow_dispatch:
+    inputs:
+      book_id:
+        description: "UUID del libro (books.id)"
+        required: true
+
+# Un grupo por libro: un doble clic en «Reintentar» no lo procesa dos veces y los libros de
+# otras personas no se pierden en la cola.
+concurrency:
+  group: process-book-${{ github.event.client_payload.book_id || inputs.book_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    defaults:
+      run:
+        working-directory: worker
+    env:
+      BOOK_ID: ${{ github.event.client_payload.book_id || inputs.book_id }}
+    steps:
+      - name: Validar book_id
+        working-directory: .
+        run: |
+          if ! [[ "$BOOK_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
+            echo "book_id inválido"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Instalar Tesseract (alemán)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-deu
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Caché del léxico
+        id: lexicon-cache
+        uses: actions/cache@v4
+        with:
+          path: worker/.local/lexicon.sqlite
+          key: lexicon-${{ hashFiles('worker/lexicon/build.py') }}
+
+      - name: Construir el léxico (ADR-003)
+        if: steps.lexicon-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .local
+          curl -fL -o .local/de.jsonl.gz https://kaikki.org/dictionary/German/kaikki.org-dictionary-German.jsonl.gz
+          uv run python -m lexicon.build .local/de.jsonl.gz .local/lexicon.sqlite
+          rm .local/de.jsonl.gz
+
+      - name: Caché del modelo de traducción
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/argos-translate
+          key: argos-${{ hashFiles('worker/lexicon/translate.py') }}
+
+      - name: Instalar dependencias
+        run: uv sync --extra argos
+
+      - name: Instalar el modelo en→es (huella SHA-256 fijada)
+        run: uv run --extra argos python -m lexicon.translate provision
+
+      - name: Procesar y publicar
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: uv run --extra argos python -m publish --book-id "$BOOK_ID" --lexicon .local/lexicon.sqlite
