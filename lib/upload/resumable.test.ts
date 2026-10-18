@@ -14,7 +14,9 @@ const h = vi.hoisted(() => ({
   rejectFind: false,
 }));
 
-vi.mock("tus-js-client", () => ({
+vi.mock("tus-js-client", async (importActual) => ({
+  // Regla por omisión real de tus-js-client (4xx no se reintenta salvo 409/423, exige conexión).
+  defaultOptions: (await importActual<typeof import("tus-js-client")>()).defaultOptions,
   Upload: class {
     file: unknown;
     options: Record<string, unknown>;
@@ -103,17 +105,35 @@ describe("startResumableUpload", () => {
     expect(h.instances[0].resumeFromPreviousUpload).not.toHaveBeenCalled();
   });
 
-  it("no reintenta el 409 de creación (el objeto ya existe)", () => {
-    startResumableUpload(base());
-    const o = h.instances[0].options as {
-      onShouldRetry(e: unknown, n: number, o: unknown): boolean;
-    };
-    const err = (status: number) => ({
-      originalResponse: { getStatus: () => status },
+  describe("onShouldRetry", () => {
+    const err = (status?: number) => ({
+      originalResponse: status === undefined ? undefined : { getStatus: () => status },
     });
-    expect(o.onShouldRetry(err(409), 0, {})).toBe(false);
-    expect(o.onShouldRetry(err(500), 0, {})).toBe(true);
-    expect(o.onShouldRetry(new Error("red"), 0, {})).toBe(true);
+    const retry = (e: unknown) => {
+      startResumableUpload(base());
+      const o = h.instances.at(-1)!.options as {
+        onShouldRetry(e: unknown, n: number, o: unknown): boolean;
+      };
+      return o.onShouldRetry(e, 0, {});
+    };
+
+    it("no reintenta el 409 de creación (el objeto ya existe)", () => {
+      expect(retry(err(409))).toBe(false);
+    });
+    it.each([401, 403, 413])("no reintenta el 4xx %i", (status) => {
+      expect(retry(err(status))).toBe(false);
+    });
+    it.each([500, 423])("reintenta %i", (status) => {
+      expect(retry(err(status))).toBe(true);
+    });
+    it("reintenta un error de red sin respuesta estando en línea", () => {
+      expect(retry(err())).toBe(true);
+    });
+    it("no reintenta sin conexión", () => {
+      const spy = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+      expect(retry(err(500))).toBe(false);
+      spy.mockRestore();
+    });
   });
 
   it("reenvía progreso, éxito y error; abort llama a tus abort", async () => {
