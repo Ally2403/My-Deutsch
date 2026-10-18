@@ -1,10 +1,14 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookStatus } from "@/components/book-status";
 import { backHref, chooseView, isAdminInAny } from "@/lib/domain/book-reader";
-import { canRetry, isOwnerOrAdmin, resolvePageCount } from "@/lib/domain/book-status";
+import {
+  canRetry,
+  isOwnerOrAdmin,
+  resolvePageCount,
+} from "@/lib/domain/book-status";
 import { createClient } from "@/lib/supabase/server";
+import { BookHeader } from "./book-header";
 import { BookReader } from "./book-reader";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -76,16 +80,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <header className="mx-auto w-full max-w-md shrink-0 px-4 pt-2">
-        <p className="text-sm">
-          <Link
-            href={backHref(groupIds, mine)}
-            className="inline-flex min-h-11 items-center underline"
-          >
-            ← Biblioteca
-          </Link>
-        </p>
-        <h1 className="truncate text-xl font-bold">{book.title}</h1>
+      <BookHeader backHref={backHref(groupIds, mine)} title={book.title}>
         {showStatus && (
           <div className="my-2">
             <BookStatus
@@ -107,7 +102,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
         {chooseView(total) === "empty" && (
           <p className="text-muted">Aún no hay páginas listas.</p>
         )}
-      </header>
+      </BookHeader>
       {chooseView(total) === "reader" && (
         <div className="min-h-0 flex-1">
           <BookReader bookId={book.id} total={total} />
