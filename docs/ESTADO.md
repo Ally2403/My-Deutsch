@@ -10,7 +10,9 @@
 
 **Cómo trabajar aquí:** pruebas pgTAP con `execute_sql` del MCP de Supabase (terminan en rollback; no hay Supabase CLI); no correr `pnpm build` con `pnpm dev` abierto (copiar el proyecto a una carpeta temporal e instalar con `pnpm install --offline`; ojo: no excluir `lib/supabase` al copiar); worker en Docker (`./worker/run.sh uv run pytest`). Cada cambio cita su RF/RNF; sin atribución a Claude en commits ni PR.
 
-Detalle de la entrega 2 (2a–2d, rulings y diferidos) en las secciones siguientes.
+**Humo manual de la entrega 2 (usuaria), con `samples/Der Schatz-3-7.pdf`:** (1) subir a un grupo → «En cola» → «Procesando X/Y» → «Listo» → abrir en `/libros/[id]`; (2) subir el mismo PDF a otro grupo → disponible al instante; (3) cortar la conexión a mitad de subida y reanudar; (4) subir un archivo que no es PDF → rechazo con mensaje; (5) con un segundo usuario que no es del grupo, abrir `/libros/[id]` → 404; (6) como miembro que no subió el libro, un libro en «Error» no muestra «Reintentar».
+
+Detalle histórico de las tareas 2a–2d, rulings y revisiones: planes en `docs/superpowers/plans/` y `docs/superpowers/specs/2026-10-18-subida-de-libros-design.md`; el texto largo anterior de este archivo está en el historial de git.
 
 ---
 
