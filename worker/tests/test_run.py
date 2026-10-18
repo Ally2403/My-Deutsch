@@ -205,3 +205,12 @@ def test_the_whole_book_has_a_time_budget(pdf, lex, tmp_path, monkeypatch):
             budget_s=-1,
         )
     assert engine.calls == 0
+
+
+def test_cli_logging_keeps_pipeline_progress_but_silences_third_party_noise():
+    from pipeline.run import configure_logging
+
+    configure_logging()
+    assert logging.getLogger("pipeline").getEffectiveLevel() == logging.INFO
+    assert logging.getLogger("argostranslate").getEffectiveLevel() >= logging.WARNING
+    assert logging.getLogger().getEffectiveLevel() >= logging.WARNING

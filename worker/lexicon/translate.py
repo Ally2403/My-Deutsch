@@ -11,6 +11,9 @@ from typing import Protocol
 from lexicon.store import Entry
 
 MAX_SENSES = 5
+# Huella del paquete Argos en→es (obtenida el 2026-10-17 con `provision --print-hash`). Si Argos
+# publica un modelo nuevo, la instalación falla cerrada hasta revisar y actualizar esta huella.
+ARGOS_MODEL_SHA256 = "d698d0ef87ad70d5d184b7fa6965905bf4368f09a2bb9ffb165a79bac96af0c4"
 log = logging.getLogger(__name__)
 
 
@@ -103,10 +106,18 @@ def senses_for(entry: Entry, translator: Translator) -> list[dict]:
     return senses
 
 
+def expected_sha256(args: list[str]) -> str | None:
+    """Huella esperada: la fijada en el repositorio, `--sha256 X` para otra, o None con
+    `--print-hash` (solo descarga y muestra la huella, sin instalar)."""
+    if "--print-hash" in args:
+        return None
+    return args[args.index("--sha256") + 1] if "--sha256" in args else ARGOS_MODEL_SHA256
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
     if args[:1] != ["provision"]:
-        sys.exit("Uso: python -m lexicon.translate provision [--sha256 HUELLA]")
-    sha = args[args.index("--sha256") + 1] if "--sha256" in args else None
+        sys.exit("Uso: python -m lexicon.translate provision [--sha256 HUELLA | --print-hash]")
+    sha = expected_sha256(args[1:])
     digest = provision_model(sha)
     print(f"SHA-256 del modelo: {digest}" + (" (instalado)" if sha else " (sin instalar)"))

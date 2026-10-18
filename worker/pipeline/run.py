@@ -174,6 +174,12 @@ def _process_page(page, n, pages, engine, lex, nlp, translator, registry) -> int
     return len(tokens)
 
 
+def configure_logging() -> None:
+    """Solo el avance del worker (INFO); las bibliotecas de terceros (Argos, stanza) en WARNING."""
+    logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(message)s")
+    logging.getLogger("pipeline").setLevel(logging.INFO)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("pdf", type=Path)
@@ -185,7 +191,7 @@ def main() -> None:
 
     import spacy
 
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+    configure_logging()
     translator = NullTranslator() if args.no_translate else ArgosTranslator()
     summary = process_pdf(
         args.pdf,

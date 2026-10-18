@@ -45,7 +45,7 @@ PAGE_2 = [
     [dict(t="Er"), dict(t="ruft", l=112, k="a"), dict(t="sie"), dict(t="morgen"), dict(t="an.", l=112, pair="a")],
     [dict(t="Gestern"), dict(t="ging", l=107, f="pret"), dict(t="er"), dict(t="nach"), dict(t="Hause.")],
     [dict(t="Das"), dict(t="Teil", l=108), dict(t="kostet"), dict(t="wenig.")],
-    [dict(t="Die"), dict(t="Leute", l=109), dict(t="warten", l=111), dict(t="Normaler-", hy="first", t_full="Normalerweise", l=110)],
+    [dict(t="Die"), dict(t="Leute", l=109, f="pl"), dict(t="warten", l=111), dict(t="Normaler-", hy="first", t_full="Normalerweise", l=110)],
     [dict(t="weise", hy="second"), dict(t="nicht"), dict(t="lange.")],
 ]
 PAGES = {1: PAGE_1, 2: PAGE_2, 3: []}
