@@ -163,3 +163,19 @@ def test_provisioning_without_expected_checksum_only_reports_it(fake_argos):
     pkg, _ = fake_argos
     assert len(provision_model(None)) == 64
     assert pkg.installed == []
+
+
+def test_the_model_checksum_is_pinned_in_the_repository():
+    import re
+
+    from lexicon.translate import ARGOS_MODEL_SHA256
+
+    assert re.fullmatch(r"[0-9a-f]{64}", ARGOS_MODEL_SHA256)
+
+
+def test_provision_cli_defaults_to_the_pinned_checksum():
+    from lexicon.translate import ARGOS_MODEL_SHA256, expected_sha256
+
+    assert expected_sha256([]) == ARGOS_MODEL_SHA256
+    assert expected_sha256(["--sha256", "ab" * 32]) == "ab" * 32
+    assert expected_sha256(["--print-hash"]) is None
