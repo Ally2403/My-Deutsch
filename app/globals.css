@@ -132,6 +132,9 @@ body {
 .pl-mark {
   background: color-mix(in srgb, var(--plural) calc(var(--highlight-alpha) * 100%), transparent);
   border-top: 3px solid var(--plural);
+  /* El amarillo sustituye al subrayado de género: un plural se ve amarillo del todo. El género
+     sigue en el artículo escrito del panel. */
+  border-bottom: 3px solid var(--plural);
   border-radius: 2px;
 }
 

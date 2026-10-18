@@ -97,3 +97,11 @@ def test_numbers_get_no_lemma_and_empty_input_is_fine(nlp, lex):
     out = analyze(tokens("Übung", "3"), nlp, lex)
     assert (out[1].lemma, out[1].pos, out[1].sep) == (None, None, None)
     assert analyze([], nlp, lex) == []
+
+
+def test_form_tag_uses_the_wiktionary_plural_when_spacy_misses_the_number():
+    assert form_tag({}, "noun", "Frauen", "Frau", plural="Frauen") == "pl"
+    assert form_tag({"Number": "Sing"}, "noun", "Frauen", "Frau", plural="Frauen") == "pl"
+    assert form_tag({}, "noun", "Frau", "Frau", plural="Frauen") is None
+    assert form_tag({}, "noun", "Hauses", "Haus", plural="Häuser") is None
+    assert form_tag({}, "verb", "Frauen", "frauen", plural="Frauen") is None

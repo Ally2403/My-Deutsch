@@ -1,3 +1,20 @@
+# Retomar aquí (2026-10-18)
+
+**Hecho y fusionado en `main` (PR #1–#8):** ingreso con correo y Google, grupos, lector (panel, colores de género, plurales en amarillo RF-41), esquema BD con RLS, worker local (OCR → JSON v1 + WebP, reanudable, léxico SQLite de Wiktionary, traducción Argos con huella fijada). Sitio: https://my-deutsch.vercel.app (solo la app Next; `vercel.json` con un servicio).
+
+**Siguiente: entrega 2 del worker (RF-11, RF-13, RF-14).** La usuaria eligió **disparar el worker con un token de GitHub** (no revisar la cola cada 5 min). Orden propuesto:
+1. Seguridad primero (RN-02): `submit_book` deja el libro «pendiente»; el worker calcula el SHA-256 del archivo subido y solo entonces lo vincula al grupo. Añadir límite de intentos en `join_group` (requisito nuevo a proponer).
+2. Workflow `process-book.yml` (`repository_dispatch` con `book_id`), el worker lee el PDF de Storage y publica páginas, `pages`, `jobs` y estado del libro; mapear los ids de léxico locales (`lexicon.json`) a `lexicon.id` de Postgres.
+3. Ruta de API en Vercel que dispara el workflow. **La usuaria debe crear** un token fino de GitHub con permiso solo de Actions (escritura) sobre este repositorio y guardarlo como variable de servidor en Vercel; el worker usa la service role key como secreto de GitHub Actions. Claude nunca lee ni escribe esos valores.
+4. Pantalla de subida con progreso y reanudación (RF-11), estado «Procesando X/Y» (RF-13), biblioteca del grupo y ruta real `/libros/[id]` (RF-14).
+Antes de codificar: `brainstorming` → `writing-plans` → TDD (CLAUDE.md). Cada cambio cita su RF/RNF.
+
+**Cómo trabajar aquí:** worker en Docker (`./worker/run.sh uv run pytest`; con traducción `uv run --extra argos`; para reprocesar un libro desde cero, la opción force de `pipeline.run`); léxico en `worker/.local/lexicon.sqlite` (`python -m lexicon.build`, ~45 s); libro de prueba en `samples/Der Schatz-3-7.pdf` (no se versiona); ver páginas reales en `/lector/local` tras `node scripts/link-local-book.mjs`. Verificar producción desde una copia o puerto aparte, sin `pnpm build` mientras ella tiene `pnpm dev` (comparten `.next`; reiniciar `pnpm dev` si no ve estilos nuevos).
+
+**Sin verificar todavía:** gesto de deslizar y borde de iOS en un iPhone real; pintado del resaltado en iOS; calidad de las traducciones automáticas con una persona; RNF-04 en GitHub Actions; alineación de unas pocas palabras (máx. 4,7 % del ancho); tiempo de activación del interruptor de plurales.
+
+---
+
 **Fase actual:** 2 · Spike técnico — **terminado** (rama `feat/RNF-03-spike-ocr`, resultados en `docs/spike-fase-2.md`).
 **Hecho:** requisitos de la Fase 1 aprobados (2026-10-17) + RF-38 y RF-39. Spike: RNF-03 98,5 % / 99,0 % umlauts, RF-38 10/10 páginas, RF-39 96,7 %, RF-23 97,4 %. ADR-005 aceptada. Repositorio público (nota en ADR-002).
 **Siguiente paso:** Fase 3 (MVP vertical). Hecho: contratos de BD, ingreso, grupos y el lector sobre un ejemplo sintético (ver «Lector»). Siguiente: subir libros y worker (RF-11, RF-12), biblioteca del grupo (RF-14) y conectar el lector a libros reales (`/libros/[id]`); diccionario personal (conectar `recordLookup` a `user_words`, RN-05).

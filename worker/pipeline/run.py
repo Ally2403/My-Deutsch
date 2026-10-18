@@ -9,6 +9,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -174,6 +175,14 @@ def _process_page(page, n, pages, engine, lex, nlp, translator, registry) -> int
     return len(tokens)
 
 
+def reset_output(out: Path) -> None:
+    """Borra solo lo que genera el worker (páginas, manifiesto, avance, ids de léxico) para
+    reprocesar un libro desde cero; cualquier otro archivo de la carpeta se respeta."""
+    shutil.rmtree(out / "pages", ignore_errors=True)
+    for name in ("manifest.json", "progress.json", "lexicon.json"):
+        (out / name).unlink(missing_ok=True)
+
+
 def configure_logging() -> None:
     """Solo el avance del worker (INFO); las bibliotecas de terceros (Argos, stanza) en WARNING."""
     logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(message)s")
@@ -187,11 +196,16 @@ def main() -> None:
     ap.add_argument("--lexicon", type=Path, required=True)
     ap.add_argument("--dpi", type=int, default=DPI)
     ap.add_argument("--no-translate", action="store_true", help="sin traducción automática")
+    ap.add_argument(
+        "--force", action="store_true", help="reprocesar desde cero (ignora lo ya hecho)"
+    )
     args = ap.parse_args()
 
     import spacy
 
     configure_logging()
+    if args.force:
+        reset_output(args.out)
     translator = NullTranslator() if args.no_translate else ArgosTranslator()
     summary = process_pdf(
         args.pdf,
