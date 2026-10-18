@@ -78,6 +78,17 @@ describe("POST /api/libros/finalizar", () => {
     expect(h.createAdminClient).not.toHaveBeenCalled();
   });
 
+  it.each(["u2/otro.pdf", "u1/../u2/otro.pdf", "u1/sub/otro.pdf", "u1/", "u1x/a.pdf"])(
+    "ruta de subida que no es del usuario (%s): 404 sin cliente admin",
+    async (path) => {
+      h.submission = { id: SUB, upload_path: path, status: "pending" };
+      const r = await call({ submission_id: SUB });
+      expect(r.status).toBe(404);
+      expect(h.finalizeSubmission).not.toHaveBeenCalled();
+      expect(h.createAdminClient).not.toHaveBeenCalled();
+    },
+  );
+
   it("solicitud ya procesada: 409", async () => {
     h.submission = { id: SUB, upload_path: "u1/a.pdf", status: "verified" };
     const r = await call({ submission_id: SUB });

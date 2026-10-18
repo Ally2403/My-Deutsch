@@ -80,6 +80,18 @@ export async function POST(request: NextRequest) {
   if (!sub) return fail("not_found", 404);
   if (sub.status !== "pending") return fail("not_pending", 409);
 
+  // Defensa en profundidad: la service role solo toca `<uid>/<archivo>` de esta persona.
+  const prefix = `${data.user.id}/`;
+  const name = sub.upload_path.slice(prefix.length);
+  if (
+    !sub.upload_path.startsWith(prefix) ||
+    name === "" ||
+    name.includes("/") ||
+    name.includes("..")
+  ) {
+    return fail("not_found", 404);
+  }
+
   try {
     const result = await finalizeSubmission(adminDeps(), { id: sub.id, upload_path: sub.upload_path });
     if (result.ok) {
