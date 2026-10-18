@@ -7,13 +7,13 @@ const TOKEN = "ghp_secreto_de_prueba";
 const res = (status: number) => new Response(null, { status });
 
 describe("dispatchProcessBook", () => {
-  it("envía repository_dispatch con el book_id", async () => {
+  it("dispara workflow_dispatch de process-book.yml con el book_id", async () => {
     const f = vi.fn().mockResolvedValue(res(204));
     await dispatchProcessBook(ID, { token: TOKEN, fetchImpl: f });
     expect(f).toHaveBeenCalledTimes(1);
     const [url, init] = f.mock.calls[0];
     expect(url).toBe(
-      "https://api.github.com/repos/Ally2403/My-Deutsch/dispatches",
+      "https://api.github.com/repos/Ally2403/My-Deutsch/actions/workflows/process-book.yml/dispatches",
     );
     expect(init.method).toBe("POST");
     expect(init.headers).toMatchObject({
@@ -23,8 +23,8 @@ describe("dispatchProcessBook", () => {
       "User-Agent": "my-deutsch",
     });
     expect(JSON.parse(init.body)).toEqual({
-      event_type: "process-book",
-      client_payload: { book_id: ID },
+      ref: "main",
+      inputs: { book_id: ID },
     });
   });
 
@@ -36,8 +36,20 @@ describe("dispatchProcessBook", () => {
       fetchImpl: f,
     });
     expect(f.mock.calls[0][0]).toBe(
-      "https://api.github.com/repos/otra/cosa/dispatches",
+      "https://api.github.com/repos/otra/cosa/actions/workflows/process-book.yml/dispatches",
     );
+  });
+
+  it("registra solo el estado HTTP cuando GitHub rechaza (sin token)", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = vi.fn().mockResolvedValue(res(403));
+    await expect(
+      dispatchProcessBook(ID, { token: TOKEN, fetchImpl: f }),
+    ).rejects.toBeInstanceOf(DispatchError);
+    const logged = JSON.stringify(spy.mock.calls);
+    expect(logged).toContain("403");
+    expect(logged).not.toContain(TOKEN);
+    spy.mockRestore();
   });
 
   it.each([404, 422, 500])("estado %i → DispatchError", async (status) => {

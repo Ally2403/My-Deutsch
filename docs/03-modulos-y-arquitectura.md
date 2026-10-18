@@ -26,7 +26,7 @@ flowchart LR
   UI -- imágenes y tokens firmados --> ST
   UI <--> IDB
   API --> DB
-  API -- repository_dispatch --> W
+  API -- workflow_dispatch --> W
   W --> ST
   W --> DB
   W --- LX
@@ -41,7 +41,7 @@ flowchart LR
 | Componente | Responsabilidad | Se relaciona con |
 |---|---|---|
 | **Frontend web (PWA)** | Pantallas responsive: ingreso, grupos, biblioteca, lector, panel de palabra, diccionario personal, ejercicios. Cola offline de consultas y anotaciones. | Con la **API**, para las acciones con reglas (crear grupo, unirse, subir libro); con **Supabase Auth**, para la sesión; con **Postgres** (lectura directa protegida por RLS) para el diccionario, el progreso y las anotaciones; con **Storage**, para descargar imágenes y tokens mediante URLs firmadas. |
-| **API (Next.js en Vercel)** | Punto de entrada de las operaciones que requieren validación o privilegios: crear o unirse a grupos, registrar subidas (huella, límites, deduplicación RN-02), disparar el worker y administrar grupos. | Con el **Frontend**, del que recibe peticiones; con **Postgres**, donde persiste los cambios; con **GitHub Actions**, al que dispara con `repository_dispatch`. |
+| **API (Next.js en Vercel)** | Punto de entrada de las operaciones que requieren validación o privilegios: crear o unirse a grupos, registrar subidas (huella, límites, deduplicación RN-02), disparar el worker y administrar grupos. | Con el **Frontend**, del que recibe peticiones; con **Postgres**, donde persiste los cambios; con **GitHub Actions**, al que dispara con `workflow_dispatch` (ADR-006). |
 | **Supabase Auth** | Registro, ingreso con correo y contraseña y con Google, recuperación de contraseña y emisión de JWT. | Con el **Frontend** (sesión) y con **Postgres** (`auth.uid()` en las políticas RLS). |
 | **Postgres + RLS** | Persistencia de perfiles, grupos, membresías, libros, trabajos, léxico usado, vocabulario personal, progreso y anotaciones. Aplica RN-03 y RN-04 en la propia base de datos. | Con todos los componentes. |
 | **Storage** | PDF originales (privados), imágenes WebP y JSON de tokens por página. Las políticas de acceso replican RN-03. | Con el **Worker**, que escribe; con el **Frontend**, que lee mediante URLs firmadas. |
