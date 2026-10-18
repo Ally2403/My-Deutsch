@@ -11,6 +11,10 @@ dependencies = [
     "de-core-news-md @ https://github.com/explosion/spacy-models/releases/download/de_core_news_md-3.8.0/de_core_news_md-3.8.0-py3-none-any.whl",
 ]
 
+[project.optional-dependencies]
+# Traducción automática en→es (pesada: arrastra torch). Solo para ejecutar el worker real.
+argos = ["argostranslate>=1.9"]
+
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
 
