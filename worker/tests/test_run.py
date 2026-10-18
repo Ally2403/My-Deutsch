@@ -214,3 +214,25 @@ def test_cli_logging_keeps_pipeline_progress_but_silences_third_party_noise():
     assert logging.getLogger("pipeline").getEffectiveLevel() == logging.INFO
     assert logging.getLogger("argostranslate").getEffectiveLevel() >= logging.WARNING
     assert logging.getLogger().getEffectiveLevel() >= logging.WARNING
+
+
+def test_reset_output_removes_the_processed_book_but_nothing_else(tmp_path):
+    from pipeline.run import reset_output
+
+    (tmp_path / "pages").mkdir()
+    (tmp_path / "pages" / "1.json").write_text("{}", encoding="utf-8")
+    for name in ("manifest.json", "progress.json", "lexicon.json"):
+        (tmp_path / name).write_text("{}", encoding="utf-8")
+    (tmp_path / "notas.txt").write_text("mío", encoding="utf-8")
+    reset_output(tmp_path)
+    assert not (tmp_path / "pages").exists()
+    assert not any(
+        (tmp_path / n).exists() for n in ("manifest.json", "progress.json", "lexicon.json")
+    )
+    assert (tmp_path / "notas.txt").read_text(encoding="utf-8") == "mío"
+
+
+def test_reset_output_on_a_missing_folder_is_harmless(tmp_path):
+    from pipeline.run import reset_output
+
+    reset_output(tmp_path / "no-existe")
