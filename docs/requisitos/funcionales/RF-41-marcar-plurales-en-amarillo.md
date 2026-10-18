@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-26](RF-26-colorear-todos-los-sustantivos.md) |
 | **Reglas de negocio** | RN-01 |
 
@@ -23,3 +23,14 @@ La usuaria pidió distinguir a simple vista los plurales mientras lee, además d
 3. Se puede combinar con «Colorear sustantivos»: el género sigue distinguiéndose por el borde inferior y el artículo escrito.
 4. El resaltado no impide leer el texto original (opacidad ≤ 35 %).
 5. La preferencia persiste entre páginas, libros y sesiones.
+
+## Verificación
+2026-10-17: Playwright en Chromium (360, 768, 1280 px) y WebKit iPhone emulado contra la build de producción, sobre la página de ejemplo; y revisión visual con 10 páginas reales del worker.
+
+1. ⚠ Parcial: se marcan los plurales que cambian de forma (*Häuser*) y los de solo plural (*Leute*); el worker etiqueta también los iguales al singular (prueba automática con spaCy). No se midió el tiempo (< 100 ms) de este interruptor en concreto; usa el mismo cambio de clase que RF-26.
+2. ✅ Borde superior sólido de 3 px y etiqueta «plural» escrita en el panel.
+3. ✅ Convive con «Colorear sustantivos»: el género sigue en el borde inferior.
+4. ✅ Opacidad 0,3 (variable compartida `--highlight-alpha`, ≤ 0,35); el texto de la etiqueta cumple 4,5:1 sobre el amarillo en ambos temas.
+5. ✅ La preferencia persiste al recargar (`localStorage`, con respaldo en memoria).
+
+Los libros ya procesados deben reprocesarse para que los plurales iguales al singular queden etiquetados.

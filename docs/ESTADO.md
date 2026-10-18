@@ -40,3 +40,9 @@
 - **Entrega 2:** `submit_book` en estado pendiente + hash calculado por el worker (RN-02), workflow `process-book.yml`, subida a Storage, pantalla de subida, estado y biblioteca (RF-11, RF-13, RF-14).
 - Revisar: algunas palabras (máx. 4,7 % del ancho) quedan desalineadas frente a la tinta; y 12 % de las mayúsculas a mitad de oración no están en Wiktionary.
 
+## Plurales y compuestos (2026-10-17, rama `feat/RF-41-marcar-plurales`)
+- RF-41 (nuevo, a pedido de la usuaria): interruptor «Marcar plurales» en amarillo con borde superior y etiqueta «plural» en el panel; independiente de «Colorear sustantivos».
+- Por qué algunos sustantivos no se colorean: los nombres propios no llevan género (RN-01), los de solo plural no tienen género, y ~12 % de las mayúsculas a mitad de oración no está en Wiktionary. Mejora: los **sustantivos compuestos** sin entrada propia toman el género y el plural de su última palabra (*Kunst|schatz* → der). En las 10 páginas de prueba, las palabras con entrada subieron de 94,6 % a 96,2 %.
+- **Reprocesar** los libros ya procesados para que los plurales iguales al singular y los compuestos queden bien (≈ 1 minuto por 10 páginas).
+- El servidor de desarrollo (`pnpm dev`) puede servir un CSS antiguo: si no ves el amarillo, reinícialo.
+
