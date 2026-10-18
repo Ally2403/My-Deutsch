@@ -20,7 +20,7 @@ La usuaria pidió distinguir a simple vista los plurales mientras lee, además d
 ## Criterios de aceptación
 1. Al activarlo, todos los sustantivos en plural de la página se marcan en < 100 ms, incluidos los de solo plural y los que tienen la misma forma en singular.
 2. El marcado no depende solo del color (RNF-09): lleva un borde superior sólido y el panel muestra la etiqueta escrita «plural».
-3. Se puede combinar con «Colorear sustantivos»: el género sigue distinguiéndose por el borde inferior y el artículo escrito.
+3. Se puede combinar con «Colorear sustantivos»: un plural se ve amarillo del todo (borde superior e inferior) y los singulares conservan el color de su género; el género de un plural sigue en el artículo escrito del panel.
 4. El resaltado no impide leer el texto original (opacidad ≤ 35 %).
 5. La preferencia persiste entre páginas, libros y sesiones.
 
@@ -29,8 +29,11 @@ La usuaria pidió distinguir a simple vista los plurales mientras lee, además d
 
 1. ⚠ Parcial: se marcan los plurales que cambian de forma (*Häuser*) y los de solo plural (*Leute*); el worker etiqueta también los iguales al singular (prueba automática con spaCy). No se midió el tiempo (< 100 ms) de este interruptor en concreto; usa el mismo cambio de clase que RF-26.
 2. ✅ Borde superior sólido de 3 px y etiqueta «plural» escrita en el panel.
-3. ✅ Convive con «Colorear sustantivos»: el género sigue en el borde inferior.
+3. ✅ Convive con «Colorear sustantivos»: el plural es amarillo del todo (cambio pedido por la usuaria tras probarlo); el género queda en el artículo escrito del panel.
 4. ✅ Opacidad 0,3 (variable compartida `--highlight-alpha`, ≤ 0,35); el texto de la etiqueta cumple 4,5:1 sobre el amarillo en ambos temas.
 5. ✅ La preferencia persiste al recargar (`localStorage`, con respaldo en memoria).
 
 Los libros ya procesados deben reprocesarse para que los plurales iguales al singular queden etiquetados.
+
+Libro real (10 páginas, 2026-10-18): 72 plurales marcados; las 50 formas que Wiktionary da como plural quedaron marcadas (antes 10 se perdían porque spaCy no reconocía el número). El worker acepta ahora la opción de reprocesar un libro desde cero.
+
