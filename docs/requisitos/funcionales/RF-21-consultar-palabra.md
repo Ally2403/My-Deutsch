@@ -32,3 +32,6 @@ Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lec
 3. ✅ Formas verbales: «ging → gehen, pretérito».
 4. ✅ Esc y tocar fuera cierran el panel sin cambiar de página. Deslizar hacia abajo está cubierto por prueba unitaria, no con un dedo real.
 5. ⚠ Parcial: `recordLookup()` entrega la consulta (lema, tipo, página y oración) a un manejador, pero aún no hay conexión con `user_words`; llega con el diccionario personal.
+
+Worker con traducción automática (2026-10-17, 10 páginas reales): 98,3 % de las palabras con entrada de léxico tienen al menos una acepción en español. Todas las acepciones (1 630 en 693 entradas) vienen de Argos y llevan la marca «traducción automática»: el volcado de Wiktionary usado no trae traducciones al español. 3,8 % de las entradas quedan sin acepciones (el panel lo avisa). La calidad de la traducción automática no se evaluó con una persona.
+

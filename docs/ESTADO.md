@@ -36,7 +36,7 @@
 - Entrega 1 hecha: `worker/pipeline/` (OCR → tokens → análisis → JSON v1 + WebP, reanudable por página) y `worker/lexicon/` (léxico SQLite desde Wiktionary: 496 059 formas, 90 892 entradas, se construye en ~45 s).
 - Sobre el PDF de prueba (10 páginas): ≈ 5 s por página en Docker, palabras 95,6 %, umlauts/ß 98,5 %, 94,6 % de palabras con entrada de léxico, WebP ≤ 249 KB. Lector local: `node scripts/link-local-book.mjs` y abrir `/lector/local` (404 en producción).
 - Seguridad: Tesseract con límite de tiempo y presupuesto total por libro, hoja y página con tope de tamaño, validador Python tan estricto como `parsePage`, modelo Argos solo instalado y verificado por SHA-256 (sin descargas en uso).
-- **Pendiente entrega 1:** traducción automática con Argos (`uv sync --extra argos`, `python -m lexicon.translate provision` y fijar la huella); sin ella solo salen las acepciones en español que trae Wiktionary (pocas).
+- **Traducción automática hecha:** Argos en→es instalado con huella SHA-256 fijada (`python -m lexicon.translate provision`); procesar con traducción: `./worker/run.sh uv run --extra argos python -m pipeline.run ...` (≈ 275 s por 10 páginas; la primera vez, ~6 min de instalación). 98,3 % de las palabras con entrada tienen significado; todos son traducción automática.
 - **Entrega 2:** `submit_book` en estado pendiente + hash calculado por el worker (RN-02), workflow `process-book.yml`, subida a Storage, pantalla de subida, estado y biblioteca (RF-11, RF-13, RF-14).
 - Revisar: algunas palabras (máx. 4,7 % del ancho) quedan desalineadas frente a la tinta; y 12 % de las mayúsculas a mitad de oración no están en Wiktionary.
 
