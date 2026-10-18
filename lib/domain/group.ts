@@ -22,6 +22,8 @@ export function groupErrorMessage(error: {
 }): string {
   if (error.message === "invalid_code") return "Código no válido";
   if (error.message === "group_full") return "El grupo está lleno";
+  if (error.message === "too_many_attempts")
+    return "Demasiados intentos, inténtalo más tarde";
   return "No pudimos completar la acción. Inténtalo de nuevo.";
 }
 

@@ -36,7 +36,7 @@ select pg_temp.act_as('bbbbbbbb-0000-0000-0000-000000000002');
 select lives_ok(format('select public.join_group(%L)', (select code from codes)), 'B se une con un código válido');
 select lives_ok(format('select public.join_group(%L)', (select code from codes)), 'unirse dos veces no falla ni duplica');
 select is((select count(*)::int from public.group_members), 2, 'sin membresía duplicada');
-select throws_ok($$select public.join_group('ZZZZZZZZ')$$, 'P0002', 'invalid_code', 'código inexistente');
+select is(public.join_group('ZZZZZZZZ'), null, 'código inexistente devuelve null (RNF-17)');
 
 -- Libro subido por A: reutilización por huella (RN-02) y un procesamiento a la vez (RN-10).
 select pg_temp.act_as('aaaaaaaa-0000-0000-0000-000000000001');
