@@ -56,3 +56,10 @@ describe("marcado de plurales (RF-41, RNF-09)", () => {
     expect(css).toMatch(/\.pl-mark[^}]*border-top:[^;]*solid/);
   });
 });
+
+describe("plurales dominantes (RF-41 c3)", () => {
+  it("el borde inferior de un plural es amarillo, no el del género", () => {
+    expect(css).toMatch(/\.pl-mark[^}]*border-bottom:[^;]*solid[^;]*var\(--plural\)/);
+  });
+});
+

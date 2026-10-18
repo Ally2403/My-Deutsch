@@ -18,10 +18,14 @@ class Analyzed:
     sep: int | None  # índice del token pareja de un verbo separable
 
 
-def form_tag(morph: dict[str, str], pos: str, text: str, lemma: str) -> str | None:
+def form_tag(
+    morph: dict[str, str], pos: str, text: str, lemma: str, plural: str | None = None
+) -> str | None:
     """Etiqueta de la forma del token respecto a su lema, o None si es la forma base."""
     if pos == "noun" and morph.get("Number") == "Plur":
-        return "pl"  # también cuando coincide con el singular (die Lehrer) o es solo plural
+        return "pl"  # también si coincide con el singular (die Lehrer) o es solo plural
+    if pos == "noun" and plural and text == plural and text != lemma:
+        return "pl"  # el plural de Wiktionary vale aunque spaCy no reconozca el número
     if text.lower() == lemma.lower():
         return None
     if pos == "verb":
@@ -64,7 +68,9 @@ def analyze(tokens: list[RawToken], nlp, lex: Lexicon) -> list[Analyzed]:
             result.append(Analyzed(None, None, None, None))
             continue
         lemma, pos = resolve(core, tok.pos_, tok.lemma_, lex)
-        form = form_tag(tok.morph.to_dict(), pos, core, lemma) if pos else None
+        entry = lex.entry(lemma, pos) if pos == "noun" else None
+        plural = entry.plural if entry else None
+        form = form_tag(tok.morph.to_dict(), pos, core, lemma, plural) if pos else None
         result.append(Analyzed(lemma, pos, form, None))
 
     # RN-07: la partícula separada (relación `svp`) y su verbo comparten el lema compuesto.
