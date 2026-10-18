@@ -41,6 +41,24 @@ describe("finalizeSubmission", () => {
     expect(d.rpcFinalize).not.toHaveBeenCalled();
   });
 
+  it("Storage falla de forma transitoria: unexpected, sin rechazar la solicitud", async () => {
+    const d = deps({ openUpload: vi.fn().mockRejectedValue(new Error("storage_unavailable")) });
+    const r = await finalizeSubmission(d, SUB);
+    expect(r).toEqual({ ok: false, code: "unexpected" });
+    expect(d.rpcReject).not.toHaveBeenCalled();
+    expect(d.deleteUpload).not.toHaveBeenCalled();
+  });
+
+  it("si rpcReject falla, igual borra el objeto y devuelve el rechazo", async () => {
+    const d = deps({
+      openUpload: vi.fn().mockResolvedValue(stream(new TextEncoder().encode("GIF89a..."))),
+      rpcReject: vi.fn().mockRejectedValue(new Error("db caída")),
+    });
+    const r = await finalizeSubmission(d, SUB);
+    expect(r).toEqual({ ok: false, code: "not_pdf" });
+    expect(d.deleteUpload).toHaveBeenCalledWith(SUB.upload_path);
+  });
+
   it("archivo vacío: rechaza con upload_missing", async () => {
     const d = deps({
       openUpload: vi.fn().mockResolvedValue(stream(new Uint8Array())),

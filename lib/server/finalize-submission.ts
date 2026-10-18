@@ -47,8 +47,14 @@ async function reject(
   code: "upload_missing" | "not_pdf" | "too_large",
   deleteObject: boolean,
 ): Promise<FinalizeResult> {
-  await deps.rpcReject(sub.id, code);
+  // Primero se borra el objeto: si el rechazo falla, no queda un PDF huérfano ni se frena la
+  // respuesta (reintentar daría upload_missing y volvería a rechazar).
   if (deleteObject) await tryDelete(deps, sub.upload_path);
+  try {
+    await deps.rpcReject(sub.id, code);
+  } catch {
+    // La solicitud sigue pendiente, pero sin archivo; el siguiente intento la rechaza.
+  }
   return { ok: false, code };
 }
 
@@ -58,7 +64,13 @@ export async function finalizeSubmission(
   sub: { id: string; upload_path: string },
   opts: { maxBytes?: number } = {},
 ): Promise<FinalizeResult> {
-  const stream = await deps.openUpload(sub.upload_path);
+  let stream: ReadableStream<Uint8Array> | null;
+  try {
+    stream = await deps.openUpload(sub.upload_path);
+  } catch {
+    // Error transitorio de Storage: no se rechaza la solicitud, se puede reintentar.
+    return { ok: false, code: "unexpected" };
+  }
   if (!stream) return reject(deps, sub, "upload_missing", false);
 
   let hashed;
