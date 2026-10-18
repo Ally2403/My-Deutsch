@@ -29,4 +29,11 @@ Entrega 2a (2026-10-18, solo base de datos, pgTAP sobre el proyecto Supabase; `s
 
 3. ✅ (parte de base de datos) Con la misma huella el libro se vincula al otro grupo sin crear un `job` nuevo; la huella la calcula el servidor (RN-02).
 4. ✅ (parte de base de datos) `submit_book` rechaza con `busy` si hay un libro en procesamiento o una solicitud pendiente reciente (15 min); se vuelve a comprobar al finalizar.
-1, 2 y 5: sin verificar (necesitan la ruta de API y la pantalla de subida, entregas 2c y 2d).
+Entrega 2c (2026-10-18, `POST /api/libros/finalizar`; pruebas Vitest con dobles, 171/171 en la suite):
+
+- ✅ (pruebas) La huella se calcula en el servidor leyendo el PDF por flujo; un archivo sin cabecera `%PDF`, vacío o de más de 50 MB se rechaza y se borra de Storage; solicitud ajena o ya procesada no llega a `finalize_submission`.
+- ✅ (pruebas) Criterio 3: libro reutilizado → no se dispara el workflow y se borra el PDF subido. Criterio 4: `busy` → HTTP 429 (la pantalla mostrará «Espera a que termine tu libro actual»).
+- Sin verificar: criterio 1 y la ruta contra Supabase/GitHub reales (necesita sesión y claves de la usuaria: subir un PDF pequeño, llamar a la ruta y ver `jobs` en `queued` y una ejecución de `process-book`). Sin sesión, la ruta responde 307 a `/login` (proxy, RN-03).
+- Brecha conocida: si el disparo a GitHub falla, el libro queda `queued` (API: 502 `dispatch_failed` con `book_id`) hasta que 2d agregue «Reintentar».
+
+Criterios 2 (rechazo en el navegador antes de subir) y 5 (barra y reanudación): sin verificar (pantalla de subida, entrega 2d).

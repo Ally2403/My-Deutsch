@@ -23,3 +23,6 @@ Mantiene el almacenamiento dentro del plan gratuito (1 GB) para unos 25 libros.
 
 ## Nota de cambio (2026-10-17)
 El límite baja de 100 MB a 50 MB: es el máximo por archivo del plan gratuito de Supabase Storage. Aprobado por la usuaria. Un PDF mayor se comprime antes de subirlo.
+
+## Verificación
+Entrega 2c (2026-10-18): la ruta `POST /api/libros/finalizar` rechaza un PDF de más de 50 MB (`too_large`, probado con un tope reducido) y lo borra de Storage; el bucket `uploads` ya limita a 52 428 800 bytes. Criterio 1, parte de las 401 páginas: la aplica el worker (sin verificar de extremo a extremo). Criterio 2: sin verificar.
