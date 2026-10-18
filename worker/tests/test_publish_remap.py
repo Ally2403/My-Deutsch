@@ -71,3 +71,34 @@ def test_lexicon_row_keeps_unicode_lemma():
     assert row["lemma"] == "Äpfel'ß"
     assert row["genders"] == ["m"]
     assert row["plural"] == "Äpfel"
+
+
+def test_remap_result_shares_no_objects_with_input():
+    page = _page()
+    out = remap_page(page, {1: 501, 2: 77})
+    out["lex"]["501"]["senses"].append({"es": "x", "m": False})
+    assert page["lex"]["1"]["senses"] == [{"es": "casa", "m": True}]
+
+
+def test_remap_rejects_colliding_postgres_ids():
+    with pytest.raises(ValueError):
+        remap_page(_page(), {1: 77, 2: 77})
+
+
+@pytest.mark.parametrize("bad", [0, -3, True, "5"])
+def test_remap_rejects_non_positive_or_non_int_ids(bad):
+    with pytest.raises(ValueError):
+        remap_page(_page(), {1: bad, 2: 77})
+
+
+def test_lexicon_row_rejects_too_many_senses():
+    senses = [{"es": str(i), "m": False} for i in range(6)]
+    with pytest.raises(ValueError):
+        lexicon_row({"lemma": "a", "pos": "noun", "senses": senses})
+
+
+def test_lexicon_row_rejects_bad_gender_and_bad_sense_shape():
+    with pytest.raises(ValueError):
+        lexicon_row({"lemma": "a", "pos": "noun", "g": ["x"], "senses": []})
+    with pytest.raises(ValueError):
+        lexicon_row({"lemma": "a", "pos": "noun", "senses": [{"es": "a"}]})
