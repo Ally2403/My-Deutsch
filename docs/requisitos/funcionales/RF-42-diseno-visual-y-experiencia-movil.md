@@ -8,7 +8,7 @@
 | **Prioridad** | Alta |
 | **Fase** | 3 |
 | **Estado** | Pendiente |
-| **Dependencias** | [RF-14](RF-14-ver-biblioteca-del-grupo.md), [RF-17](RF-17-abrir-el-lector-de-paginas.md) |
+| **Dependencias** | [RF-14](RF-14-ver-biblioteca-del-grupo.md), [RF-17](RF-17-texto-seleccionable-alineado-al-original.md) |
 | **Reglas de negocio** | — |
 
 ## Descripción
