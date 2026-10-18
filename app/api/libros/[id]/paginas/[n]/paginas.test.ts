@@ -111,7 +111,7 @@ describe.each(routes)("GET /api/libros/[id]/paginas/[n]/%s", (name, get, type, o
     const r = await call(get, BOOK, "1");
     expect(r.status).toBe(200);
     expect(r.headers.get("content-type")).toBe(type);
-    // RNF-05: las imágenes (inmutables por página) se cachean 7 días; el JSON, 1 hora.
+    // RNF-10: las imágenes (inmutables por página) se cachean 7 días; el JSON, 1 hora.
     expect(r.headers.get("cache-control")).toBe(
       name === "imagen" ? "private, max-age=604800" : "private, max-age=3600",
     );

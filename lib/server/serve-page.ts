@@ -10,7 +10,7 @@ const fail = (error: string, status: number) => NextResponse.json({ error }, { s
 
 type PageKind = { column: "image_path" | "tokens_path"; contentType: string };
 
-// RNF-05: la imagen de una página no cambia, así que se cachea 7 días en el dispositivo
+// RNF-10: la imagen de una página no cambia, así que se cachea 7 días en el dispositivo
 // (ahorra egress de Storage); el JSON de tokens puede reprocesarse y se queda en 1 hora.
 const CACHE_CONTROL: Record<PageKind["column"], string> = {
   image_path: "private, max-age=604800",
