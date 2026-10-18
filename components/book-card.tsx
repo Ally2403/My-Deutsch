@@ -15,6 +15,9 @@ export function BookCard({
   pageCount,
   hasPublishedPages,
   canRetry,
+  ownerOrAdmin,
+  jobCreatedAt,
+  jobStartedAt,
   status,
 }: {
   id: string;
@@ -22,6 +25,9 @@ export function BookCard({
   pageCount: number | null;
   hasPublishedPages: boolean;
   canRetry: boolean;
+  ownerOrAdmin?: boolean;
+  jobCreatedAt?: string | null;
+  jobStartedAt?: string | null;
   status: BookStatusInput;
 }) {
   const [coverFailed, setCoverFailed] = useState(false);
@@ -75,7 +81,14 @@ export function BookCard({
       ) : (
         <div className="flex items-start gap-3">{head}</div>
       )}
-      <BookStatus bookId={id} initial={status} canRetry={canRetry} />
+      <BookStatus
+        bookId={id}
+        initial={status}
+        canRetry={canRetry}
+        ownerOrAdmin={ownerOrAdmin}
+        jobCreatedAt={jobCreatedAt}
+        jobStartedAt={jobStartedAt}
+      />
     </li>
   );
 }

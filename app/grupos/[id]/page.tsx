@@ -5,7 +5,7 @@ import { BookCard } from "@/components/book-card";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
-import { canRetry } from "@/lib/domain/book-status";
+import { canRetry, isOwnerOrAdmin } from "@/lib/domain/book-status";
 import { createClient } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -113,6 +113,16 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
                 title={b.title}
                 pageCount={b.page_count}
                 hasPublishedPages={withPages.has(b.id)}
+                ownerOrAdmin={
+                  !!user &&
+                  isOwnerOrAdmin({
+                    uploadedBy: b.uploaded_by,
+                    userId: user.id,
+                    isAdmin,
+                  })
+                }
+                jobCreatedAt={job?.created_at ?? null}
+                jobStartedAt={job?.started_at ?? null}
                 canRetry={
                   !!user &&
                   canRetry({

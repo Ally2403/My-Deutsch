@@ -50,6 +50,14 @@ export function describeStatus(i: BookStatusInput): Described {
 /** Igual que request_retry (SQL): un libro en cola sin empezar tras 5 min perdió su disparo. */
 export const STALE_QUEUE_MS = 5 * 60 * 1000;
 
+export function isOwnerOrAdmin(i: {
+  uploadedBy: string | null;
+  userId: string;
+  isAdmin: boolean;
+}): boolean {
+  return i.isAdmin || (i.uploadedBy !== null && i.uploadedBy === i.userId);
+}
+
 export function canRetry(i: {
   status: string;
   uploadedBy: string | null;
@@ -59,9 +67,7 @@ export function canRetry(i: {
   jobStartedAt?: string | null;
   now?: Date;
 }): boolean {
-  const allowed =
-    i.isAdmin || (i.uploadedBy !== null && i.uploadedBy === i.userId);
-  if (!allowed) return false;
+  if (!isOwnerOrAdmin(i)) return false;
   if (i.status === "error") return true;
   if (i.status !== "queued") return false;
   if (!i.jobCreatedAt || i.jobStartedAt) return false;

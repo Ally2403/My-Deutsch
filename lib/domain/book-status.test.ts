@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { canRetry, describeStatus, summarizeError } from "./book-status";
+import {
+  canRetry,
+  describeStatus,
+  isOwnerOrAdmin,
+  summarizeError,
+} from "./book-status";
 
 const base = {
   bookStatus: "processing",
@@ -152,5 +157,14 @@ describe("summarizeError", () => {
     expect(m.length).toBeLessThanOrEqual(120);
     expect(m).not.toContain("Traceback");
     expect(summarizeError(null)).toBe(summarizeError("algo_raro"));
+  });
+});
+
+describe("isOwnerOrAdmin (RF-13)", () => {
+  it("dueño o administrador", () => {
+    expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u1", isAdmin: false })).toBe(true);
+    expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: true })).toBe(true);
+    expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: false })).toBe(false);
+    expect(isOwnerOrAdmin({ uploadedBy: null, userId: "u2", isAdmin: false })).toBe(false);
   });
 });

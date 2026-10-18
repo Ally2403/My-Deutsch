@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { BookStatusInput } from "@/lib/domain/book-status";
+import { RETRY_DISPATCH_FAILED_MESSAGE } from "@/lib/domain/upload";
 
 const h = vi.hoisted(() => ({
   refresh: vi.fn(),
@@ -288,11 +289,6 @@ describe("BookStatus (RF-13)", () => {
         "Aún no se puede reintentar. Espera unos minutos e inténtalo de nuevo",
       ],
       [403, "forbidden", "No tienes permiso para hacer esto"],
-      [
-        502,
-        "dispatch_failed",
-        "El libro quedó registrado pero no pudo iniciar el procesamiento. Usa «Reintentar» en la biblioteca",
-      ],
     ])("%i %s muestra su mensaje y no es éxito", async (status, error, msg) => {
       fetchMock.mockResolvedValue({
         ok: false,
@@ -310,6 +306,30 @@ describe("BookStatus (RF-13)", () => {
       expect(screen.getByRole("button", { name: "Reintentar" })).toBeEnabled();
     });
 
+    it("502 dispatch_failed: el reintento quedó registrado, pasa a En cola, refresca y reanuda el sondeo", async () => {
+      fetchMock.mockResolvedValue({
+        ok: false,
+        status: 502,
+        json: async () => ({ error: "dispatch_failed", book_id: "b1" }),
+      });
+      serve(
+        { status: "processing", page_count: 10 },
+        { status: "processing", pages_done: 2, error: null },
+      );
+      render(<BookStatus bookId="b1" initial={errored} canRetry />);
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
+      });
+      expect(screen.getByText("En cola")).toBeInTheDocument();
+      expect(h.refresh).toHaveBeenCalledTimes(1);
+      expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
+      expect(
+        screen.getAllByRole("alert").map((a) => a.textContent),
+      ).toContain(RETRY_DISPATCH_FAILED_MESSAGE);
+      await tick(10_000);
+      expect(screen.getByText("Procesando 2/10 páginas")).toBeInTheDocument();
+    });
+
     it("un fallo de red muestra el mensaje inesperado y permite reintentar de nuevo", async () => {
       fetchMock.mockRejectedValue(new Error("red"));
       render(<BookStatus bookId="b1" initial={errored} canRetry />);
@@ -323,6 +343,7 @@ describe("BookStatus (RF-13)", () => {
     });
 
     it("libro en cola atascado: Reintentar visible con canRetry", () => {
+      vi.setSystemTime(new Date("2026-10-18T12:00:00Z"));
       render(
         <BookStatus
           bookId="b1"
@@ -333,12 +354,81 @@ describe("BookStatus (RF-13)", () => {
             error: null,
           }}
           canRetry
+          jobCreatedAt="2026-10-18T11:50:00Z"
+          jobStartedAt={null}
         />,
       );
       expect(screen.getByText("En cola")).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: "Reintentar" }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("cola atascada sin recargar", () => {
+    const queuedInit: BookStatusInput = {
+      bookStatus: "queued",
+      jobStatus: "queued",
+      pagesDone: 0,
+      pageCount: null,
+      error: null,
+    };
+    const queuedServe = () =>
+      serve(
+        { status: "queued", page_count: null },
+        { status: "queued", pages_done: 0, error: null },
+      );
+
+    it("aparece al cumplirse 5 min tras un ciclo de sondeo, sin recargar", async () => {
+      vi.setSystemTime(new Date("2026-10-18T12:00:00Z"));
+      h.job.mockResolvedValue({
+        data: {
+          status: "queued",
+          pages_done: 0,
+          error: null,
+          created_at: "2026-10-18T11:56:00Z",
+          started_at: null,
+        },
+        error: null,
+      });
+      h.book.mockResolvedValue({
+        data: { status: "queued", page_count: null },
+        error: null,
+      });
+      render(
+        <BookStatus
+          bookId="b1"
+          initial={queuedInit}
+          canRetry={false}
+          ownerOrAdmin
+          jobCreatedAt="2026-10-18T11:56:00Z"
+          jobStartedAt={null}
+        />,
+      );
+      expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
+      await tick(10_000);
+      expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
+      await tick(60_000 * 2);
+      expect(
+        screen.getByRole("button", { name: "Reintentar" }),
+      ).toBeInTheDocument();
+    });
+
+    it("quien no es dueño ni administrador nunca lo ve", async () => {
+      vi.setSystemTime(new Date("2026-10-18T12:00:00Z"));
+      queuedServe();
+      render(
+        <BookStatus
+          bookId="b1"
+          initial={queuedInit}
+          canRetry={false}
+          ownerOrAdmin={false}
+          jobCreatedAt="2026-10-18T11:00:00Z"
+          jobStartedAt={null}
+        />,
+      );
+      await tick(10_000);
+      expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
     });
   });
 });

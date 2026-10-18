@@ -100,3 +100,15 @@ describe("not_retryable (RF-13)", () => {
     );
   });
 });
+
+describe("RETRY_DISPATCH_FAILED_MESSAGE (RF-13)", () => {
+  it("es propio del reintento y distinto del de la subida", async () => {
+    const { RETRY_DISPATCH_FAILED_MESSAGE } = await import("./upload");
+    expect(RETRY_DISPATCH_FAILED_MESSAGE).toBe(
+      "El reintento quedó registrado pero no pudo iniciarse. Si sigue «En cola», podrás reintentar de nuevo en unos minutos",
+    );
+    expect(RETRY_DISPATCH_FAILED_MESSAGE).not.toBe(
+      apiErrorMessage("dispatch_failed"),
+    );
+  });
+});

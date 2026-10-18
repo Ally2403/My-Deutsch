@@ -60,3 +60,7 @@ export function apiErrorMessage(code: string): string {
     ? API_MESSAGES[code]
     : UNKNOWN_API_MESSAGE;
 }
+
+/** 502 al reintentar: la solicitud ya quedó registrada (libro en cola) y solo falló el disparo. */
+export const RETRY_DISPATCH_FAILED_MESSAGE =
+  "El reintento quedó registrado pero no pudo iniciarse. Si sigue «En cola», podrás reintentar de nuevo en unos minutos";

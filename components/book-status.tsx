@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { OutlineButton } from "@/components/ui";
 import {
+  canRetry as canRetryNow,
   describeStatus,
   summarizeError,
   type BookStatusInput,
 } from "@/lib/domain/book-status";
-import { apiErrorMessage } from "@/lib/domain/upload";
+import { RETRY_DISPATCH_FAILED_MESSAGE, apiErrorMessage } from "@/lib/domain/upload";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -32,16 +33,28 @@ export function BookStatus({
   bookId,
   initial,
   canRetry,
+  ownerOrAdmin,
+  jobCreatedAt = null,
+  jobStartedAt = null,
 }: {
   bookId: string;
   initial: BookStatusInput;
+  /** Compatibilidad: decisión ya combinada del servidor; se usa si no llega ownerOrAdmin. */
   canRetry: boolean;
+  /** Permiso por rol (dueño o administrador), decidido en el servidor. */
+  ownerOrAdmin?: boolean;
+  jobCreatedAt?: string | null;
+  jobStartedAt?: string | null;
 }) {
-  const router = useRouter();
+  const { refresh } = useRouter();
   const [state, setState] = useState<BookStatusInput>(initial);
   const [retryError, setRetryError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
-  const [retried, setRetried] = useState(false);
+  const [job, setJob] = useState({
+    createdAt: jobCreatedAt,
+    startedAt: jobStartedAt,
+  });
+  const [now, setNow] = useState(() => new Date());
   const latest = useRef(state);
   const inFlight = useRef(false);
   const mounted = useRef(true);
@@ -62,6 +75,7 @@ export function BookStatus({
     let stopped = false;
     const id = setInterval(async () => {
       const mine = ++seq.current;
+      setNow(new Date());
       try {
         const [bookRes, jobRes] = await Promise.all([
           supabase
@@ -71,7 +85,7 @@ export function BookStatus({
             .maybeSingle(),
           supabase
             .from("jobs")
-            .select("status, pages_done, error")
+            .select("status, pages_done, error, created_at, started_at")
             .eq("book_id", bookId)
             .order("created_at", { ascending: false })
             .limit(1)
@@ -94,8 +108,8 @@ export function BookStatus({
           next.pagesDone !== prev.pagesDone;
         latest.current = next;
         setState(next);
-        if (next.bookStatus === "error") setRetried(false);
-        if (changed) router.refresh();
+        if (job) setJob({ createdAt: job.created_at, startedAt: job.started_at });
+        if (changed) refresh();
       } catch {
         // Se conserva el último estado; el siguiente ciclo reintenta.
       }
@@ -104,7 +118,7 @@ export function BookStatus({
       stopped = true;
       clearInterval(id);
     };
-  }, [active, bookId, router]);
+  }, [active, bookId, refresh]);
 
   async function retry() {
     if (inFlight.current) return;
@@ -125,7 +139,9 @@ export function BookStatus({
         }
       }
       if (!mounted.current) return;
-      if (res.ok) {
+      // 502: request_retry ya confirmó; solo falló el disparo. Libro en cola con job nuevo.
+      const accepted = res.ok || (res.status === 502 && code === "dispatch_failed");
+      if (accepted) {
         const next: BookStatusInput = {
           ...latest.current,
           bookStatus: "queued",
@@ -135,8 +151,10 @@ export function BookStatus({
         };
         latest.current = next;
         setState(next);
-        setRetried(true);
-        router.refresh();
+        setJob({ createdAt: new Date().toISOString(), startedAt: null });
+        setNow(new Date());
+        refresh();
+        if (!res.ok) setRetryError(RETRY_DISPATCH_FAILED_MESSAGE);
       } else {
         setRetryError(apiErrorMessage(code));
       }
@@ -149,10 +167,15 @@ export function BookStatus({
   }
 
   const d = describeStatus(state);
-  const showRetry =
-    canRetry &&
-    !retried &&
-    (state.bookStatus === "error" || state.bookStatus === "queued");
+  const showRetry = canRetryNow({
+    status: state.bookStatus,
+    uploadedBy: null,
+    userId: "",
+    isAdmin: ownerOrAdmin ?? canRetry,
+    jobCreatedAt: job.createdAt,
+    jobStartedAt: job.startedAt,
+    now,
+  });
 
   return (
     <div className="flex flex-col gap-2">
