@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // El worker es Python (su propio .venv trae JS de terceros) y los libros locales no se lintean.
+    "worker/**",
+    "public/local-book/**",
   ]),
 ]);
 

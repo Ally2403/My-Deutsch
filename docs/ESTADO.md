@@ -31,3 +31,12 @@
 - Medidas (Chromium, CPU ×4, 100 toques): p95 de apertura del panel 45–131 ms. Alineación texto/imagen ≤ 2 %. axe-core sin violaciones serias.
 - **Sin verificar:** gesto de deslizar y borde de iOS en un iPhone real; pintado del resaltado en iOS (WebKit emulado en Windows: 148–320 ms); páginas reales del worker; pellizco para zoom; simulación de deuteranopía; vista de dos páginas.
 - Pruebas e2e: `pnpm e2e` (reutiliza el servidor del puerto 3000) o `E2E_BASE_URL=http://localhost:3100 pnpm e2e` contra `next start`. El servidor de desarrollo servía un CSS desactualizado; verificar siempre contra una build.
+
+## Worker (2026-10-17, rama `feat/RF-12-worker-pipeline`, plan en `docs/superpowers/plans/2026-10-17-worker-pipeline-local.md`)
+- Entrega 1 hecha: `worker/pipeline/` (OCR → tokens → análisis → JSON v1 + WebP, reanudable por página) y `worker/lexicon/` (léxico SQLite desde Wiktionary: 496 059 formas, 90 892 entradas, se construye en ~45 s).
+- Sobre el PDF de prueba (10 páginas): ≈ 5 s por página en Docker, palabras 95,6 %, umlauts/ß 98,5 %, 94,6 % de palabras con entrada de léxico, WebP ≤ 249 KB. Lector local: `node scripts/link-local-book.mjs` y abrir `/lector/local` (404 en producción).
+- Seguridad: Tesseract con límite de tiempo y presupuesto total por libro, hoja y página con tope de tamaño, validador Python tan estricto como `parsePage`, modelo Argos solo instalado y verificado por SHA-256 (sin descargas en uso).
+- **Pendiente entrega 1:** traducción automática con Argos (`uv sync --extra argos`, `python -m lexicon.translate provision` y fijar la huella); sin ella solo salen las acepciones en español que trae Wiktionary (pocas).
+- **Entrega 2:** `submit_book` en estado pendiente + hash calculado por el worker (RN-02), workflow `process-book.yml`, subida a Storage, pantalla de subida, estado y biblioteca (RF-11, RF-13, RF-14).
+- Revisar: algunas palabras (máx. 4,7 % del ancho) quedan desalineadas frente a la tinta; y 12 % de las mayúsculas a mitad de oración no están en Wiktionary.
+

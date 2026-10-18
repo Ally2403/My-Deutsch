@@ -23,3 +23,5 @@ Cada error de OCR produce una consulta de palabra fallida o incorrecta.
 
 ## Verificación
 Spike (2026-10-17, `docs/spike-fase-2.md`): 98,5 % de palabras y 99,0 % de umlauts/ß en 5 páginas de referencia. ✅ Criterios 1 y 2 verificados en el spike; falta confirmarlos en el worker de la Fase 3.
+
+Worker de la Fase 3 (2026-10-17, entrega 1): sobre las mismas 5 páginas de referencia, **95,6 %** de palabras y **98,5 %** de umlauts/ß. ✅ Criterios 1 y 2 verificados en el worker (el filtro de ruido se ajustó: antes quitaba palabras cortas válidas, 92,4 %).

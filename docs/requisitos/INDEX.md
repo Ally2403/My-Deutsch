@@ -32,7 +32,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-09 | [Administrar grupo](funcionales/RF-09-administrar-grupo.md) | M-2 | Media | 4 | Pendiente |
 | RF-10 | [Salir de un grupo](funcionales/RF-10-salir-de-un-grupo.md) | M-2 | Media | 4 | Pendiente |
 | RF-11 | [Subir PDF escaneado a un grupo](funcionales/RF-11-subir-pdf-escaneado-a-un-grupo.md) | M-3 | Alta | 3 | Pendiente |
-| RF-12 | [Procesar libro en segundo plano](funcionales/RF-12-procesar-libro-en-segundo-plano.md) | M-4 | Alta | 3 | Pendiente |
+| RF-12 | [Procesar libro en segundo plano](funcionales/RF-12-procesar-libro-en-segundo-plano.md) | M-4 | Alta | 3 | En progreso |
 | RF-13 | [Ver estado del procesamiento](funcionales/RF-13-ver-estado-del-procesamiento.md) | M-3 | Media | 3 | Pendiente |
 | RF-14 | [Ver biblioteca del grupo](funcionales/RF-14-ver-biblioteca-del-grupo.md) | M-3 | Alta | 3 | Pendiente |
 | RF-15 | [Quitar libro de un grupo](funcionales/RF-15-quitar-libro-de-un-grupo.md) | M-3 | Baja | 4 | Pendiente |
