@@ -6,6 +6,7 @@ import { OutlineButton } from "@/components/ui";
 import {
   canRetry as canRetryNow,
   describeStatus,
+  resolvePageCount,
   summarizeError,
   type BookStatusInput,
 } from "@/lib/domain/book-status";
@@ -85,7 +86,7 @@ export function BookStatus({
             .maybeSingle(),
           supabase
             .from("jobs")
-            .select("status, pages_done, error, created_at, started_at")
+            .select("status, pages_done, pages_total, error, created_at, started_at")
             .eq("book_id", bookId)
             .order("created_at", { ascending: false })
             .limit(1)
@@ -98,7 +99,7 @@ export function BookStatus({
         const prev = latest.current;
         const next: BookStatusInput = {
           bookStatus: book.status,
-          pageCount: book.page_count,
+          pageCount: resolvePageCount(book.page_count, job?.pages_total),
           jobStatus: job ? job.status : prev.jobStatus,
           pagesDone: job ? job.pages_done : prev.pagesDone,
           error: job ? job.error : prev.error,

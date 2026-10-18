@@ -5,7 +5,7 @@ import { BookCard } from "@/components/book-card";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
-import { canRetry, isOwnerOrAdmin } from "@/lib/domain/book-status";
+import { canRetry, isOwnerOrAdmin, resolvePageCount } from "@/lib/domain/book-status";
 import { createClient } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -14,6 +14,7 @@ type JobRow = {
   book_id: string;
   status: string;
   pages_done: number;
+  pages_total: number | null;
   error: string | null;
   created_at: string;
   started_at: string | null;
@@ -67,7 +68,7 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
           .in("id", bookIds),
         supabase
           .from("jobs")
-          .select("book_id, status, pages_done, error, created_at, started_at")
+          .select("book_id, status, pages_done, pages_total, error, created_at, started_at")
           .in("book_id", bookIds)
           .order("created_at", { ascending: false }),
         supabase
@@ -138,7 +139,7 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
                   bookStatus: b.status,
                   jobStatus: job?.status ?? null,
                   pagesDone: job?.pages_done ?? 0,
-                  pageCount: b.page_count,
+                  pageCount: resolvePageCount(b.page_count, job?.pages_total),
                   error: job?.error ?? null,
                 }}
               />

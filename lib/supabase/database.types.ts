@@ -245,6 +245,7 @@ export type Database = {
           finished_at: string | null;
           id: string;
           pages_done: number;
+          pages_total: number | null;
           requested_by: string | null;
           started_at: string | null;
           status: string;
@@ -256,6 +257,7 @@ export type Database = {
           finished_at?: string | null;
           id?: string;
           pages_done?: number;
+          pages_total?: number | null;
           requested_by?: string | null;
           started_at?: string | null;
           status?: string;
@@ -267,6 +269,7 @@ export type Database = {
           finished_at?: string | null;
           id?: string;
           pages_done?: number;
+          pages_total?: number | null;
           requested_by?: string | null;
           started_at?: string | null;
           status?: string;

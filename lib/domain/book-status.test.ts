@@ -3,6 +3,7 @@ import {
   canRetry,
   describeStatus,
   isOwnerOrAdmin,
+  resolvePageCount,
   summarizeError,
 } from "./book-status";
 
@@ -166,5 +167,14 @@ describe("isOwnerOrAdmin (RF-13)", () => {
     expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: true })).toBe(true);
     expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: false })).toBe(false);
     expect(isOwnerOrAdmin({ uploadedBy: null, userId: "u2", isAdmin: false })).toBe(false);
+  });
+});
+
+describe("resolvePageCount (RF-13)", () => {
+  it("el total del libro manda; si falta, el del trabajo en curso", () => {
+    expect(resolvePageCount(200, 150)).toBe(200);
+    expect(resolvePageCount(null, 200)).toBe(200);
+    expect(resolvePageCount(null, null)).toBeNull();
+    expect(resolvePageCount(undefined, undefined)).toBeNull();
   });
 });

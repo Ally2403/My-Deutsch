@@ -47,6 +47,17 @@ export function describeStatus(i: BookStatusInput): Described {
   return { label: "En cola", tone: "pending", progress: null };
 }
 
+/**
+ * El total definitivo (books.page_count) solo existe al terminar; mientras se procesa, el total
+ * va en jobs.pages_total. El del libro manda cuando existe.
+ */
+export function resolvePageCount(
+  bookPageCount: number | null | undefined,
+  jobPagesTotal: number | null | undefined,
+): number | null {
+  return bookPageCount ?? jobPagesTotal ?? null;
+}
+
 /** Igual que request_retry (SQL): un libro en cola sin empezar tras 5 min perdió su disparo. */
 export const STALE_QUEUE_MS = 5 * 60 * 1000;
 

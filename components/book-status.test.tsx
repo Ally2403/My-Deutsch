@@ -63,7 +63,12 @@ afterEach(() => {
 
 const serve = (
   book: { status: string; page_count: number | null },
-  job: { status: string; pages_done: number; error: string | null } | null,
+  job: {
+    status: string;
+    pages_done: number;
+    pages_total?: number | null;
+    error: string | null;
+  } | null,
 ) => {
   h.book.mockResolvedValue({ data: book, error: null });
   h.job.mockResolvedValue({ data: job, error: null });
@@ -103,6 +108,34 @@ describe("BookStatus (RF-13)", () => {
     expect(h.book).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Procesando 40/200 páginas")).toBeInTheDocument();
     expect(h.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("sin page_count del libro usa jobs.pages_total: Procesando 12/200 con barra", async () => {
+    serve(
+      { status: "processing", page_count: null },
+      { status: "processing", pages_done: 12, pages_total: 200, error: null },
+    );
+    render(
+      <BookStatus
+        bookId="b1"
+        initial={{ ...processing, pageCount: null }}
+        canRetry={false}
+      />,
+    );
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    await tick(10_000);
+    expect(screen.getByText("Procesando 12/200 páginas")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "6");
+  });
+
+  it("page_count del libro tiene prioridad sobre jobs.pages_total", async () => {
+    serve(
+      { status: "processing", page_count: 180 },
+      { status: "processing", pages_done: 12, pages_total: 200, error: null },
+    );
+    render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
+    await tick(10_000);
+    expect(screen.getByText("Procesando 12/180 páginas")).toBeInTheDocument();
   });
 
   it("no refresca si nada cambió", async () => {

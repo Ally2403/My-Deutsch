@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookStatus } from "@/components/book-status";
 import { backHref, chooseView, isAdminInAny } from "@/lib/domain/book-reader";
-import { canRetry, isOwnerOrAdmin } from "@/lib/domain/book-status";
+import { canRetry, isOwnerOrAdmin, resolvePageCount } from "@/lib/domain/book-status";
 import { createClient } from "@/lib/supabase/server";
 import { BookReader } from "./book-reader";
 
@@ -33,7 +33,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
       .eq("book_id", id),
     supabase
       .from("jobs")
-      .select("status, pages_done, error, created_at, started_at")
+      .select("status, pages_done, pages_total, error, created_at, started_at")
       .eq("book_id", id)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -94,7 +94,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
                 bookStatus: book.status,
                 jobStatus: job?.status ?? null,
                 pagesDone: job?.pages_done ?? 0,
-                pageCount: book.page_count,
+                pageCount: resolvePageCount(book.page_count, job?.pages_total),
                 error: job?.error ?? null,
               }}
               canRetry={retry}
