@@ -9,7 +9,7 @@ export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || (p !== "/" && pathname.startsWith(`${p}/`)));
 }
 
-/** Refresca la sesión en cada petición y redirige a /login si la ruta es privada (RN-03). */
+/** Refresca la sesión en cada petición y redirige a /login si la ruta es privada (RN-03); la API responde 401. */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -34,6 +34,10 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!data?.claims && !isPublicPath(pathname)) {
+    // La API responde 401 JSON: un fetch que siguiera la redirección recibiría el HTML de /login.
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "not_authenticated" }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);

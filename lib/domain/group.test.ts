@@ -45,6 +45,11 @@ describe("groupErrorMessage (RF-07)", () => {
       "El grupo está lleno",
     );
   });
+  it("avisa del límite de intentos (RNF-17)", () => {
+    expect(groupErrorMessage({ message: "too_many_attempts" })).toBe(
+      "Demasiados intentos, inténtalo más tarde",
+    );
+  });
   it("usa un mensaje genérico para el resto", () => {
     expect(groupErrorMessage({ message: "otra cosa" })).toMatch(/No pudimos/);
   });

@@ -26,7 +26,9 @@ function Unirse() {
     createClient()
       .rpc("join_group", { p_code: code })
       .then(({ data, error }) => {
-        if (error || !data) setJoinError(groupErrorMessage(error ?? {}));
+        // Un código inexistente devuelve null sin error (RNF-17).
+        if (error || !data)
+          setJoinError(error ? groupErrorMessage(error) : "Código no válido");
         else router.replace(`/grupos/${data}`);
       });
   }, [valid, code, router]);

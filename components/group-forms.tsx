@@ -74,7 +74,8 @@ export function JoinGroupForm() {
     });
     if (error || !data) {
       setBusy(false);
-      return setError(groupErrorMessage(error ?? {}));
+      // Un código inexistente devuelve null sin error (RNF-17).
+      return setError(error ? groupErrorMessage(error) : "Código no válido");
     }
     router.push(`/grupos/${data}`);
   }

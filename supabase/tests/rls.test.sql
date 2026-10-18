@@ -12,7 +12,8 @@ insert into auth.users (id, email, instance_id, aud, role) values
   ('bbbbbbbb-0000-0000-0000-000000000002', 'b@test.dev', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated'),
   ('cccccccc-0000-0000-0000-000000000003', 'c@test.dev', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated');
 
-select is((select count(*)::int from public.profiles), 3, 'el disparador crea un perfil por usuario');
+select is((select count(*)::int from public.profiles where id::text like '%-0000-0000-0000-00000000000_'), 3,
+  'el disparador crea un perfil por usuario');
 
 create function pg_temp.act_as(uid uuid) returns void language plpgsql as $$
 begin
@@ -36,27 +37,42 @@ select pg_temp.act_as('bbbbbbbb-0000-0000-0000-000000000002');
 select lives_ok(format('select public.join_group(%L)', (select code from codes)), 'B se une con un código válido');
 select lives_ok(format('select public.join_group(%L)', (select code from codes)), 'unirse dos veces no falla ni duplica');
 select is((select count(*)::int from public.group_members), 2, 'sin membresía duplicada');
-select throws_ok($$select public.join_group('ZZZZZZZZ')$$, 'P0002', 'invalid_code', 'código inexistente');
+select is(public.join_group('ZZZZZZZZ'), null, 'código inexistente devuelve null (RNF-17)');
 
--- Libro subido por A: reutilización por huella (RN-02) y un procesamiento a la vez (RN-10).
+-- Libro subido por A: el servidor calcula la huella (RN-02) y solo se procesa uno a la vez (RN-10).
+select pg_temp.reset_role();
+insert into storage.objects (bucket_id, name, owner) values
+  ('uploads', 'aaaaaaaa-0000-0000-0000-000000000001/x.pdf', null),
+  ('uploads', 'aaaaaaaa-0000-0000-0000-000000000001/y.pdf', null),
+  ('uploads', 'bbbbbbbb-0000-0000-0000-000000000002/x.pdf', null);
 select pg_temp.act_as('aaaaaaaa-0000-0000-0000-000000000001');
-create temp table sub as select public.submit_book(
-  (select gid from ctx), repeat('a', 64), 'Libro', 'aaaaaaaa-0000-0000-0000-000000000001/x.pdf') as r;
+create temp table pend as select public.submit_book(
+  (select gid from ctx), 'Libro', 'aaaaaaaa-0000-0000-0000-000000000001/x.pdf') as id;
+grant all on pend to authenticated, service_role;
+select throws_ok(
+  format('select public.submit_book(%L, %L, %L)', (select gid from ctx), 'Otro',
+         'aaaaaaaa-0000-0000-0000-000000000001/y.pdf'),
+  'P0001', 'busy', 'RN-10: segunda solicitud mientras hay una pendiente');
+select throws_ok(
+  format('select public.submit_book(%L, %L, %L)', (select gid from ctx), 'X',
+         'bbbbbbbb-0000-0000-0000-000000000002/x.pdf'),
+  '42501', 'forbidden', 'la ruta de subida debe ser del propio usuario');
+select pg_temp.reset_role();
+set local role service_role;
+create temp table sub as select public.finalize_submission((select id from pend), repeat('a', 64)) as r;
+reset role;
 grant all on sub to authenticated;
 select is((select (r ->> 'reused')::boolean from sub), false, 'primer envío crea el libro');
-select throws_ok(
-  format('select public.submit_book(%L, repeat(%L, 64), %L, %L)', (select gid from ctx), 'b', 'Otro',
-         'aaaaaaaa-0000-0000-0000-000000000001/y.pdf'),
-  'P0001', 'busy', 'RN-10: segundo libro mientras hay uno en cola');
-select throws_ok(
-  format('select public.submit_book(%L, repeat(%L, 64), %L, %L)', (select gid from ctx), 'c', 'X',
-         'bbbbbbbb-0000-0000-0000-000000000002/y.pdf'),
-  '42501', 'forbidden', 'la ruta de subida debe ser del propio usuario');
 
 select pg_temp.act_as('bbbbbbbb-0000-0000-0000-000000000002');
-select is((select (public.submit_book(
-  (select gid from ctx), repeat('a', 64), 'Libro', 'bbbbbbbb-0000-0000-0000-000000000002/x.pdf'))
-  ->> 'reused')::boolean, true, 'RN-02: misma huella reutiliza el libro');
+create temp table pend_b as select public.submit_book(
+  (select gid from ctx), 'Libro', 'bbbbbbbb-0000-0000-0000-000000000002/x.pdf') as id;
+grant all on pend_b to service_role;
+select pg_temp.reset_role();
+set local role service_role;
+select is((public.finalize_submission((select id from pend_b), repeat('a', 64)) ->> 'reused')::boolean,
+  true, 'RN-02: misma huella reutiliza el libro');
+reset role;
 
 -- Datos personales de A (RN-04).
 select pg_temp.act_as('aaaaaaaa-0000-0000-0000-000000000001');

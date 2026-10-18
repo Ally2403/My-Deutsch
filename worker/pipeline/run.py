@@ -11,6 +11,7 @@ import logging
 import os
 import shutil
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 import numpy as np
@@ -86,6 +87,8 @@ def process_pdf(
     dpi: int = DPI,
     budget_s: float = MAX_DOC_SECONDS,
     log: logging.Logger | None = None,
+    on_start: Callable[[int], None] | None = None,
+    on_page: Callable[[int, Path], None] | None = None,
 ) -> dict:
     engine = engine or Engine()
     log = log or logging.getLogger("pipeline")
@@ -102,6 +105,8 @@ def process_pdf(
     _write_json(out / "progress.json", {"status": "running", "pages_done": 0})
     try:
         with pymupdf.open(pdf) as doc:
+            if on_start:
+                on_start(len(doc))
             for index, sheet in enumerate(doc, start=1):
                 if time.monotonic() - started > budget_s:
                     raise TimeoutError("Se agotó el tiempo total asignado al libro")
@@ -114,6 +119,8 @@ def process_pdf(
                     if _is_done(pages, n):
                         skipped += 1
                         log.info("página %d ya procesada, se omite", n)
+                        if on_page:
+                            on_page(n, pages)
                         continue
                     page = np.ascontiguousarray(gray[:, x0:x1])
                     t0 = time.monotonic()
@@ -121,6 +128,8 @@ def process_pdf(
                     _write_json(registry_path, registry.to_dict())
                     log.info("página %d: %d tokens, %.1f s", n, count, time.monotonic() - t0)
                     _write_json(out / "progress.json", {"status": "running", "pages_done": n})
+                    if on_page:
+                        on_page(n, pages)
     except Exception as exc:
         _write_json(out / "progress.json", {"status": "error", "pages_done": max(n - 1, 0)})
         log.error("falló en la página %d: %s", n, type(exc).__name__)

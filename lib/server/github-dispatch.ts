@@ -1,0 +1,48 @@
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+// Los segmentos no pueden ser solo puntos ("..") para no salir de /repos/{owner}/{repo}.
+const REPO_RE = /^(?!\.+\/)(?!.*\/\.+$)[\w.-]+\/[\w.-]+$/;
+const DEFAULT_REPO = "Ally2403/My-Deutsch";
+
+// Mensaje fijo: nunca incluye el token ni el cuerpo de la respuesta de GitHub.
+export class DispatchError extends Error {
+  constructor() {
+    super("dispatch_failed");
+  }
+}
+
+// ADR-002: dispara process-book.yml con repository_dispatch.
+export async function dispatchProcessBook(
+  bookId: string,
+  opts: { token: string | undefined; repo?: string; fetchImpl?: typeof fetch },
+): Promise<void> {
+  const repo = opts.repo || DEFAULT_REPO;
+  if (!opts.token || !UUID_RE.test(bookId) || !REPO_RE.test(repo))
+    throw new DispatchError();
+  const doFetch = opts.fetchImpl ?? fetch;
+  let status: number;
+  try {
+    const response = await doFetch(
+      `https://api.github.com/repos/${repo}/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${opts.token}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          "User-Agent": "my-deutsch",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event_type: "process-book",
+          client_payload: { book_id: bookId },
+        }),
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+    status = response.status;
+  } catch {
+    throw new DispatchError();
+  }
+  if (status !== 204) throw new DispatchError();
+}

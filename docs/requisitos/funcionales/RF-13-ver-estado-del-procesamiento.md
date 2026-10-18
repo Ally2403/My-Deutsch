@@ -7,7 +7,7 @@
 | **Módulo** | M-3 Biblioteca |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 
@@ -21,3 +21,11 @@ Procesar un libro tarda minutos; el usuario necesita saber que avanza.
 1. Durante el procesamiento se muestra el avance en páginas, actualizado al menos cada 30 segundos.
 2. Mientras se procesa, se pueden abrir las páginas ya listas.
 3. Si falla, se muestra "Error" con el motivo resumido y un botón "Reintentar" para quien lo subió o para el administrador.
+
+## Verificación
+Entrega 2d (2026-10-18; Vitest 353/353):
+
+- ✅ (pruebas, con temporizadores falsos) Criterio 1: hasta la ola final de 2d solo se había verificado la etiqueta con `books.page_count`, que el worker escribe al terminar; el total real durante el proceso (`jobs.pages_total`) se verificó con pruebas solo ahora («Procesando 12/200 páginas» con `page_count` nulo y barra de progreso; `page_count` manda si existe). `BookStatus` muestra «En cola», «Procesando X/Y páginas», «Listo» y «Error» con motivo resumido; sondea cada 10 s (≤ 30 s) mientras el libro está en cola o procesando y se detiene al terminar; un job `superseded` nunca se muestra como error.
+- ✅ (pruebas) Criterio 3: «Reintentar» solo para quien subió el libro o un administrador de un grupo que lo tiene (`request_retry`, pgTAP 18/18 en el proyecto real); también para un libro atascado en cola más de 5 minutos (disparo perdido); un doble toque hace una sola llamada. Ola final: también para un libro atascado en `processing` más de 6 h (`request_retry`, pgTAP 9/9; el job viejo queda con `error='stalled'`, «El procesamiento se interrumpió»), y una respuesta redirigida o HTML nunca se toma como éxito (mensaje de sesión caducada).
+- ✅ (código) Criterio 2: `/libros/[id]` abre el lector con las páginas ya publicadas mientras el libro se procesa; una página aún no publicada muestra «Esta página aún se está procesando».
+- Sin verificar: todo lo anterior en el navegador con sesión real y con el worker procesando de verdad (Actions); el diseño de `/libros/[id]` a 360/768/1280 px y en WebKit/iPhone (solo se comprobó que `/lector/demo` no cambió: sin scroll de documento a 360 px).

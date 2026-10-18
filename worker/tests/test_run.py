@@ -1,7 +1,6 @@
 import io
 import json
 import logging
-from pathlib import Path
 from typing import ClassVar
 
 import numpy as np
@@ -9,8 +8,6 @@ import pymupdf
 import pytest
 from PIL import Image
 
-from lexicon.build import build_lexicon
-from lexicon.store import Lexicon
 from pipeline.run import Engine, process_pdf
 
 BARS = "Haus"  # texto que devuelve el OCR simulado: no debe aparecer en los registros
@@ -19,47 +16,6 @@ BARS = "Haus"  # texto que devuelve el OCR simulado: no debe aparecer en los reg
 class FakeTranslator:
     def translate(self, text: str) -> str:
         return f"es:{text}"
-
-
-def _png(gray: np.ndarray) -> bytes:
-    buf = io.BytesIO()
-    Image.fromarray(gray).save(buf, "PNG")
-    return buf.getvalue()
-
-
-def _sheet(w: int, h: int, blocks: list[tuple[int, int]]) -> np.ndarray:
-    img = np.full((h, w), 255, np.uint8)
-    for x0, x1 in blocks:
-        for y in range(int(h * 0.15), int(h * 0.85), 30):
-            img[y : y + 12, x0:x1] = 0
-    return img
-
-
-@pytest.fixture(scope="module")
-def pdf(tmp_path_factory) -> Path:
-    """3 hojas: una página, una doble página con lomo y una hoja en blanco → 4 páginas lógicas."""
-    sheets = [
-        _sheet(600, 800, [(100, 500)]),
-        _sheet(1200, 800, [(100, 480), (720, 1100)]),
-        np.full((800, 600), 255, np.uint8),
-    ]
-    doc = pymupdf.open()
-    for g in sheets:
-        h, w = g.shape
-        page = doc.new_page(width=w, height=h)
-        page.insert_image(page.rect, stream=_png(g))
-    path = tmp_path_factory.mktemp("pdf") / "libro.pdf"
-    doc.save(path)
-    return path
-
-
-@pytest.fixture(scope="module")
-def lex(tmp_path_factory) -> Lexicon:
-    d = tmp_path_factory.mktemp("lexrun")
-    entry = {"word": "Haus", "pos": "noun", "senses": [{"glosses": ["house"], "tags": ["neuter"]}]}
-    (d / "mini.jsonl").write_text(json.dumps(entry), encoding="utf-8")
-    build_lexicon(d / "mini.jsonl", d / "lexicon.sqlite")
-    return Lexicon(d / "lexicon.sqlite")
 
 
 class FakeNlp:
@@ -110,7 +66,7 @@ class CountingEngine(Engine):
         return [4 + self.printed_calls]
 
 
-def run(pdf, out, lex, engine, monkeypatch, log=None):
+def run(pdf, out, lex, engine, monkeypatch, log=None, **hooks):
     monkeypatch.setattr("pipeline.run.analyze", fake_analyze)
     return process_pdf(
         pdf,
@@ -121,6 +77,7 @@ def run(pdf, out, lex, engine, monkeypatch, log=None):
         engine=engine,
         dpi=72,
         log=log or logging.getLogger("pipeline.test"),
+        **hooks,
     )
 
 
@@ -236,3 +193,38 @@ def test_reset_output_on_a_missing_folder_is_harmless(tmp_path):
     from pipeline.run import reset_output
 
     reset_output(tmp_path / "no-existe")
+
+
+def test_on_start_receives_sheet_count(pdf, lex, tmp_path, monkeypatch):
+    sheets = []
+    run(pdf, tmp_path, lex, CountingEngine(), monkeypatch, on_start=sheets.append)
+    assert sheets == [3]
+
+
+def test_on_page_called_for_every_logical_page_in_order(pdf, lex, tmp_path, monkeypatch):
+    seen = []
+
+    def on_page(n, pages_dir):
+        assert (pages_dir / f"{n}.json").exists() and (tmp_path / "lexicon.json").exists()
+        seen.append(n)
+
+    run(pdf, tmp_path, lex, CountingEngine(), monkeypatch, on_page=on_page)
+    assert seen == [1, 2, 3, 4]
+
+
+def test_on_page_called_for_skipped_pages_on_resume(pdf, lex, tmp_path, monkeypatch):
+    run(pdf, tmp_path, lex, CountingEngine(), monkeypatch)
+    seen = []
+    engine = CountingEngine()
+    run(pdf, tmp_path, lex, engine, monkeypatch, on_page=lambda n, d: seen.append(n))
+    assert engine.calls == 0 and seen == [1, 2, 3, 4]
+
+
+def test_hook_exception_marks_progress_error(pdf, lex, tmp_path, monkeypatch):
+    def boom(n, pages_dir):
+        raise RuntimeError("publicar falló")
+
+    with pytest.raises(RuntimeError):
+        run(pdf, tmp_path, lex, CountingEngine(), monkeypatch, on_page=boom)
+    progress = json.loads((tmp_path / "progress.json").read_text(encoding="utf-8"))
+    assert progress["status"] == "error"

@@ -20,18 +20,27 @@ type Props = {
   total: number;
   loadPage: (n: number) => Promise<PageData>;
   imageUrl: (n: number) => string;
+  /** Clase de alto del contenedor; por omisión ocupa toda la pantalla. */
+  heightClassName?: string;
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
 
-export function PageReader({ total, loadPage, imageUrl }: Props) {
+export function PageReader({
+  total,
+  loadPage,
+  imageUrl,
+  heightClassName = "h-dvh",
+}: Props) {
   const [page, setPage] = useState(1);
   const [loaded, setLoaded] = useState<{ n: number; data: PageData } | null>(
     null,
   );
-  const [failed, setFailed] = useState<{ n: number; attempt: number } | null>(
-    null,
-  );
+  const [failed, setFailed] = useState<{
+    n: number;
+    attempt: number;
+    message: string | null;
+  } | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [input, setInput] = useState("");
   const [inputError, setInputError] = useState(false);
@@ -71,8 +80,9 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
       (data) => {
         if (!cancelled) setLoaded({ n: page, data });
       },
-      () => {
-        if (!cancelled) setFailed({ n: page, attempt });
+      (e: unknown) => {
+        const message = e instanceof Error && e.message ? e.message : null;
+        if (!cancelled) setFailed({ n: page, attempt, message });
       },
     );
     for (const n of prefetchTargets(page, total)) {
@@ -108,7 +118,8 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
   }
 
   const data = loaded?.n === page ? loaded.data : null;
-  const error = failed?.n === page && failed.attempt === attempt;
+  const error = !data && failed?.n === page && failed.attempt === attempt;
+  const errorMessage = error ? failed.message : null;
   const open = data && selected?.page === page ? selected : null;
   const pair = open ? pairOf(data!, open.token) : null;
   const active = open
@@ -125,7 +136,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
 
   return (
-    <div className="flex h-dvh flex-col">
+    <div className={`flex ${heightClassName} min-h-0 flex-col`}>
       <div className="flex flex-wrap justify-end gap-2 border-b border-border px-3 py-1">
         <button
           type="button"
@@ -177,13 +188,15 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
           className="relative mx-auto w-full max-w-[900px] bg-white shadow"
           style={{ aspectRatio: aspect, containerType: "inline-size" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- WebP estático con tamaño propio */}
-          <img
-            src={imageUrl(page)}
-            alt={`Imagen de la página ${page}`}
-            className="absolute inset-0 h-full w-full select-none"
-            draggable={false}
-          />
+          {!error && (
+            // eslint-disable-next-line @next/next/no-img-element -- WebP estático con tamaño propio
+            <img
+              src={imageUrl(page)}
+              alt={`Imagen de la página ${page}`}
+              className="absolute inset-0 h-full w-full select-none"
+              draggable={false}
+            />
+          )}
           {/* Zonas laterales antes de la capa de texto: quedan debajo y no tapan palabras. */}
           <button
             type="button"
@@ -213,7 +226,7 @@ export function PageReader({ total, loadPage, imageUrl }: Props) {
               role="alert"
               className="absolute inset-x-4 top-4 rounded border border-border bg-background p-3 text-sm"
             >
-              No se pudo cargar la página.{" "}
+              {errorMessage ?? "No se pudo cargar la página."}{" "}
               <button
                 type="button"
                 className="min-h-11 font-medium underline"
