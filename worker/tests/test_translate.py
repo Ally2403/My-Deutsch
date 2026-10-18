@@ -88,3 +88,78 @@ def test_model_checksum_must_match_before_installing(tmp_path):
         verify_sha256(f, good)
     with pytest.raises(ValueError, match="no coincide"):
         verify_sha256(f, "")
+
+
+class _FakePackage:
+    """Sustituye a argostranslate.package: el modelo «descargado» y lo que se instala."""
+
+    def __init__(self, path):
+        self.path = path
+        self.installed: list[tuple[str, bytes]] = []
+        outer = self
+
+        class Pkg:
+            from_code, to_code = "en", "es"
+
+            def download(self):
+                return str(outer.path)
+
+        self._pkg = Pkg()
+
+    def update_package_index(self):
+        pass
+
+    def get_available_packages(self):
+        return [self._pkg]
+
+    def install_from_path(self, path):
+        from pathlib import Path
+
+        self.installed.append((path, Path(path).read_bytes()))
+
+
+@pytest.fixture
+def fake_argos(tmp_path, monkeypatch):
+    import sys
+    import types
+
+    model = tmp_path / "descarga.argosmodel"
+    model.write_bytes(b"modelo")
+    pkg = _FakePackage(model)
+    mod = types.ModuleType("argostranslate.package")
+    for name in ("update_package_index", "get_available_packages", "install_from_path"):
+        setattr(mod, name, getattr(pkg, name))
+    parent = types.ModuleType("argostranslate")
+    parent.package = mod
+    monkeypatch.setitem(sys.modules, "argostranslate", parent)
+    monkeypatch.setitem(sys.modules, "argostranslate.package", mod)
+    return pkg, model
+
+
+def test_provisioning_installs_a_verified_private_copy_not_the_downloaded_file(fake_argos):
+    import hashlib
+
+    from lexicon.translate import provision_model
+
+    pkg, original = fake_argos
+    digest = hashlib.sha256(b"modelo").hexdigest()
+    assert provision_model(digest) == digest
+    [(path, content)] = pkg.installed
+    assert path != str(original) and content == b"modelo"
+
+
+def test_provisioning_with_a_wrong_checksum_installs_nothing(fake_argos):
+    from lexicon.translate import provision_model
+
+    pkg, _ = fake_argos
+    with pytest.raises(ValueError, match="no coincide"):
+        provision_model("0" * 64)
+    assert pkg.installed == []
+
+
+def test_provisioning_without_expected_checksum_only_reports_it(fake_argos):
+    from lexicon.translate import provision_model
+
+    pkg, _ = fake_argos
+    assert len(provision_model(None)) == 64
+    assert pkg.installed == []

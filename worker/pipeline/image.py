@@ -8,21 +8,30 @@ from PIL import Image
 WIDTH = 1600
 MAX_BYTES = 250 * 1024
 QUALITIES = (80, 70, 60, 50, 40)
+MAX_INPUT_PIXELS = 80_000_000  # una página absurda no debe agotar la memoria del runner
+MAX_ASPECT = 3.0  # alto/ancho máximo; una página de libro es ≈ 1,4
 
 
 def webp_size(shape: tuple[int, ...], width: int = WIDTH) -> tuple[int, int]:
     h, w = shape[:2]
-    return width, round(h * width / w)
+    if h <= 0 or w <= 0:
+        raise ValueError("La página tiene dimensiones inválidas")
+    if h / w > MAX_ASPECT:
+        raise ValueError(f"La página tiene una proporción absurda ({h}×{w})")
+    return width, max(1, round(h * width / w))
 
 
 def render_webp(gray: np.ndarray, width: int = WIDTH, max_bytes: int = MAX_BYTES) -> bytes:
     """Reduce a `width` px y baja la calidad hasta cumplir `max_bytes`; nunca devuelve más."""
-    img = Image.fromarray(gray).resize(webp_size(gray.shape, width), Image.Resampling.LANCZOS)
-    size = 0
+    if gray.shape[0] * gray.shape[1] > MAX_INPUT_PIXELS:
+        raise ValueError("La página es demasiado grande para procesarla")
+    size = webp_size(gray.shape, width)
+    img = Image.fromarray(gray).resize(size, Image.Resampling.LANCZOS)
+    written = 0
     for quality in QUALITIES:
         buf = io.BytesIO()
         img.save(buf, "WEBP", quality=quality, method=6)
-        size = buf.tell()
-        if size <= max_bytes:
+        written = buf.tell()
+        if written <= max_bytes:
             return buf.getvalue()
-    raise ValueError(f"WebP de {size} bytes excede el límite de {max_bytes} bytes")
+    raise ValueError(f"WebP de {written} bytes excede el límite de {max_bytes} bytes")

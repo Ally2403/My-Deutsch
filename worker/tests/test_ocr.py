@@ -24,3 +24,11 @@ def test_a_hung_tesseract_becomes_a_clear_timeout_error(monkeypatch):
     monkeypatch.setattr(ocr.subprocess, "run", hang)
     with pytest.raises(TimeoutError, match="Tesseract"):
         ocr.tesseract(b"png")
+
+
+def test_a_timeout_in_orientation_detection_degrades_to_no_rotation(monkeypatch):
+    def hang(png, *args):
+        raise TimeoutError("Tesseract")
+
+    monkeypatch.setattr(ocr, "tesseract", hang)
+    assert ocr.osd_rotation(b"png") == 0

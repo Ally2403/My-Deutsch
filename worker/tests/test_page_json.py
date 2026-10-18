@@ -168,3 +168,82 @@ def test_render_webp_fails_clearly_instead_of_writing_an_oversized_image():
     noise = np.random.default_rng(0).integers(0, 255, (2263, 1600), dtype=np.uint8)
     with pytest.raises(ValueError, match="excede"):
         render_webp(noise, max_bytes=20_000)
+
+
+def _mutate_ok(p):
+    return p
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda p: p.update(v=True),
+        lambda p: p["tokens"][0].update(b=[True, 0, 0, 0]),
+        lambda p: p["tokens"][0].update(l="1"),
+        lambda p: p["tokens"][0].update(l=True),
+        lambda p: p.update(lines=[[True, 0]]),
+        lambda p: p.update(lines=[[0.0, 0]]),
+        lambda p: p.update(tokens="no es una lista"),
+        lambda p: p.update(lines={"a": 1}),
+        lambda p: p.update(lex=[]),
+        lambda p: p["lex"].update({"1": "no es un diccionario"}),
+        lambda p: p["lex"][str(p["tokens"][0]["l"])].update(senses=["x"]),
+        lambda p: p.pop("lex"),
+        lambda p: p.pop("tokens"),
+        lambda p: p["tokens"][0].update(sep=True),
+    ],
+)
+def test_validate_page_is_as_strict_as_the_typescript_parser(lex, mutate):
+    p = valid_page(lex)
+    mutate(p)
+    with pytest.raises(ValueError):
+        validate_page(p)
+
+
+def test_validate_page_only_ever_raises_value_error():
+    for junk in (
+        None,
+        5,
+        "x",
+        [],
+        {"v": 1, "size": "x"},
+        {"v": 1, "size": [1, 1], "tokens": [None]},
+    ):
+        with pytest.raises(ValueError):
+            validate_page(junk)
+
+
+def test_registry_allocates_ids_from_the_real_maximum(lex):
+    reg = LexRegistry.from_dict(
+        {
+            "ids": {"Leute|noun": 5},
+            "entries": {"5": {"lemma": "Leute", "pos": "noun", "senses": []}},
+        }
+    )
+    p = page([tok("Haus")], [Analyzed("Haus", "noun", None, None)], lex, reg)
+    assert p["tokens"][0]["l"] == 6
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        {"ids": {"a|noun": 1, "b|noun": 1}, "entries": {"1": {}}},  # id repetido
+        {"ids": {"a|noun": 1}, "entries": {"2": {}}},  # ids y entradas no coinciden
+        {"ids": {"a|noun": 0}, "entries": {"0": {}}},  # ids positivos
+    ],
+)
+def test_registry_rejects_inconsistent_saved_state(data):
+    with pytest.raises(ValueError):
+        LexRegistry.from_dict(data)
+
+
+def test_webp_size_rejects_absurd_geometry_before_resizing():
+    from pipeline.image import MAX_INPUT_PIXELS
+
+    with pytest.raises(ValueError, match="proporción"):
+        webp_size((10_000, 1_000))  # tira de 10:1
+    with pytest.raises(ValueError, match="dimensiones"):
+        webp_size((100, 0))
+    with pytest.raises(ValueError, match="demasiado grande"):
+        render_webp(np.zeros((MAX_INPUT_PIXELS // 1000 + 1, 1000), np.uint8))
+    assert webp_size((2263, 1600)) == (1600, 2263)

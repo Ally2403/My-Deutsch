@@ -31,7 +31,7 @@ class LexRegistry:
             if entry.plural:
                 data["pl"] = entry.plural
         data["senses"] = senses_for(entry, translator)
-        new_id = len(self._ids) + 1
+        new_id = max(self._entries, default=0) + 1
         self._ids[key] = new_id
         self._entries[new_id] = data
         return new_id
@@ -44,9 +44,18 @@ class LexRegistry:
 
     @classmethod
     def from_dict(cls, data: dict) -> "LexRegistry":
+        ids = dict(data["ids"])
+        entries = {int(i): e for i, e in data["entries"].items()}
+        values = list(ids.values())
+        if len(set(values)) != len(values) or set(values) != set(entries):
+            raise ValueError("Registro de léxico inconsistente: ids repetidos o sin entrada")
+        if any(not isinstance(v, int) or isinstance(v, bool) or v < 1 for v in values):
+            raise ValueError(
+                "Registro de léxico inconsistente: los ids deben ser enteros positivos"
+            )
         reg = cls()
-        reg._ids = dict(data["ids"])
-        reg._entries = {int(i): e for i, e in data["entries"].items()}
+        reg._ids = ids
+        reg._entries = entries
         return reg
 
 
@@ -104,48 +113,82 @@ def _fail(msg: str) -> None:
     raise ValueError(f"Página inválida: {msg}")
 
 
+def _is_int(x: object) -> bool:
+    return type(x) is int
+
+
+def _is_num(x: object) -> bool:
+    return type(x) in (int, float)
+
+
 def _check_box(box: object, what: str) -> None:
     ok = isinstance(box, list) and len(box) == 4
-    if not (ok and all(isinstance(n, int | float) and 0 <= n <= 1 for n in box)):
+    if not (ok and all(_is_num(n) and 0 <= n <= 1 for n in box)):
         _fail(f"caja inválida en {what}")
 
 
-def validate_page(page: dict) -> None:
-    """Mismas reglas que `parsePage` (lib/domain/page.ts)."""
-    if page.get("v") != 1:
+def _list(page: dict, key: str) -> list:
+    value = page.get(key)
+    if not isinstance(value, list):
+        _fail(f"{key} debe ser una lista")
+    return value
+
+
+def validate_page(page: object) -> None:
+    """Mismas reglas que `parsePage` (lib/domain/page.ts). Solo escapa `ValueError`."""
+    try:
+        _validate(page)
+    except ValueError:
+        raise
+    except (TypeError, KeyError, AttributeError, IndexError) as exc:
+        raise ValueError(f"Página inválida: estructura inesperada ({type(exc).__name__})") from exc
+
+
+def _validate(page: object) -> None:
+    if not isinstance(page, dict):
+        _fail("no es un objeto")
+    if not _is_int(page.get("v")) or page["v"] != 1:
         _fail("versión no soportada")
     size = page.get("size")
-    if not (isinstance(size, list) and len(size) == 2 and all(n > 0 for n in size)):
+    if not (isinstance(size, list) and len(size) == 2 and all(_is_num(n) and n > 0 for n in size)):
         _fail("size inválido")
-    lex = page.get("lex", {})
+    lex = page.get("lex")
+    if not isinstance(lex, dict):
+        _fail("lex debe ser un objeto")
     for key, entry in lex.items():
+        if not isinstance(entry, dict):
+            _fail(f"entrada de léxico {key} inválida")
         if not isinstance(entry.get("lemma"), str) or not isinstance(entry.get("pos"), str):
             _fail(f"entrada de léxico {key} inválida")
         senses = entry.get("senses")
         if not isinstance(senses, list) or len(senses) > MAX_SENSES:
             _fail(f"más de {MAX_SENSES} acepciones en la entrada {key}")
-        if not all(isinstance(s.get("es"), str) and isinstance(s.get("m"), bool) for s in senses):
-            _fail(f"acepción inválida en la entrada {key}")
-        if not set(entry.get("g", [])) <= {"m", "f", "n"}:
+        for s in senses:
+            if not (
+                isinstance(s, dict) and isinstance(s.get("es"), str) and type(s.get("m")) is bool
+            ):
+                _fail(f"acepción inválida en la entrada {key}")
+        g = entry.get("g", [])
+        if not (isinstance(g, list) and all(x in ("m", "f", "n") for x in g)):
             _fail(f"géneros inválidos en la entrada {key}")
-    tokens = page.get("tokens", [])
+    tokens = _list(page, "tokens")
     for i, t in enumerate(tokens):
-        if not isinstance(t.get("t"), str):
+        if not isinstance(t, dict) or not isinstance(t.get("t"), str):
             _fail(f"token {i} inválido")
         _check_box(t.get("b"), f"token {i}")
         if "b2" in t:
             _check_box(t["b2"], f"token {i} (b2)")
-        if "l" in t and str(t["l"]) not in lex:
-            _fail(f"el id de léxico {t['l']} del token {i} no existe en lex")
-        if "sep" in t and not (isinstance(t["sep"], int) and 0 <= t["sep"] < len(tokens)):
+        if "l" in t and not (_is_int(t["l"]) and str(t["l"]) in lex):
+            _fail(f"el id de léxico del token {i} no existe en lex")
+        if "sep" in t and not (_is_int(t["sep"]) and 0 <= t["sep"] < len(tokens)):
             _fail(f"sep fuera de rango en el token {i}")
         if "f" in t and t["f"] not in FORM_TAGS:
             _fail(f"forma desconocida en el token {i}")
     for name in ("lines", "paragraphs"):
-        for r in page.get(name, []):
-            ok = len(r) == 2 and 0 <= r[0] <= r[1] < len(tokens)
-            if not ok:
+        for r in _list(page, name):
+            ok = isinstance(r, list) and len(r) == 2 and all(_is_int(x) for x in r)
+            if not (ok and 0 <= r[0] <= r[1] < len(tokens)):
                 _fail(f"índice fuera de los tokens en {name}")
     for name in ("images", "fields"):
-        for b in page.get(name, []):
+        for b in _list(page, name):
             _check_box(b, name)

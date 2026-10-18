@@ -2,7 +2,9 @@
 
 import hashlib
 import logging
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 from typing import Protocol
 
@@ -16,6 +18,13 @@ class Translator(Protocol):
     def translate(self, text: str) -> str: ...
 
 
+class NullTranslator:
+    """Sin traducción automática: solo quedan las acepciones de Wiktionary en español."""
+
+    def translate(self, text: str) -> str:
+        return ""
+
+
 def verify_sha256(path: Path, expected: str) -> None:
     actual = hashlib.sha256(path.read_bytes()).hexdigest()
     if not expected or actual != expected.lower():
@@ -25,7 +34,7 @@ def verify_sha256(path: Path, expected: str) -> None:
 def _load_translation():
     """Traducción en→es ya instalada, o None. Nunca descarga nada."""
     try:
-        import argostranslate.translate as translate
+        from argostranslate import translate
     except ImportError as exc:
         raise RuntimeError("Falta el extra «argos»: uv sync --extra argos") from exc
     return translate.get_translation_from_codes("en", "es")
@@ -51,18 +60,22 @@ def provision_model(expected_sha256: str | None = None) -> str:
     """Paso explícito de aprovisionamiento (imagen o job de preparación, nunca en el uso):
     descarga el modelo, comprueba su SHA-256 y solo entonces lo instala. Sin huella esperada
     solo imprime la obtenida, para fijarla en el repositorio."""
-    import argostranslate.package as package
+    from argostranslate import package
 
     package.update_package_index()
     wanted = next(
         p for p in package.get_available_packages() if p.from_code == "en" and p.to_code == "es"
     )
-    path = Path(wanted.download())
-    actual = hashlib.sha256(path.read_bytes()).hexdigest()
-    if expected_sha256 is None:
-        return actual
-    verify_sha256(path, expected_sha256)
-    package.install_from_path(str(path))
+    # Se copia a un directorio privado y se verifica e instala esa misma copia: así no hay
+    # ventana entre comprobar la huella y usar el archivo (TOCTOU).
+    with tempfile.TemporaryDirectory() as tmp:
+        local = Path(tmp) / "modelo.argosmodel"
+        shutil.copyfile(wanted.download(), local)
+        actual = hashlib.sha256(local.read_bytes()).hexdigest()
+        if expected_sha256 is None:
+            return actual
+        verify_sha256(local, expected_sha256)
+        package.install_from_path(str(local))
     return actual
 
 
