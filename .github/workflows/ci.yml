@@ -41,8 +41,10 @@ jobs:
           --coverage.reporter=text-summary
           --coverage.thresholds.lines=70
       - name: Instalar navegadores de Playwright
+        timeout-minutes: 10
         run: pnpm exec playwright install --with-deps chromium webkit
       - name: Playwright (Chromium 360/768/1280 y WebKit iPhone)
+        timeout-minutes: 15
         run: pnpm e2e
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
