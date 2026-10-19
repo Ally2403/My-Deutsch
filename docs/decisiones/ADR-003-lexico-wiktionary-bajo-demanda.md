@@ -1,6 +1,6 @@
 # ADR-003 · Léxico de Wiktionary (kaikki.org) cargado bajo demanda
 
-**Estado:** Aceptada · **Requisitos:** RF-21–RF-25, RNF-01
+**Estado:** Aceptada · el punto 3 fue reemplazado por [ADR-007](ADR-007-traduccion-opus-mt.md) · **Requisitos:** RF-21–RF-25, RNF-01
 
 ## Contexto
 Se necesitan lema, tipo de palabra, género, plural y significados en español para vocabulario hasta C1, gratis y sin APIs. El volcado alemán completo de Wiktionary pesa más de 1 GB y sus formas flexionadas suman millones de filas, lo que no cabe en los 500 MB de Supabase.

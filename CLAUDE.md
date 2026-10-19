@@ -18,7 +18,7 @@ Web app (PWA) que convierte libros de alemán escaneados en PDF en libros intera
 ## Stack y comandos
 - App: Next.js (App Router) + TypeScript estricto + Tailwind + shadcn/ui, en Vercel. `pnpm dev` · `pnpm typecheck` · `pnpm lint` · `pnpm test` (Vitest) · `pnpm test:quick` (lo usa el hook Stop) · `pnpm e2e` (Playwright).
 - Datos: Supabase (Auth correo + Google, Postgres + RLS, Storage, Realtime). Migraciones en `supabase/migrations/`, pruebas RLS con pgTAP en `supabase/tests/`.
-- Worker: Python con `uv` en `worker/` (PyMuPDF, Tesseract `deu`, spaCy `de_core_news_md`, Argos en→es). `uv run pytest` · `uv run ruff check`. Corre en GitHub Actions (`process-book.yml`, ADR-002).
+- Worker: Python con `uv` en `worker/` (PyMuPDF, Tesseract `deu`, spaCy `de_core_news_md`, Opus-MT de→es y en→es, ADR-007). `uv run pytest` · `uv run ruff check`. Corre en GitHub Actions (`process-book.yml`, ADR-002).
 - Para documentación de librerías usa Context7 (no confíes en la memoria para APIs de Next.js, Supabase o spaCy).
 
 ## Convenciones
