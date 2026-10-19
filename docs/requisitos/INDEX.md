@@ -57,7 +57,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-34 | [Campos de ejercicio detectados automáticamente](funcionales/RF-34-campos-de-ejercicio-detectados-automaticamente.md)          | M-8    | Baja      | 4    | Pendiente   |
 | RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md)                                  | M-8    | Baja      | 4    | Hecho       |
 | RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T    | Alta      | 3    | Hecho       |
-| RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md)                                                        | M-T    | Baja      | 5    | Pendiente   |
+| RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md)                                                        | M-T    | Baja      | 5    | Hecho       |
 | RF-38 | [Enderezar y separar dobles páginas](funcionales/RF-38-enderezar-y-separar-dobles-paginas.md)                                  | M-4    | Alta      | 2    | Hecho       |
 | RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md)                                      | M-6    | Alta      | 2    | Hecho       |
 | RF-40 | [Página de inicio pública y política de privacidad](funcionales/RF-40-pagina-de-privacidad-y-de-inicio-publica.md)             | M-1    | Alta      | 3    | Hecho       |
@@ -90,7 +90,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 
 ## Alcance del MVP (cierre 2026-10-19)
 
-El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: RF-18 (modo lectura), RF-34 (campos de ejercicio detectados automáticamente), RF-37 (preferencias de lectura; el tema ya está en RF-44), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
+El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: RF-18 (modo lectura), RF-34 (campos de ejercicio detectados automáticamente), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
 
 ## Plantilla para un requisito nuevo
 

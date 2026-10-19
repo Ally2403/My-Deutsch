@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { OutlineButton, Page } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
+import { parsePrefs } from "@/lib/domain/prefs";
+import { PrefsForm } from "./prefs-form";
 import { DeleteAccount, ProfileForm } from "./profile-form";
 
 async function Perfil() {
@@ -12,7 +14,7 @@ async function Perfil() {
     return <p className="text-muted">Inicia sesión para ver tu perfil.</p>;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, level")
+    .select("display_name, level, prefs")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -24,6 +26,8 @@ async function Perfil() {
         displayName={profile?.display_name ?? ""}
         level={profile?.level ?? null}
       />
+      <h2 className="mt-10 font-display text-lg font-bold">Preferencias de lectura</h2>
+      <PrefsForm initial={parsePrefs(profile?.prefs)} />
       <form action="/auth/signout" method="post" className="mt-6">
         <OutlineButton type="submit">Cerrar sesión</OutlineButton>
       </form>

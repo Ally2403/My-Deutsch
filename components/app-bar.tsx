@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { syncPrefsOnce } from "@/lib/prefs/client";
 import { createClient } from "@/lib/supabase/client";
 
 const LINKS = [
@@ -16,7 +17,10 @@ function useSignedIn() {
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+    supabase.auth.getSession().then(({ data }) => {
+      setSignedIn(!!data.session);
+      if (data.session) void syncPrefsOnce();
+    });
     const { data } = supabase.auth.onAuthStateChange((_e, session) =>
       setSignedIn(!!session),
     );

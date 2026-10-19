@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Baja |
 | **Fase** | 5 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-16](RF-16-pasar-paginas.md) |
 | **Reglas de negocio** | — |
 
