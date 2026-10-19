@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # RNF-13: prueba de ida y vuelta del respaldo en un Postgres 17 desechable (Docker): migraciones -> datos
 # -> pg_dump -> cifrado -> scripts/restaurar-respaldo.sh. Uso (desde la raíz del repo): scripts/probar-respaldo-docker.sh
-cd "$(dirname "$0")/.." && inner="$(mktemp)" && sed -n "/^#INNER/,\$p" "$0" | tail -n +2 > "$inner" && MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W 2>/dev/null || pwd):/w" -v "$inner:/rt.sh" postgres:17 bash /rt.sh; exit $?
+cd "$(dirname "$0")/.." && sed -n "/^#INNER/,\$p" "$0" | tail -n +2 | MSYS_NO_PATHCONV=1 docker run --rm -i -v "$(pwd -W 2>/dev/null || pwd):/w" postgres:17 bash -s; exit $?
 #INNER
 set -euo pipefail
 apt-get update -qq >/dev/null && apt-get install -y -qq gnupg >/dev/null
