@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-19, RNF-08)
+
+**RNF-08 Lighthouse — En progreso (rama `feat/RNF-08-lighthouse`):** `lighthouserc.json` (umbrales 85/90/90, mediana de 3 corridas, móvil) y `.github/workflows/lighthouse.yml` (en cada despliegue de producción o a mano). **Medido hoy en producción** (3 corridas): `/` rendimiento 91–93, `/login` 89–97, `/lector/demo` 95–98; accesibilidad y buenas prácticas 100 en todas. **Falta:** ver la primera ejecución del workflow en Actions tras desplegar; las pantallas con sesión (biblioteca, diccionario) no se pueden auditar sin credenciales; el workflow marca el despliegue como no conforme en GitHub, no lo revierte en Vercel.
+
 # Retomar aquí (2026-10-19, RF-18)
 
 **RF-18 modo lectura — Hecho (rama `feat/RF-18-modo-lectura`):** chip «Modo lectura» en el lector: párrafos ajustados al ancho en el orden del original (`lib/domain/reading.ts`), ilustraciones recortadas de la imagen entre párrafos, tamaño de letra A−/A+ (preferencia de RF-37, local y en el perfil), mismas marcas (género, plurales, vistas) y panel de palabra. e2e en 4 perfiles: sin desborde horizontal desde 360 px. Suite 504/504. **Sin verificar:** ilustraciones reales en un libro con imágenes (la demo no tiene; solo pruebas unitarias del recorte).

@@ -77,7 +77,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-05 | [Autenticación segura](no-funcionales/RNF-05-autenticacion-segura.md)                                                     | M-1    | Alta      | 3    | Hecho       |
 | RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md)                     | M-T    | Alta      | 3    | Hecho       |
 | RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md)                                                       | M-T    | Alta      | 3    | Hecho       |
-| RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md)                                                               | M-T    | Media     | 5    | Pendiente   |
+| RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md)                                                               | M-T    | Media     | 5    | En progreso |
 | RNF-09 | [Accesibilidad y contraste de colores de género](no-funcionales/RNF-09-accesibilidad-y-contraste-de-colores-de-genero.md) | M-T    | Alta      | 3    | Hecho       |
 | RNF-10 | [Concurrencia en el plan gratuito](no-funcionales/RNF-10-concurrencia-en-el-plan-gratuito.md)                             | M-T    | Media     | 5    | Pendiente   |
 | RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md)                                                         | M-3    | Media     | 3    | Hecho       |

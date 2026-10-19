@@ -1,0 +1,39 @@
+# RNF-08: Lighthouse móvil en cada despliegue de producción. Si rendimiento < 85 o accesibilidad o
+# buenas prácticas < 90 (mediana de 3 corridas), el workflow falla y el despliegue queda marcado
+# como no conforme en GitHub. Solo se auditan pantallas públicas: las que exigen sesión (biblioteca,
+# diccionario) no se pueden abrir sin credenciales; el lector se audita en su ruta de demostración.
+name: lighthouse
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SITE: https://my-deutsch.vercel.app
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      - name: Lighthouse CI (inicio, ingreso y lector de demostración)
+        run: >
+          npx --yes @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+          --collect.url="$SITE/" --collect.url="$SITE/login" --collect.url="$SITE/lector/demo"
+          --collect.settings.chromeFlags="--no-sandbox --headless=new"
