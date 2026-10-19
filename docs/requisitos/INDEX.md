@@ -73,7 +73,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-02 | [Tiempo de cambio de página](no-funcionales/RNF-02-tiempo-de-cambio-de-pagina.md)                                         | M-5    | Alta      | 3    | Pendiente   |
 | RNF-03 | [Precisión del OCR](no-funcionales/RNF-03-precision-del-ocr.md)                                                           | M-4    | Alta      | 2    | En progreso |
 | RNF-04 | [Tiempo de procesamiento de un libro](no-funcionales/RNF-04-tiempo-de-procesamiento-de-un-libro.md)                       | M-4    | Media     | 2    | Pendiente   |
-| RNF-05 | [Autenticación segura](no-funcionales/RNF-05-autenticacion-segura.md)                                                     | M-1    | Alta      | 3    | Pendiente   |
+| RNF-05 | [Autenticación segura](no-funcionales/RNF-05-autenticacion-segura.md)                                                     | M-1    | Alta      | 3    | En progreso |
 | RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md)                     | M-T    | Alta      | 3    | Pendiente   |
 | RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md)                                                       | M-T    | Alta      | 3    | Pendiente   |
 | RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md)                                                               | M-T    | Media     | 5    | Pendiente   |
