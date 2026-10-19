@@ -56,7 +56,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-33 | [Escribir respuestas sobre la página](funcionales/RF-33-escribir-respuestas-sobre-la-pagina.md)                                | M-8    | Media     | 3    | Pendiente   |
 | RF-34 | [Campos de ejercicio detectados automáticamente](funcionales/RF-34-campos-de-ejercicio-detectados-automaticamente.md)          | M-8    | Baja      | 4    | Pendiente   |
 | RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md)                                  | M-8    | Baja      | 4    | Pendiente   |
-| RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T    | Alta      | 3    | Pendiente   |
+| RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T    | Alta      | 3    | En progreso |
 | RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md)                                                        | M-T    | Baja      | 5    | Pendiente   |
 | RF-38 | [Enderezar y separar dobles páginas](funcionales/RF-38-enderezar-y-separar-dobles-paginas.md)                                  | M-4    | Alta      | 2    | En progreso |
 | RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md)                                      | M-6    | Alta      | 2    | En progreso |
@@ -74,8 +74,8 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-03 | [Precisión del OCR](no-funcionales/RNF-03-precision-del-ocr.md)                                                           | M-4    | Alta      | 2    | En progreso |
 | RNF-04 | [Tiempo de procesamiento de un libro](no-funcionales/RNF-04-tiempo-de-procesamiento-de-un-libro.md)                       | M-4    | Media     | 2    | Pendiente   |
 | RNF-05 | [Autenticación segura](no-funcionales/RNF-05-autenticacion-segura.md)                                                     | M-1    | Alta      | 3    | En progreso |
-| RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md)                     | M-T    | Alta      | 3    | Pendiente   |
-| RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md)                                                       | M-T    | Alta      | 3    | Pendiente   |
+| RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md)                     | M-T    | Alta      | 3    | En progreso |
+| RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md)                                                       | M-T    | Alta      | 3    | En progreso |
 | RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md)                                                               | M-T    | Media     | 5    | Pendiente   |
 | RNF-09 | [Accesibilidad y contraste de colores de género](no-funcionales/RNF-09-accesibilidad-y-contraste-de-colores-de-genero.md) | M-T    | Alta      | 3    | En progreso |
 | RNF-10 | [Concurrencia en el plan gratuito](no-funcionales/RNF-10-concurrencia-en-el-plan-gratuito.md)                             | M-T    | Media     | 5    | Pendiente   |
