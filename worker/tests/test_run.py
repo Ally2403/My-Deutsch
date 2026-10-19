@@ -14,8 +14,10 @@ BARS = "Haus"  # texto que devuelve el OCR simulado: no debe aparecer en los reg
 
 
 class FakeTranslator:
-    def translate(self, text: str) -> str:
+    def from_german(self, text: str) -> str:
         return f"es:{text}"
+
+    from_english = from_german
 
 
 class FakeNlp:
@@ -169,7 +171,7 @@ def test_cli_logging_keeps_pipeline_progress_but_silences_third_party_noise():
 
     configure_logging()
     assert logging.getLogger("pipeline").getEffectiveLevel() == logging.INFO
-    assert logging.getLogger("argostranslate").getEffectiveLevel() >= logging.WARNING
+    assert logging.getLogger("transformers").getEffectiveLevel() >= logging.WARNING
     assert logging.getLogger().getEffectiveLevel() >= logging.WARNING
 
 

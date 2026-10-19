@@ -17,7 +17,7 @@ flowchart LR
     ST[(Storage<br/>PDF, WebP, tokens JSON)]
   end
   subgraph GHA["GitHub Actions"]
-    W[Worker Python<br/>PyMuPDF · Tesseract · spaCy · Argos]
+    W[Worker Python<br/>PyMuPDF · Tesseract · spaCy · Opus-MT]
     LX[(Léxico completo<br/>kaikki.org en caché)]
   end
   UI <--> API
