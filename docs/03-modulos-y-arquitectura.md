@@ -92,5 +92,19 @@ My-Deutsch/
 
 **Nota:** Supabase pausa los proyectos gratuitos tras 7 días sin actividad; un workflow semanal de Actions hace una consulta liviana para evitarlo.
 
+### Consumo frente al 80 % de la cuota (RNF-10 c2)
+
+Estimación para 25 usuarios, 10 libros de 200 páginas y un mes con CI activo (los datos reales se miden en los paneles de cada servicio).
+
+| Recurso | Uso estimado | 80 % de la cuota | Margen |
+|---|---|---|---|
+| Supabase DB | ≈ 80 MB | 400 MB | 20 % de la cuota |
+| Supabase Storage | ≈ 350 MB | 800 MB | 35 % de la cuota |
+| Supabase egress | ≈ 1,5 GB/mes | 4 GB/mes | 30 % de la cuota |
+| Vercel ancho de banda (las páginas pasan por `/api/libros/…`) | ≈ 1,5 GB/mes | 80 GB/mes | 1,5 % de la cuota |
+| Actions (repo privado) | 10 libros × 25 min + ≈ 40 ejecuciones de CI × 5 min + Lighthouse y respaldo ≈ 500 min/mes | 1 600 min/mes | 25 % de la cuota |
+
+Prueba de carga: `loadtest/lector.k6.js` (k6, 25 usuarios virtuales, 10 min).
+
 ## 6. Decisiones de arquitectura
 Ver `docs/decisiones/` (ADR-001 a ADR-005).

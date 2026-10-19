@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Media |
 | **Fase** | 5 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | — |
 | **Reglas de negocio** | — |
 
