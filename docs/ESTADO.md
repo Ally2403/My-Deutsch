@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-19, RNF-13 verificado)
+
+**RNF-13 — Hecho:** la usuaria creó los secretos y el workflow `respaldo` salió en verde. Quedan En progreso solo **RNF-08** (ver la primera ejecución de `lighthouse` en Actions tras un despliegue de producción) y **RNF-10** (k6 10 min con cuenta de prueba y libro real).
+
 # Retomar aquí (2026-10-19, RF-45)
 
 **RF-45 verbos separables con punto medio — Hecho:** al tocar una palabra cuyo lema es un verbo separable el panel muestra `vor·gehen`, `auf·stehen`, `an·rufen` (lector de pantalla: «verbo separable»). Heurística por lista de partículas sin las ambiguas (durch-, über-, um-, unter-, wieder-, zwischen-, hinter-) y una lista de excepciones; `lib/domain/separable.ts`. Solo en el panel de la palabra tocada.

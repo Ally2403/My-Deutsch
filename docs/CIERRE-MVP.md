@@ -21,7 +21,6 @@ RF-33/RNF-14/RF-35 (escribir respuestas sobre la página, guardado fiable offlin
 |---|---|---|
 | RNF-08 | Lighthouse móvil en cada despliegue de producción | Ver la primera ejecución del workflow `lighthouse` en Actions (medido a mano: rendimiento 89–98, accesibilidad y buenas prácticas 100) |
 | RNF-10 | Concurrencia: 25 usuarios, p95 < 500 ms | Correr `loadtest/lector.k6.js` 10 min con una cuenta de prueba y un libro real |
-| RNF-13 | Respaldo semanal cifrado | Crear los secretos `SUPABASE_DB_URL` y `BACKUP_PASSPHRASE` y lanzar el workflow `respaldo` una vez (ver `docs/respaldo.md`) |
 
 ## Limitaciones conocidas
 - **RNF-02 criterio 2 (cambio aprobado 2026-10-19):** las páginas son privadas, así que se sirven desde la app con caché privada de 7 días, no desde un CDN con caché inmutable de 1 año.
