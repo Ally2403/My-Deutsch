@@ -69,11 +69,11 @@ function LoginForm() {
       <div className="my-4 text-center text-muted">o</div>
       <GoogleButton next={next} />
       <p className="mt-6 text-sm">
-        <Link href="/recuperar" className="underline">
+        <Link href="/recuperar" className="tap-link underline">
           Olvidé mi contraseña
         </Link>
         {" · "}
-        <Link href="/registro" className="underline">
+        <Link href="/registro" className="tap-link underline">
           Crear cuenta
         </Link>
       </p>

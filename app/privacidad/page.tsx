@@ -49,7 +49,7 @@ export default function Privacidad() {
       <p className="mt-2">
         Puedes pedir que borremos tu cuenta y todos tus datos escribiendo a{" "}
         {contact ? (
-          <a className="underline" href={`mailto:${contact}`}>
+          <a className="tap-link underline" href={`mailto:${contact}`}>
             {contact}
           </a>
         ) : (
@@ -59,7 +59,7 @@ export default function Privacidad() {
       </p>
 
       <p className="mt-8">
-        <Link href="/" className="underline">
+        <Link href="/" className="tap-link underline">
           Volver al inicio
         </Link>
       </p>

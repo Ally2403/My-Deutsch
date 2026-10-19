@@ -224,7 +224,7 @@ export function PageReader({
           {error && (
             <div
               role="alert"
-              className="absolute inset-x-4 top-4 rounded border border-border bg-background p-3 text-sm"
+              className="absolute inset-x-4 top-4 card bg-surface p-3 text-sm"
             >
               {errorMessage ?? "No se pudo cargar la página."}{" "}
               <button
@@ -255,7 +255,7 @@ export function PageReader({
 
       <nav
         aria-label="Páginas"
-        className="flex items-center justify-between gap-2 border-t border-border px-3 py-2"
+        className="flex items-center justify-between gap-2 border-t border-border bg-surface px-3 py-2"
         style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
       >
         <button
@@ -263,7 +263,7 @@ export function PageReader({
           aria-label="Página anterior"
           disabled={page <= 1}
           onClick={() => go("prev")}
-          className="min-h-11 min-w-11 rounded border border-border disabled:opacity-40"
+          className="pressable min-h-11 min-w-11 rounded-control border border-border bg-surface text-lg disabled:opacity-40"
         >
           ←
         </button>
@@ -281,11 +281,11 @@ export function PageReader({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             aria-invalid={inputError}
-            className="min-h-11 w-16 rounded border border-border bg-background px-2 text-center"
+            className="min-h-11 w-16 rounded-control border border-border bg-surface px-2 text-center"
           />
           <button
             type="submit"
-            className="min-h-11 rounded border border-border px-3"
+            className="pressable min-h-11 rounded-control border border-border bg-surface px-3 font-medium"
           >
             Ir
           </button>
@@ -295,7 +295,7 @@ export function PageReader({
           aria-label="Página siguiente"
           disabled={page >= total}
           onClick={() => go("next")}
-          className="min-h-11 min-w-11 rounded border border-border disabled:opacity-40"
+          className="pressable min-h-11 min-w-11 rounded-control border border-border bg-surface text-lg disabled:opacity-40"
         >
           →
         </button>
