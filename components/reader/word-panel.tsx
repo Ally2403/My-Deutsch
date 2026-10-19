@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { splitSeparable } from "@/lib/domain/separable";
 import { genderInfo } from "@/lib/domain/gender";
 import { recordLookup } from "@/lib/domain/lookup-log";
 import type { LexEntry, PageData } from "@/lib/domain/page";
@@ -64,6 +65,15 @@ function Heading({ entry }: { entry: LexEntry }) {
       </p>
     );
   }
+  // RF-45: un verbo separable se escribe con punto medio (vor·gehen) para recordar que se separa.
+  const parts = splitSeparable(entry.lemma, entry.pos);
+  if (parts)
+    return (
+      <p className="text-xl font-semibold">
+        <span aria-hidden="true">{parts.join("·")}</span>
+        <span className="sr-only">{entry.lemma}, verbo separable</span>
+      </p>
+    );
   return <p className="text-xl font-semibold">{entry.lemma}</p>;
 }
 
