@@ -528,7 +528,7 @@ export function PageReader({
 
       <nav
         aria-label="Páginas"
-        className="flex items-center justify-between gap-2 border-t border-border bg-surface px-3 py-2"
+        className="flex items-center justify-center gap-2 border-t border-border bg-surface px-3 py-2"
         style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
       >
         <button
@@ -540,26 +540,10 @@ export function PageReader({
         >
           <Icon name="left" size={22} />
         </button>
-        <form onSubmit={onSubmit} className="flex items-center gap-2">
-          <span
-            aria-live="polite"
-            className="text-sm font-medium text-muted"
-          >{`página ${page} de ${total}`}</span>
-          <label className="sr-only" htmlFor="reader-goto">
-            Ir a la página
-          </label>
-          <input
-            id="reader-goto"
-            inputMode="numeric"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            aria-invalid={inputError}
-            className="min-h-11 w-16 rounded-full border border-border bg-surface px-2 text-center focus:border-accent"
-          />
-          <button type="submit" className="btn-go">
-            Ir
-          </button>
-        </form>
+        <span
+          aria-live="polite"
+          className="min-w-[5.5rem] text-center text-sm font-medium text-muted"
+        >{`página ${page} de ${total}`}</span>
         <button
           type="button"
           aria-label="Página siguiente"
@@ -569,6 +553,22 @@ export function PageReader({
         >
           <Icon name="right" size={22} />
         </button>
+        <form onSubmit={onSubmit} className="ml-2 flex items-center gap-2">
+          <label className="sr-only" htmlFor="reader-goto">
+            Ir a la página
+          </label>
+          <input
+            id="reader-goto"
+            inputMode="numeric"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            aria-invalid={inputError}
+            className="min-h-11 w-14 rounded-full border border-border bg-surface px-2 text-center focus:border-accent"
+          />
+          <button type="submit" className="btn-go">
+            Ir
+          </button>
+        </form>
       </nav>
       {inputError && (
         <p role="alert" className="px-3 pb-2 text-sm text-danger">
