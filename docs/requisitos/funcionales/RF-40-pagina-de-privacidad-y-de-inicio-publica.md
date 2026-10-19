@@ -22,3 +22,6 @@ Google exige una página de inicio y una política de privacidad en el dominio d
 2. La política enumera los datos guardados, su visibilidad y un correo de contacto para pedir su eliminación.
 3. Ambas URLs están registradas en la pantalla de consentimiento de Google y la verificación de marca queda aprobada.
 4. Los libros del grupo nunca aparecen en páginas públicas (RN-03).
+
+## Verificación (2026-10-19)
+- Criterios 1, 2, 4 ✅ e2e y auditoría previa. Criterio 3 ✅ según la usuaria: publicó el cliente OAuth de Google en producción con las URLs de inicio y privacidad (no verificado por Claude; no hay acceso a la consola de Google).

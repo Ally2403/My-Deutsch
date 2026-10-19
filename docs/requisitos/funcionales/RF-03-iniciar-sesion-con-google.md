@@ -21,3 +21,6 @@ Es la forma más rápida para la mayoría del curso y evita recordar otra contra
 1. Al pulsar "Continuar con Google" y aceptar, el usuario queda autenticado y se crea su perfil si no existía.
 2. En Safari iOS y en la PWA instalada el flujo usa redirección (no ventana emergente) y regresa a la aplicación.
 3. Si el correo de Google ya existe como cuenta de correo y contraseña, ambas formas de acceso quedan vinculadas a la misma cuenta.
+
+## Verificación (2026-10-19)
+- Criterio 1 ✅ los logs de Auth muestran ingresos con Google (`provider_type: google`) de varias cuentas. Criterio 2 ✅ el flujo es por redirección (`signInWithOAuth`, sin ventana emergente); falta probar en Safari iPhone real (RNF-15). Criterio 3 ◐ sin probar: vinculación de una cuenta de correo con la de Google.

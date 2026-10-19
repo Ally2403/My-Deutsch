@@ -1,4 +1,10 @@
-# Retomar aquí (2026-10-19, noche, trabajo autónomo)
+# Retomar aquí (2026-10-19, noche)
+
+**En `main` y desplegado:** PR #32–#34 (tema sol/luna, barra común, botones nuevos del lector, flechas de página junto al número, sin líneas en el resaltado, CI, menos cierres de sesión). **Google OAuth publicado por la usuaria** (RF-40 Hecho; RF-03 en progreso: falta el criterio 3 y Safari iPhone real).
+**Pendientes que necesitan a la usuaria:** cuenta de prueba con correo y contraseña (RNF-05 c1, bcrypt) · iPhone real con compañeros (RNF-15) · confirmar que ya no se cierra la sesión (si pasa, anotar hora; revisar logs de Auth `refresh_token_not_found`) · proteger `main` con los checks `web` y `worker` (RNF-12, ya hecho según la usuaria; sin verificar) · probar RF-03 c3 (misma persona con correo y Google).
+**Diferido por decisión de la usuaria:** RF-33/34/35, RNF-14, RF-18, RF-32, RF-37 (en parte hecho: tema), RNF-08, RNF-10, RNF-13.
+
+# Antes (2026-10-19, noche, trabajo autónomo)
 
 **PR #32 abierto, SIN fusionar** (el clasificador bloquea `gh pr merge`; hay que fusionarlo tú o añadir la regla de permiso): RF-44 tema claro/oscuro con selector (Sistema·Claro·Oscuro, sin destello), barra superior común (`components/app-bar.tsx`), rediseño minimalista de inicio, ingreso, grupos, grupo, perfil, diccionario, cabecera del lector y barra de herramientas del lector; tokens nuevos (`--danger`, chips `.chip`). Además en la misma rama: `ci.yml` (RNF-12), prueba e2e de objetivos táctiles (RNF-07, corrigió el logo de 28 px) y arreglo de ruff en el worker.
 **Verificado:** suite 463/463 · e2e 110 pasadas (Chromium 360/768/1280 + WebKit iPhone) · cobertura de dominio 97,5 % · pytest 255 · ruff limpio · producción 200.
