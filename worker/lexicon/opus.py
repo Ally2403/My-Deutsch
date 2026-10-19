@@ -105,11 +105,37 @@ def _fingerprint(pin: ModelPin) -> str:
     return json.dumps({"revision": pin.revision, "files": pin.files}, sort_keys=True)
 
 
-def _is_current(directory: Path, pin: ModelPin) -> bool:
+def _installed_hashes(directory: Path) -> dict[str, str]:
+    return {p.name: _sha256(p) for p in sorted(directory.iterdir()) if p.name != MARKER}
+
+
+def verify_installed(directory: Path, pin: ModelPin) -> None:
+    """El modelo instalado debe ser exactamente el que `provision` convirtió desde esta revisión:
+    el registro `pin.json` coincide con el fijado y cada archivo con la huella que se registró
+    al instalarlo. Un marcador copiado a mano no basta. Si no, `ValueError`."""
+    bad = f"El modelo instalado en {directory} está alterado o incompleto"
     marker = directory / MARKER
-    return (directory / "model.bin").is_file() and (
-        marker.is_file() and marker.read_text(encoding="utf-8") == _fingerprint(pin)
-    )
+    if not marker.is_file() or directory.is_symlink():
+        raise ValueError(f"{bad}: falta su registro de instalación")
+    record = json.loads(marker.read_text(encoding="utf-8"))
+    if record.get("pin") != _fingerprint(pin):
+        raise ValueError(f"{bad}: no corresponde a la revisión fijada")
+    entries = [p for p in directory.iterdir() if p.name != MARKER]
+    if any(p.is_symlink() or not p.is_file() for p in entries):
+        raise ValueError(f"{bad}: contiene algo que no es un archivo")
+    if (
+        _installed_hashes(directory) != record.get("installed")
+        or "model.bin" not in record["installed"]
+    ):
+        raise ValueError(f"{bad}: sus archivos no coinciden con lo registrado")
+
+
+def _is_current(directory: Path, pin: ModelPin) -> bool:
+    try:
+        verify_installed(directory, pin)
+    except (ValueError, OSError):
+        return False
+    return True
 
 
 def provision(
@@ -124,6 +150,8 @@ def provision(
     reported: dict[str, dict[str, str]] = {}
     for key, pin in pins.items():
         target = models_dir / key
+        if not print_hash and target.is_symlink():
+            raise ValueError(f"{target} es un enlace simbólico: no se instala sobre él")
         if not print_hash and _is_current(target, pin):
             continue
         # Se verifica y convierte esa misma copia privada: no hay ventana entre comprobar la
@@ -136,12 +164,16 @@ def provision(
                 reported[key] = {name: _sha256(source / name) for name in pin.files}
                 continue
             verify_files(source, pin)
-            partial = Path(tmp) / "convertido"
-            _convert(source, partial)
-            (partial / MARKER).write_text(_fingerprint(pin), encoding="utf-8")
             models_dir.mkdir(parents=True, exist_ok=True)
-            shutil.rmtree(target, ignore_errors=True)
-            shutil.move(str(partial), str(target))
+            # Se prepara junto al destino para poder reemplazarlo de una sola vez.
+            partial = models_dir / f".{key}.partial"
+            shutil.rmtree(partial, ignore_errors=True)
+            _convert(source, partial)
+            record = {"pin": _fingerprint(pin), "installed": _installed_hashes(partial)}
+            (partial / MARKER).write_text(json.dumps(record, sort_keys=True), encoding="utf-8")
+            if target.exists():
+                shutil.rmtree(target)
+            os.replace(partial, target)
     return reported
 
 
@@ -165,12 +197,18 @@ class OpusTranslator:
 
     def __init__(self, models_dir: Path | None = None) -> None:
         models_dir = MODELS_DIR if models_dir is None else models_dir
-        for key in MODEL_PINS:
+        for key, pin in MODEL_PINS.items():
             if not (models_dir / key / "model.bin").is_file():
                 raise RuntimeError(
                     f"El modelo Opus-MT {key} no está instalado: ejecuta "
                     "`python -m lexicon.opus provision`"
                 )
+            try:
+                verify_installed(models_dir / key, pin)
+            except (ValueError, OSError) as exc:
+                raise RuntimeError(
+                    f"{exc}; vuelve a ejecutar `python -m lexicon.opus provision`"
+                ) from exc
         self._de_es = _Engine(models_dir / "de-es")
         self._en_es = _Engine(models_dir / "en-es")
 

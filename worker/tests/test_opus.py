@@ -5,7 +5,14 @@ from pathlib import Path
 import pytest
 
 from lexicon import opus
-from lexicon.opus import MODEL_PINS, ModelPin, OpusTranslator, provision, verify_files
+from lexicon.opus import (
+    MODEL_PINS,
+    ModelPin,
+    OpusTranslator,
+    provision,
+    verify_files,
+    verify_installed,
+)
 
 
 def sha(data: bytes) -> str:
@@ -112,3 +119,61 @@ def test_opus_translates_both_directions():
     t = OpusTranslator()
     assert "ayuda" in t.from_german("die Hilfe").lower()
     assert "casa" in t.from_english("house").lower()
+
+
+def test_verify_installed_accepts_what_provision_installed(tmp_path, fake_hub):
+    pin = pin_for(FILES)
+    provision(pins={"de-es": pin}, models_dir=tmp_path)
+    verify_installed(tmp_path / "de-es", pin)
+
+
+def test_verify_installed_rejects_a_tampered_model(tmp_path, fake_hub):
+    pin = pin_for(FILES)
+    provision(pins={"de-es": pin}, models_dir=tmp_path)
+    (tmp_path / "de-es" / "model.bin").write_bytes(b"otro modelo")
+    with pytest.raises(ValueError, match="alterado"):
+        verify_installed(tmp_path / "de-es", pin)
+
+
+def test_verify_installed_rejects_an_extra_or_missing_file(tmp_path, fake_hub):
+    pin = pin_for(FILES)
+    provision(pins={"de-es": pin}, models_dir=tmp_path)
+    (tmp_path / "de-es" / "extra.bin").write_bytes(b"x")
+    with pytest.raises(ValueError, match="alterado"):
+        verify_installed(tmp_path / "de-es", pin)
+    (tmp_path / "de-es" / "extra.bin").unlink()
+    (tmp_path / "de-es" / "model.bin").unlink()
+    with pytest.raises(ValueError, match="alterado"):
+        verify_installed(tmp_path / "de-es", pin)
+
+
+def test_a_forged_marker_does_not_skip_reinstalling(tmp_path, fake_hub):
+    pin = pin_for(FILES)
+    provision(pins={"de-es": pin}, models_dir=tmp_path)
+    (tmp_path / "de-es" / "model.bin").write_bytes(b"otro modelo")  # el marcador sigue igual
+    provision(pins={"de-es": pin}, models_dir=tmp_path)
+    assert len(fake_hub["converted"]) == 2
+    assert (tmp_path / "de-es" / "model.bin").read_bytes() == b"ct2"
+
+
+def test_the_translator_rejects_an_installed_model_that_was_tampered(tmp_path, monkeypatch):
+    for key in MODEL_PINS:
+        (tmp_path / key).mkdir()
+        (tmp_path / key / "model.bin").write_bytes(b"sin registro")
+    with pytest.raises(RuntimeError, match="alterado|no está instalado"):
+        OpusTranslator(tmp_path)
+
+
+def test_provision_refuses_a_symlinked_target_and_leaves_its_destination_alone(tmp_path, fake_hub):
+    victim = tmp_path / "victima"
+    victim.mkdir()
+    (victim / "importante.txt").write_text("no borrar")
+    models = tmp_path / "modelos"
+    models.mkdir()
+    try:
+        (models / "de-es").symlink_to(victim, target_is_directory=True)
+    except OSError:
+        pytest.skip("sin permiso para crear enlaces simbólicos")
+    with pytest.raises(ValueError, match="enlace simbólico"):
+        provision(pins={"de-es": pin_for(FILES)}, models_dir=models)
+    assert (victim / "importante.txt").read_text() == "no borrar"
