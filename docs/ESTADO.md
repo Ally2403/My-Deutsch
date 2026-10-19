@@ -1,4 +1,12 @@
-# Retomar aquí (2026-10-19, noche autónoma)
+# Retomar aquí (2026-10-19, tras la noche autónoma)
+
+**Todo en `main` (PR #15–#25 fusionados) y migraciones aplicadas a Supabase:** RF-24 verbos separables · RF-42 diseño (1.ª entrega) · RF-20 última página y % leído · RF-27 diccionario personal (`record_lookup` + cola offline) · RF-29/30/31 pantalla `/diccionario` · RF-28 palabras vistas en el lector · RF-25 palabra no encontrada · RF-15 quitar libro + limpieza RN-11 (`mantenimiento.yml`, ya probado en Actions) · RF-19 zoom · RF-09/10 administrar y salir de grupos · RF-05 perfil y eliminar cuenta. Suite 452/452, e2e 82/82 (Chromium 360/768/1280 + WebKit iPhone).
+
+**Alcance recortado por la usuaria (2026-10-19): NO se hace en esta entrega** los ejercicios y lo opcional: RF-33/34/35 y RNF-14 (respuestas escritas; el avance quedó en `git stash` «WIP RF-33», recuperable con `git stash pop`), RF-18, RF-32, RF-37, RNF-08, RNF-10, RNF-13. Solo funcionalidades core.
+
+**Lo que falta para cerrar (en este orden):** (1) revisión final del diseño en pantallas con sesión (grupos, grupo, subida, biblioteca, diccionario, perfil) a 360 px, terminando RF-42; (2) RNF-15 PWA/iPhone: `manifest`, iconos, instalable, safe areas; (3) RF-36/RNF-07 auditoría responsive de todas las pantallas; (4) cierre de RNF-05/06/16 y RF-40 (verificar RLS completo con `rls.test.sql`, cabeceras, página de privacidad lista para publicar Google OAuth); (5) humo de extremo a extremo con un libro real (subir → procesar → leer) y reprocesar el libro de muestra para ver RF-24; (6) actualizar INDEX (marcar Hecho o Descartado lo que corresponda) y este archivo.
+
+# Antes (2026-10-19, noche autónoma)
 
 **PR abiertos, SIN fusionar (el clasificador bloquea `gh pr merge` y `apply_migration`; hay que hacerlo tú):** fusionar en este orden en GitHub: **#15** RF-24 (verbos separables, 29/30 = 97 %) · **#16** RF-42 (diseño visual, primera entrega: tokens, tipografía Bricolage+Figtree, botones con carga/pulsado, inicio interactivo, lector) · **#17** RF-20 (recordar última página + «% leído» real; sin migración) · **#18** RF-27 (diccionario personal: cola offline + `record_lookup`; apilado sobre #17, cambiar su base a `main` tras fusionar #17).
 **Acción tuya:** aplicar a Supabase `supabase/migrations/20261019100000_registrar_consulta.sql` (SQL Editor o `apply_migration`); probada en rollback contra la base real. Sin ella las consultas quedan en la cola del navegador.
