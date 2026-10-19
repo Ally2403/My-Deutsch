@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 MODELS_DIR = Path(
@@ -18,7 +19,7 @@ MODELS_DIR = Path(
 )
 MARKER = "pin.json"
 # Archivos que el tokenizador necesita junto al modelo convertido.
-TOKENIZER_FILES = ("source.spm", "target.spm", "vocab.json", "tokenizer_config.json")
+TOKENIZER_FILES = ("source.spm", "target.spm")
 
 
 @dataclass(frozen=True)
@@ -178,18 +179,29 @@ def provision(
 
 
 class _Engine:
+    """Un modelo CTranslate2 con sus tokenizadores SentencePiece (receta de Opus-MT/Marian)."""
+
     def __init__(self, directory: Path) -> None:
         import ctranslate2
-        from transformers import MarianTokenizer
+        import sentencepiece
 
-        self._translator = ctranslate2.Translator(str(directory), device="cpu", compute_type="int8")
-        self._tokenizer = MarianTokenizer.from_pretrained(str(directory))
+        # Con dos modelos cargados, los hilos por defecto (todos los núcleos) se estorban y cada
+        # traducción pasa de ~50 a ~240 ms; con 2 hilos por modelo no.
+        self._translator = ctranslate2.Translator(
+            str(directory), device="cpu", compute_type="int8", intra_threads=2
+        )
+        self._source = sentencepiece.SentencePieceProcessor(
+            model_file=str(directory / "source.spm")
+        )
+        self._target = sentencepiece.SentencePieceProcessor(
+            model_file=str(directory / "target.spm")
+        )
+        self.translate = lru_cache(maxsize=20_000)(self._translate)
 
-    def translate(self, text: str) -> str:
-        tokens = self._tokenizer.convert_ids_to_tokens(self._tokenizer.encode(text))
-        result = self._translator.translate_batch([tokens], beam_size=4, max_decoding_length=40)
-        ids = self._tokenizer.convert_tokens_to_ids(result[0].hypotheses[0])
-        return self._tokenizer.decode(ids, skip_special_tokens=True)
+    def _translate(self, text: str) -> str:
+        tokens = [*self._source.encode(text, out_type=str), "</s>"]
+        result = self._translator.translate_batch([tokens], beam_size=4, max_decoding_length=24)
+        return self._target.decode([t for t in result[0].hypotheses[0] if t != "</s>"])
 
 
 class OpusTranslator:

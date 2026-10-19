@@ -14,7 +14,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # Traducción automática Opus-MT (ADR-007): ejecutar el worker real.
-opus = ["ctranslate2>=4,<5", "transformers>=4.44", "sentencepiece>=0.2", "sacremoses>=0.1"]
+opus = ["ctranslate2>=4,<5", "sentencepiece>=0.2"]
 # Solo para aprovisionar: convierte los pesos de PyTorch a CTranslate2 (una vez, queda en caché).
 opus-convert = ["torch>=2.6", "transformers>=4.44", "sentencepiece>=0.2"]
 

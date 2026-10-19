@@ -1,6 +1,8 @@
 import hashlib
 import re
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -177,3 +179,39 @@ def test_provision_refuses_a_symlinked_target_and_leaves_its_destination_alone(t
     with pytest.raises(ValueError, match="enlace simbólico"):
         provision(pins={"de-es": pin_for(FILES)}, models_dir=models)
     assert (victim / "importante.txt").read_text() == "no borrar"
+
+
+def test_engine_tokenizes_with_sentencepiece_limits_threads_and_caches(tmp_path, monkeypatch):
+    seen: dict = {"batches": []}
+
+    class FakeTranslator:
+        def __init__(self, path, **options):
+            seen["options"] = options
+
+        def translate_batch(self, batch, **options):
+            seen["batches"].append((batch, options))
+            return [SimpleNamespace(hypotheses=[["▁la", "▁ayuda", "</s>"]])]
+
+    class FakeSentencePiece:
+        def __init__(self, model_file):
+            seen.setdefault("models", []).append(Path(model_file).name)
+
+        def encode(self, text, out_type=str):
+            return ["▁" + word for word in text.split()]
+
+        def decode(self, pieces):
+            return "".join(pieces).replace("▁", " ").strip()
+
+    monkeypatch.setitem(sys.modules, "ctranslate2", SimpleNamespace(Translator=FakeTranslator))
+    monkeypatch.setitem(
+        sys.modules, "sentencepiece", SimpleNamespace(SentencePieceProcessor=FakeSentencePiece)
+    )
+    engine = opus._Engine(tmp_path)
+    assert engine.translate("die Hilfe") == "la ayuda"
+    assert engine.translate("die Hilfe") == "la ayuda"
+    assert seen["models"] == ["source.spm", "target.spm"]
+    assert seen["options"]["intra_threads"] == 2  # con dos modelos, todos los núcleos se estorban
+    assert len(seen["batches"]) == 1  # la segunda vez sale de la caché
+    batch, options = seen["batches"][0]
+    assert batch == [["▁die", "▁Hilfe", "</s>"]]
+    assert options["beam_size"] == 4 and options["max_decoding_length"] == 24
