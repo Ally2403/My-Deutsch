@@ -23,7 +23,7 @@ Producción: https://my-deutsch.vercel.app · Repositorio: `Ally2403/My-Deutsch`
 | RNF-08, RNF-10, RNF-13 | Rendimiento web, concurrencia, respaldo/portabilidad | |
 
 ## Limitaciones conocidas
-- **RNF-02 criterio 2 (desviación):** las páginas son privadas, así que se sirven desde la app con caché privada de 7 días, no desde un CDN con caché inmutable de 1 año. Necesita aprobación de la usuaria para cambiar el criterio.
+- **RNF-02 criterio 2 (cambio aprobado 2026-10-19):** las páginas son privadas, así que se sirven desde la app con caché privada de 7 días, no desde un CDN con caché inmutable de 1 año.
 - Un reintento de procesamiento repite el libro desde la primera hoja.
 - Las traducciones son automáticas (Opus-MT) y pueden fallar en frases idiomáticas; el panel lo indica.
 - Alrededor del 1 % de las palabras queda ligeramente desalineado frente a la tinta (≤ 4,7 % del ancho).

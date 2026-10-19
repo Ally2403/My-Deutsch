@@ -1,3 +1,10 @@
+# Retomar aquí (2026-10-19, ejercicios escritos y exportación)
+
+**Rama `feat/RF-33-35-respuestas-escritas`** (sin fusionar aún): RF-33 respuestas escritas sobre la página (modo «Escribir», coordenadas relativas, mover/borrar, interruptor «Mis respuestas»), RNF-14 guardado fiable (IndexedDB + cola pendiente + reintento al reconectar, ≤ 0,5 s), RF-35 «Reiniciar página» con confirmación, RF-32 «Exportar CSV» en el diccionario (UTF-8 con BOM, separador `;`). Los cuatro quedan **Hecho** en INDEX.
+**Verificado:** suite 487/487 · typecheck y lint limpios · e2e 121 pasadas (Chromium 360/768/1280 + WebKit iPhone), incl. escribir → cambiar de página antes de 1 s → volver, offline → reconectar, reiniciar y consulta de palabras fuera del modo Escribir. **Sin verificar:** sincronización real con Supabase `annotations` con sesión (la demo usa un «servidor» simulado; RLS ya cubierto por `rls.test.sql`), apertura del CSV en Excel/Anki reales (separador `;` pensado para Excel en español), uso en iPhone real.
+**Fallos e2e previos (no de esta rama, también fallan en `main`):** `tema.spec.ts` RF-44 c1/c2 y `lector.spec.ts` RF-41 «Marcar plurales» (3 px vs 0 px de borde); probable CSS viejo de `pnpm dev`, revisar con un servidor limpio.
+**Sigue sin hacerse:** RF-34 (detección automática de campos), RF-18, RF-37, RNF-08, RNF-10, RNF-13.
+
 # Retomar aquí (2026-10-19, noche, trabajo autónomo)
 
 **PR #32 abierto, SIN fusionar** (el clasificador bloquea `gh pr merge`; hay que fusionarlo tú o añadir la regla de permiso): RF-44 tema claro/oscuro con selector (Sistema·Claro·Oscuro, sin destello), barra superior común (`components/app-bar.tsx`), rediseño minimalista de inicio, ingreso, grupos, grupo, perfil, diccionario, cabecera del lector y barra de herramientas del lector; tokens nuevos (`--danger`, chips `.chip`). Además en la misma rama: `ci.yml` (RNF-12), prueba e2e de objetivos táctiles (RNF-07, corrigió el logo de 28 px) y arreglo de ruff en el worker.

@@ -671,3 +671,57 @@ test("RNF-02: p95 de cambio de página < 500 ms en 50 cambios (4G rápido, CPU �
   );
   expect(p95).toBeLessThan(500);
 });
+
+test("RF-33 / RNF-14: escribir una respuesta, cambiar de página antes de 1 s y volver la conserva; sin conexión se sincroniza al reconectar", async ({
+  page,
+  context,
+}) => {
+  await ready(page);
+  await page.evaluate(() => {
+    localStorage.removeItem("md-demo-remote-annotations");
+    return new Promise<void>((r) => {
+      const q = indexedDB.deleteDatabase("md-annotations:demo");
+      q.onsuccess = q.onerror = q.onblocked = () => r();
+    });
+  });
+  await page.reload();
+  await ready(page);
+  await page.getByRole("button", { name: "Escribir", exact: true }).click();
+  const layer = page.getByTestId("annotation-layer");
+  const box = (await layer.boundingBox())!;
+  await layer.click({ position: { x: box.width * 0.5, y: box.height * 0.2 } });
+  const field = page.getByRole("textbox", { name: "Respuesta" });
+  await field.fill("der Tisch");
+  await page.getByRole("button", { name: "Página siguiente" }).click();
+  await expect(page.getByText("página 2 de 3")).toBeVisible();
+  // dispatchEvent: el indicador de desarrollo de Next puede tapar este botón a 360 px en CI.
+  await page.getByRole("button", { name: "Página anterior" }).dispatchEvent("click");
+  await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveValue("der Tisch");
+
+  // Sin conexión: se guarda en local y queda pendiente.
+  await context.setOffline(true);
+  await page.getByRole("textbox", { name: "Respuesta" }).fill("der Tisch, die Tische");
+  await expect(page.getByRole("status").filter({ hasText: "al reconectar" })).toBeVisible();
+  await context.setOffline(false);
+  await expect(page.getByRole("status").filter({ hasText: "Guardado" })).toBeVisible();
+  const remote = await page.evaluate(() => localStorage.getItem("md-demo-remote-annotations"));
+  expect(remote).toContain("die Tische");
+});
+
+test("RF-35: reiniciar la página borra mis respuestas tras confirmar", async ({ page }) => {
+  await ready(page);
+  await page.getByRole("button", { name: "Escribir", exact: true }).click();
+  const layer = page.getByTestId("annotation-layer");
+  const box = (await layer.boundingBox())!;
+  await layer.click({ position: { x: box.width * 0.3, y: box.height * 0.2 } });
+  await page.getByRole("textbox", { name: "Respuesta" }).fill("borrar");
+  page.once("dialog", (d) => void d.accept());
+  await page.getByRole("button", { name: "Reiniciar página" }).click();
+  await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveCount(0);
+});
+
+test("RF-33 c3: fuera del modo Escribir, tocar la página consulta palabras", async ({ page }) => {
+  await ready(page);
+  await page.getByRole("button", { name: "Tisch", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+});

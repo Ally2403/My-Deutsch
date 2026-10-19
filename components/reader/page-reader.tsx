@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { highlightFor, pluralFor } from "@/lib/domain/noun-highlight";
 import type { LexEntry, PageData } from "@/lib/domain/page";
@@ -35,8 +36,11 @@ import {
   type Fit,
 } from "@/lib/domain/zoom";
 import { Icon } from "@/components/icons";
+import type { AnnotationSync, SyncStatus } from "@/lib/annotations/sync";
+import { AnnotationLayer } from "./annotation-layer";
 import { TextLayer } from "./text-layer";
 import {
+  useHideAnswersPref,
   useHideSeenPref,
   useHighlightPref,
   usePluralPref,
@@ -61,6 +65,8 @@ type Props = {
   onSeenRemove?: (lexiconId: number) => void;
   /** RF-25: buscar de nuevo una forma corregida de una palabra sin entrada. */
   searchLexicon?: (word: string) => Promise<LexEntry | null>;
+  /** RF-33, RNF-14: respuestas escritas sobre la página con guardado local y sincronizado. */
+  annotations?: AnnotationSync;
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
@@ -77,6 +83,7 @@ export function PageReader({
   onSeenStatus,
   onSeenRemove,
   searchLexicon,
+  annotations,
 }: Props) {
   const [page, setPage] = useState(() => clampPage(initialPage, total));
   const [loaded, setLoaded] = useState<{ n: number; data: PageData } | null>(
@@ -93,6 +100,14 @@ export function PageReader({
   const [highlightOn, setHighlightOn] = useHighlightPref();
   const [pluralsOn, setPluralsOn] = usePluralPref();
   const [hideSeen, setHideSeen] = useHideSeenPref();
+  const [hideAnswers, setHideAnswers] = useHideAnswersPref();
+  const [writeMode, setWriteMode] = useState(false);
+  const [answersVersion, setAnswersVersion] = useState(0);
+  const syncStatus: SyncStatus = useSyncExternalStore(
+    (cb) => annotations?.onStatus(cb) ?? (() => {}),
+    () => annotations?.status() ?? "saved",
+    () => "saved",
+  );
   const [selected, setSelected] = useState<{
     page: number;
     token: number;
@@ -353,6 +368,54 @@ export function PageReader({
             <Icon name="plus" />
           </button>
         </div>
+        {annotations && (
+          <div className="flex shrink-0 items-center gap-2" role="group" aria-label="Respuestas">
+            <button
+              type="button"
+              aria-pressed={writeMode}
+              onClick={() => {
+                if (!writeMode && hideAnswers) setHideAnswers(false);
+                setWriteMode(!writeMode);
+              }}
+              className="chip"
+            >
+              Escribir
+            </button>
+            <button
+              type="button"
+              aria-pressed={!hideAnswers}
+              onClick={() => setHideAnswers(!hideAnswers)}
+              className="chip"
+            >
+              Mis respuestas
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "¿Borrar todas tus respuestas de esta página? Las de otras personas no cambian.",
+                  )
+                )
+                  void annotations.clearPage(page).then(() => setAnswersVersion((v) => v + 1));
+              }}
+              className="chip"
+            >
+              Reiniciar página
+            </button>
+            <span
+              role="status"
+              aria-live="polite"
+              className="flex min-h-11 shrink-0 items-center text-sm text-muted"
+            >
+              {syncStatus === "saved"
+                ? "Guardado"
+                : syncStatus === "saving"
+                  ? "Guardando…"
+                  : "Se guardará al reconectar"}
+            </span>
+          </div>
+        )}
       </div>
       <div
         ref={scrollerRef}
@@ -417,6 +480,7 @@ export function PageReader({
             lastTap.current = { t: now, x: e.clientX, y: e.clientY };
           }
           if (!swipeChangesPage(zoom)) return; // con zoom, deslizar desplaza (RF-19 c1)
+          if (writeMode || (e.target as Element).closest("[data-annotation]")) return; // escribir no cambia de página
           const dir = swipeDirection({
             startX: s.x,
             dx: e.clientX - s.x,
@@ -478,6 +542,15 @@ export function PageReader({
               plurals={plurals}
               seen={seenMarks}
               onWordClick={(token, rect) => setSelected({ page, token, rect })}
+            />
+          )}
+          {annotations && (
+            <AnnotationLayer
+              sync={annotations}
+              page={page}
+              writeMode={writeMode}
+              visible={!hideAnswers}
+              version={answersVersion}
             />
           )}
           {error && (

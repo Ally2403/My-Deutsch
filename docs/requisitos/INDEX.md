@@ -52,10 +52,10 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-29 | [Marcar palabra como conocida](funcionales/RF-29-marcar-palabra-como-conocida.md)                                              | M-7    | Media     | 4    | Hecho       |
 | RF-30 | [Consultar diccionario personal](funcionales/RF-30-consultar-diccionario-personal.md)                                          | M-7    | Alta      | 4    | Hecho       |
 | RF-31 | [Filtrar y ordenar el diccionario personal](funcionales/RF-31-filtrar-y-ordenar-el-diccionario-personal.md)                    | M-7    | Alta      | 4    | Hecho       |
-| RF-32 | [Exportar diccionario personal](funcionales/RF-32-exportar-diccionario-personal.md)                                            | M-7    | Baja      | 5    | Pendiente   |
-| RF-33 | [Escribir respuestas sobre la página](funcionales/RF-33-escribir-respuestas-sobre-la-pagina.md)                                | M-8    | Media     | 3    | Pendiente   |
+| RF-32 | [Exportar diccionario personal](funcionales/RF-32-exportar-diccionario-personal.md)                                            | M-7    | Baja      | 5    | Hecho       |
+| RF-33 | [Escribir respuestas sobre la página](funcionales/RF-33-escribir-respuestas-sobre-la-pagina.md)                                | M-8    | Media     | 3    | Hecho       |
 | RF-34 | [Campos de ejercicio detectados automáticamente](funcionales/RF-34-campos-de-ejercicio-detectados-automaticamente.md)          | M-8    | Baja      | 4    | Pendiente   |
-| RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md)                                  | M-8    | Baja      | 4    | Pendiente   |
+| RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md)                                  | M-8    | Baja      | 4    | Hecho       |
 | RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T    | Alta      | 3    | Hecho       |
 | RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md)                                                        | M-T    | Baja      | 5    | Pendiente   |
 | RF-38 | [Enderezar y separar dobles páginas](funcionales/RF-38-enderezar-y-separar-dobles-paginas.md)                                  | M-4    | Alta      | 2    | Hecho       |
@@ -83,14 +83,14 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md)                                                         | M-3    | Media     | 3    | Hecho       |
 | RNF-12 | [Calidad y pruebas](no-funcionales/RNF-12-calidad-y-pruebas.md)                                                           | M-T    | Media     | 3    | Hecho       |
 | RNF-13 | [Portabilidad de datos y respaldo](no-funcionales/RNF-13-portabilidad-de-datos-y-respaldo.md)                             | M-T    | Baja      | 5    | Pendiente   |
-| RNF-14 | [Guardado fiable de anotaciones](no-funcionales/RNF-14-guardado-fiable-de-anotaciones.md)                                 | M-8    | Media     | 3    | Pendiente   |
+| RNF-14 | [Guardado fiable de anotaciones](no-funcionales/RNF-14-guardado-fiable-de-anotaciones.md)                                 | M-8    | Media     | 3    | Hecho       |
 | RNF-15 | [Compatibilidad con iPhone y PWA](no-funcionales/RNF-15-compatibilidad-con-iphone-y-pwa.md)                               | M-T    | Alta      | 3    | Hecho       |
 | RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Hecho       |
 | RNF-17 | [Límite de intentos de código de invitación](no-funcionales/RNF-17-limite-de-intentos-de-codigo-de-invitacion.md)         | M-2    | Alta      | 3    | Hecho       |
 
 ## Alcance del MVP (cierre 2026-10-19)
 
-El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: RF-18 (modo lectura), RF-32 (exportar diccionario), RF-33/34/35 y RNF-14 (ejercicios escritos; el avance está en `git stash` «WIP RF-33»), RF-37 (preferencias de lectura; el tema ya está en RF-44), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
+El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: RF-18 (modo lectura), RF-34 (campos de ejercicio detectados automáticamente), RF-37 (preferencias de lectura; el tema ya está en RF-44), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
 
 ## Plantilla para un requisito nuevo
 

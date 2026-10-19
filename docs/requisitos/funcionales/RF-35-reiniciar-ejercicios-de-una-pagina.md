@@ -7,7 +7,7 @@
 | **Módulo** | M-8 Ejercicios |
 | **Prioridad** | Baja |
 | **Fase** | 4 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-33](RF-33-escribir-respuestas-sobre-la-pagina.md) |
 | **Reglas de negocio** | — |
 

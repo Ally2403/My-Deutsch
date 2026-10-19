@@ -7,7 +7,7 @@
 | **Módulo** | M-7 Vocabulario personal |
 | **Prioridad** | Baja |
 | **Fase** | 5 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-30](RF-30-consultar-diccionario-personal.md) |
 | **Reglas de negocio** | — |
 

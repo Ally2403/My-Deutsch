@@ -15,6 +15,7 @@ import {
   type PosFilter,
   type WordStatus,
 } from "@/lib/domain/dictionary";
+import { toCsv } from "@/lib/domain/dictionary-export";
 import { genderInfo } from "@/lib/domain/gender";
 import { posLabel } from "@/lib/domain/page-lookup";
 import { createClient } from "@/lib/supabase/client";
@@ -295,6 +296,23 @@ export function DictionaryView({
         <p className="text-sm text-muted" aria-live="polite">
           {visible.length} de {words.length} palabras
         </p>
+        <OutlineButton
+          type="button"
+          disabled={visible.length === 0}
+          onClick={() => {
+            // RF-32: descarga lo que se ve con los filtros actuales.
+            const url = URL.createObjectURL(
+              new Blob([toCsv(visible, books)], { type: "text/csv;charset=utf-8" }),
+            );
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "mi-diccionario.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+        >
+          Exportar CSV
+        </OutlineButton>
       </div>
 
       {visible.length === 0 ? (
