@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8    | Ejercicios             |
 | M-T    | Transversal            |
 
-## Requerimientos funcionales (43)
+## Requerimientos funcionales (44)
 
 | ID    | Título                                                                                                                         | Módulo | Prioridad | Fase | Estado      |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | ---- | ----------- |
@@ -64,6 +64,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-41 | [Marcar plurales en amarillo](funcionales/RF-41-marcar-plurales-en-amarillo.md)                                                | M-5    | Media     | 3    | En progreso |
 | RF-42 | [Diseño visual y experiencia móvil](funcionales/RF-42-diseno-visual-y-experiencia-movil.md) | M-1    | Alta      | 3    | En progreso |
 | RF-43 | [Calidad de las traducciones al español](funcionales/RF-43-calidad-de-las-traducciones.md) | M-6    | Alta      | 3    | Hecho       |
+| RF-44 | [Tema claro y oscuro con selector y barra de navegación](funcionales/RF-44-tema-claro-y-oscuro.md) | M-T    | Alta      | 5    | Hecho       |
 
 ## Requerimientos no funcionales (17)
 

@@ -305,7 +305,7 @@ export function UploadBook({ groupId }: { groupId: string }) {
         </p>
       )}
       {error && (
-        <p role="alert" className="text-gender-f">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}

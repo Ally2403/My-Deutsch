@@ -11,7 +11,10 @@ function tokens(block: string): Record<string, string> {
 }
 
 const light = tokens(css.match(/:root\s*\{([^}]*)\}/)![1]);
-const dark = tokens(css.match(/prefers-color-scheme:\s*dark\)\s*\{\s*:root\s*\{([^}]*)\}/)![1]);
+const dark = tokens(css.match(/:root\[data-theme="dark"\]\s*\{([^}]*)\}/)![1]);
+const system = tokens(
+  css.match(/prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\([^{]*\{([^}]*)\}/)![1],
+);
 
 describe("contrastRatio (WCAG 2.x)", () => {
   it("negro sobre blanco es 21 y es simétrico", () => {
@@ -21,6 +24,25 @@ describe("contrastRatio (WCAG 2.x)", () => {
   it("texto del tema claro sobre blanco ≥ 15", () => {
     expect(contrastRatio("#171717", "#ffffff")).toBeGreaterThanOrEqual(15);
   });
+});
+
+describe("tema «Sistema» (RF-44 c2)", () => {
+  it("repite los colores del tema oscuro", () => {
+    expect(system).toEqual(dark);
+  });
+});
+
+describe("texto y acento en ambos temas (RF-44 c3)", () => {
+  for (const [name, t] of [["claro", light], ["oscuro", dark]] as const) {
+    it(`foreground, muted, danger y accent ≥ 4.5:1 sobre el fondo y la superficie (${name})`, () => {
+      for (const bg of [t.background, t.surface])
+        for (const k of ["foreground", "muted", "danger", "accent"])
+          expect(contrastRatio(t[k], bg), `${k} sobre ${bg}`).toBeGreaterThanOrEqual(4.5);
+    });
+    it(`on-accent sobre accent ≥ 4.5:1 (${name})`, () => {
+      expect(contrastRatio(t["on-accent"], t.accent)).toBeGreaterThanOrEqual(4.5);
+    });
+  }
 });
 
 describe("tokens de género (RNF-09 c1)", () => {

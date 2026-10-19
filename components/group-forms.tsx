@@ -35,7 +35,7 @@ export function CreateGroupForm() {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
         Nombre del grupo
         <Input
           name="name"
@@ -45,11 +45,11 @@ export function CreateGroupForm() {
         />
       </label>
       {error && (
-        <p role="alert" className="text-gender-f">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
-      <Button type="submit" disabled={busy}>
+      <Button type="submit" className="w-full" disabled={busy}>
         Crear grupo
       </Button>
     </form>
@@ -82,7 +82,7 @@ export function JoinGroupForm() {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
         Código de invitación
         <Input
           name="code"
@@ -93,11 +93,11 @@ export function JoinGroupForm() {
         />
       </label>
       {error && (
-        <p role="alert" className="text-gender-f">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
-      <Button type="submit" disabled={busy}>
+      <Button type="submit" className="w-full" disabled={busy}>
         Unirme
       </Button>
     </form>

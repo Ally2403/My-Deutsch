@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
 /* Colores de género (RN-01, RNF-09): contraste ≥ 4.5:1 sobre el fondo de cada tema. */
+/* Tema claro por defecto (RF-44). Colores de género (RN-01, RNF-09): contraste ≥ 4.5:1 sobre el
+   fondo de cada tema. `data-theme` lo fija el selector; sin él se sigue al sistema. */
 :root {
-  --background: #f7f5fb;
+  color-scheme: light;
+  --background: #f6f7fb;
   --surface: #ffffff;
-  --foreground: #1c1a26;
-  --muted: #5b5870;
-  --border: #dedbea;
-  --accent: #5b2a86;
-  --accent-soft: #efe7f8;
+  --foreground: #171a2b;
+  --muted: #596078;
+  --border: #e2e5ef;
+  --accent: #4f46e5;
+  --accent-soft: #eef0ff;
   --on-accent: #ffffff;
+  --danger: #b42318;
+  --danger-soft: #fef0ee;
+  --success: #15803d;
   --gender-m: #1d4ed8;
   --gender-n: #15803d;
   --gender-f: #b91c1c;
@@ -17,26 +23,54 @@
   --plural: #eab308;
   --radius-card: 1rem;
   --radius-control: 0.75rem;
-  --shadow-card: 0 1px 2px rgb(28 26 38 / 0.06), 0 6px 18px -8px rgb(91 42 134 / 0.18);
-  --shadow-press: 0 1px 1px rgb(28 26 38 / 0.08);
+  --shadow-card: 0 1px 2px rgb(23 26 43 / 0.05), 0 8px 24px -12px rgb(79 70 229 / 0.18);
+  --shadow-press: 0 1px 1px rgb(23 26 43 / 0.08);
 }
 
-/* Modo claro primero (RF-42): el oscuro queda para un requisito aparte. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0e1016;
+  --surface: #171a23;
+  --foreground: #eceef7;
+  --muted: #a3a9bf;
+  --border: #2a2f40;
+  --accent: #a5b4fc;
+  --accent-soft: #1e2340;
+  --on-accent: #0e1016;
+  --danger: #fda4af;
+  --danger-soft: #3a1a20;
+  --success: #86efac;
+  --gender-m: #93c5fd;
+  --gender-n: #86efac;
+  --gender-f: #fca5a5;
+  --gender-none: #a3a3a3;
+  --plural: #facc15;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-press: 0 1px 1px rgb(0 0 0 / 0.4);
+}
+
+/* «Sistema»: mismos valores que data-theme="dark" cuando el sistema es oscuro. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --surface: #161616;
-    --foreground: #ededed;
-    --muted: #a3a3a3;
-    --border: #404040;
-    --accent: #d8b4fe;
-    --accent-soft: #2a1d3a;
-    --on-accent: #1c1a26;
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: dark;
+    --background: #0e1016;
+    --surface: #171a23;
+    --foreground: #eceef7;
+    --muted: #a3a9bf;
+    --border: #2a2f40;
+    --accent: #a5b4fc;
+    --accent-soft: #1e2340;
+    --on-accent: #0e1016;
+    --danger: #fda4af;
+    --danger-soft: #3a1a20;
+    --success: #86efac;
     --gender-m: #93c5fd;
     --gender-n: #86efac;
     --gender-f: #fca5a5;
     --gender-none: #a3a3a3;
     --plural: #facc15;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+    --shadow-press: 0 1px 1px rgb(0 0 0 / 0.4);
   }
 }
 
@@ -49,6 +83,9 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
   --color-gender-m: var(--gender-m);
   --color-gender-n: var(--gender-n);
   --color-gender-f: var(--gender-f);
@@ -83,6 +120,45 @@
 :focus-visible {
   outline: 3px solid color-mix(in srgb, var(--accent) 70%, white);
   outline-offset: 2px;
+}
+
+/* Controles reutilizables (RF-42/RF-44): chip conmutable e icono-botón, ambos ≥ 44 px. */
+.chip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  background: var(--surface);
+  padding-inline: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.chip:active {
+  transform: scale(0.97);
+}
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.chip:disabled {
+  opacity: 0.4;
+}
+.chip-icon {
+  min-width: 2.75rem;
+  padding-inline: 0;
+  font-size: 1.25rem;
 }
 
 @keyframes spin {
@@ -124,6 +200,15 @@
   }
   .pop-in {
     animation: none;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 

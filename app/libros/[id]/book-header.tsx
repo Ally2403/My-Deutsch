@@ -1,9 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
- * RF-14, RNF-15: cabecera del libro. Con viewportFit «cover» (PWA en iPhone) el enlace de
- * regreso quedaría bajo la muesca, así que se suma el inset superior al padding de 0.5rem.
+ * RF-14, RNF-15: cabecera del libro. Con viewportFit «cover» el enlace de regreso quedaría
+ * bajo la muesca, así que se suma el inset superior al padding de 0.25rem. RF-44: lleva el
+ * selector de tema, porque el lector no usa la barra común.
  */
 export function BookHeader({
   backHref,
@@ -15,17 +17,23 @@ export function BookHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="mx-auto w-full max-w-md shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))]">
-      <p className="text-sm">
+    <header className="w-full shrink-0 border-b border-border bg-surface px-3 pt-[max(0.25rem,env(safe-area-inset-top))] pb-1">
+      <div className="mx-auto flex w-full max-w-5xl items-center gap-1">
         <Link
           href={backHref}
-          className="inline-flex min-h-11 items-center underline"
+          className="pressable inline-flex min-h-11 items-center gap-1 rounded-full pr-3 pl-2 text-sm font-medium text-muted hover:text-foreground"
         >
-          ← Biblioteca
+          <span aria-hidden="true" className="text-lg">
+            ←
+          </span>
+          Biblioteca
         </Link>
-      </p>
-      <h1 className="truncate text-xl font-bold">{title}</h1>
-      {children}
+        <h1 className="min-w-0 flex-1 text-ellipsis whitespace-nowrap overflow-hidden text-center font-display text-base font-bold sm:text-lg">
+          {title}
+        </h1>
+        <ThemeToggle />
+      </div>
+      {children && <div className="mx-auto w-full max-w-5xl">{children}</div>}
     </header>
   );
 }

@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { highlightFor, pluralFor } from "@/lib/domain/noun-highlight";
 import type { LexEntry, PageData } from "@/lib/domain/page";
 import {
@@ -12,7 +19,11 @@ import {
   type Direction,
 } from "@/lib/domain/paging";
 import { pairOf } from "@/lib/domain/page-lookup";
-import { seenMarksFor, type SeenMap, type SeenWord } from "@/lib/domain/seen-words";
+import {
+  seenMarksFor,
+  type SeenMap,
+  type SeenWord,
+} from "@/lib/domain/seen-words";
 import {
   baseWidth,
   clampZoom,
@@ -24,7 +35,11 @@ import {
   type Fit,
 } from "@/lib/domain/zoom";
 import { TextLayer } from "./text-layer";
-import { useHideSeenPref, useHighlightPref, usePluralPref } from "./use-highlight-pref";
+import {
+  useHideSeenPref,
+  useHighlightPref,
+  usePluralPref,
+} from "./use-highlight-pref";
 import { WordPanel } from "./word-panel";
 
 type Props = {
@@ -88,7 +103,9 @@ export function PageReader({
   // RF-19: zoom y ajuste de página.
   const [zoom, setZoomState] = useState(1);
   const [fit, setFit] = useState<Fit>("width");
-  const [viewport, setViewport] = useState<{ w: number; h: number } | null>(null);
+  const [viewport, setViewport] = useState<{ w: number; h: number } | null>(
+    null,
+  );
   const scroller = useRef<HTMLDivElement | null>(null);
   const zoomRef = useRef(1);
   useEffect(() => {
@@ -179,7 +196,10 @@ export function PageReader({
     const el = scroller.current;
     if (!el) return;
     const measure = () =>
-      setViewport({ w: Math.max(el.clientWidth - 16, 1), h: Math.max(el.clientHeight - 16, 1) });
+      setViewport({
+        w: Math.max(el.clientWidth - 16, 1),
+        h: Math.max(el.clientHeight - 16, 1),
+      });
     measure();
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(measure);
@@ -240,15 +260,54 @@ export function PageReader({
     [data, pluralsOn],
   );
   const seenMarks = useMemo(
-    () => (data && seenWords && !hideSeen ? seenMarksFor(data, seenWords) : undefined),
+    () =>
+      data && seenWords && !hideSeen
+        ? seenMarksFor(data, seenWords)
+        : undefined,
     [data, seenWords, hideSeen],
   );
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
 
   return (
     <div className={`flex ${heightClassName} min-h-0 flex-col`}>
-      <div className="border-b border-border px-3 py-1">
-        <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Zoom">
+      <div className="flex items-center gap-3 overflow-x-auto border-b border-border bg-surface px-3 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)] md:[mask-image:none]">
+        <div
+          className="flex shrink-0 items-center gap-2 md:ml-auto"
+          role="group"
+          aria-label="Marcas"
+        >
+          <button
+            type="button"
+            aria-pressed={pluralsOn}
+            onClick={() => setPluralsOn(!pluralsOn)}
+            className="chip"
+          >
+            Marcar plurales
+          </button>
+          <button
+            type="button"
+            aria-pressed={highlightOn}
+            onClick={() => setHighlightOn(!highlightOn)}
+            className="chip"
+          >
+            Colorear sustantivos
+          </button>
+          {seenWords && (
+            <button
+              type="button"
+              aria-pressed={!hideSeen}
+              onClick={() => setHideSeen(!hideSeen)}
+              className="chip"
+            >
+              Marcar palabras vistas
+            </button>
+          )}
+        </div>
+        <div
+          className="flex shrink-0 items-center gap-2 md:mr-auto"
+          role="group"
+          aria-label="Zoom"
+        >
           <button
             type="button"
             aria-pressed={fit === "width" && zoom === 1}
@@ -256,7 +315,7 @@ export function PageReader({
               setFit("width");
               setZoom(1);
             }}
-            className="pressable min-h-11 shrink-0 rounded border border-border px-3 text-sm"
+            className="chip"
           >
             Ajustar al ancho
           </button>
@@ -267,7 +326,7 @@ export function PageReader({
               setFit("height");
               setZoom(1);
             }}
-            className="pressable min-h-11 shrink-0 rounded border border-border px-3 text-sm"
+            className="chip"
           >
             Ajustar al alto
           </button>
@@ -276,7 +335,7 @@ export function PageReader({
             aria-label="Alejar"
             disabled={zoom <= 1}
             onClick={() => setZoom(zoom / 1.25)}
-            className="pressable min-h-11 min-w-11 shrink-0 rounded border border-border text-lg disabled:opacity-40"
+            className="chip chip-icon"
           >
             −
           </button>
@@ -288,53 +347,10 @@ export function PageReader({
             aria-label="Acercar"
             disabled={zoom >= 4}
             onClick={() => setZoom(zoom * 1.25)}
-            className="pressable min-h-11 min-w-11 shrink-0 rounded border border-border text-lg disabled:opacity-40"
+            className="chip chip-icon"
           >
             +
           </button>
-        </div>
-        <div className="mt-1 flex gap-2 overflow-x-auto [scrollbar-width:none] md:justify-end">
-        <button
-          type="button"
-          aria-pressed={pluralsOn}
-          onClick={() => setPluralsOn(!pluralsOn)}
-          className={
-            "min-h-11 shrink-0 rounded border px-3 text-sm " +
-            (pluralsOn
-              ? "border-accent bg-accent/10 font-medium"
-              : "border-border")
-          }
-        >
-          Marcar plurales
-        </button>
-        <button
-          type="button"
-          aria-pressed={highlightOn}
-          onClick={() => setHighlightOn(!highlightOn)}
-          className={
-            "min-h-11 shrink-0 rounded border px-3 text-sm " +
-            (highlightOn
-              ? "border-accent bg-accent/10 font-medium"
-              : "border-border")
-          }
-        >
-          Colorear sustantivos
-        </button>
-        {seenWords && (
-          <button
-            type="button"
-            aria-pressed={!hideSeen}
-            onClick={() => setHideSeen(!hideSeen)}
-            className={
-              "min-h-11 shrink-0 rounded border px-3 text-sm " +
-              (!hideSeen
-                ? "border-accent bg-accent/10 font-medium"
-                : "border-border")
-            }
-          >
-            Marcar palabras vistas
-          </button>
-        )}
         </div>
       </div>
       <div
@@ -367,7 +383,9 @@ export function PageReader({
           pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
           if (pinch.current && pointers.current.size === 2) {
             const [a, b] = [...pointers.current.values()];
-            setZoom(pinchZoom(pinch.current.zoom, pinch.current.dist, distance(a, b)));
+            setZoom(
+              pinchZoom(pinch.current.zoom, pinch.current.dist, distance(a, b)),
+            );
           }
         }}
         onPointerCancel={(e) => {
@@ -410,7 +428,7 @@ export function PageReader({
         <div
           data-testid="page-surface"
           className={
-            "relative mx-auto bg-white shadow " +
+            "relative mx-auto rounded-sm bg-white shadow-card " +
             (viewport ? "" : "w-full max-w-[900px]")
           }
           style={{
@@ -435,14 +453,20 @@ export function PageReader({
             type="button"
             tabIndex={-1}
             aria-hidden="true"
-            className={"absolute inset-y-0 left-0 w-[8%]" + (zoom > 1 ? " pointer-events-none" : "")}
+            className={
+              "absolute inset-y-0 left-0 w-[8%]" +
+              (zoom > 1 ? " pointer-events-none" : "")
+            }
             onClick={() => go("prev")}
           />
           <button
             type="button"
             tabIndex={-1}
             aria-hidden="true"
-            className={"absolute inset-y-0 right-0 w-[8%]" + (zoom > 1 ? " pointer-events-none" : "")}
+            className={
+              "absolute inset-y-0 right-0 w-[8%]" +
+              (zoom > 1 ? " pointer-events-none" : "")
+            }
             onClick={() => go("next")}
           />
           {data && (
@@ -511,7 +535,7 @@ export function PageReader({
           aria-label="Página anterior"
           disabled={page <= 1}
           onClick={() => go("prev")}
-          className="pressable min-h-11 min-w-11 rounded-control border border-border bg-surface text-lg disabled:opacity-40"
+          className="chip chip-icon"
         >
           ←
         </button>
@@ -529,12 +553,9 @@ export function PageReader({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             aria-invalid={inputError}
-            className="min-h-11 w-16 rounded-control border border-border bg-surface px-2 text-center"
+            className="min-h-11 w-16 rounded-full border border-border bg-surface px-2 text-center focus:border-accent"
           />
-          <button
-            type="submit"
-            className="pressable min-h-11 rounded-control border border-border bg-surface px-3 font-medium"
-          >
+          <button type="submit" className="chip">
             Ir
           </button>
         </form>
@@ -543,13 +564,13 @@ export function PageReader({
           aria-label="Página siguiente"
           disabled={page >= total}
           onClick={() => go("next")}
-          className="pressable min-h-11 min-w-11 rounded-control border border-border bg-surface text-lg disabled:opacity-40"
+          className="chip chip-icon"
         >
           →
         </button>
       </nav>
       {inputError && (
-        <p role="alert" className="px-3 pb-2 text-sm text-gender-f">
+        <p role="alert" className="px-3 pb-2 text-sm text-danger">
           Escribe un número entre 1 y {total}.
         </p>
       )}

@@ -173,7 +173,7 @@ function UnknownWord({
         </p>
       )}
       {state.kind === "error" && (
-        <p role="alert" className="mt-2 text-sm text-gender-f">
+        <p role="alert" className="mt-2 text-sm text-danger">
           No se pudo buscar. Revisa tu conexión e inténtalo de nuevo.
         </p>
       )}

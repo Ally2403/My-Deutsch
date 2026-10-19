@@ -25,46 +25,39 @@ async function MisGrupos() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold">
+      <h1 className="font-display text-3xl font-extrabold">
         Hola, {profile?.display_name || "estudiante"}
       </h1>
-      <Link
-        href="/diccionario"
-        className="card pressable mt-4 flex min-h-12 items-center justify-between px-4 py-3 font-semibold"
-      >
-        Mi diccionario
-        <span aria-hidden="true" className="text-muted">
-          ›
-        </span>
-      </Link>
-      <Link
-        href="/perfil"
-        className="card pressable mt-3 flex min-h-12 items-center justify-between px-4 py-3 font-semibold"
-      >
-        Mi perfil
-        <span aria-hidden="true" className="text-muted">
-          ›
-        </span>
-      </Link>
-      <h2 className="mt-6 text-lg font-semibold">Mis grupos</h2>
+      <p className="mt-1 text-muted">Elige un grupo para ver su biblioteca.</p>
+      <h2 className="mt-8 font-display text-xl font-bold">Mis grupos</h2>
       {groups && groups.length > 0 ? (
-        <ul className="mt-3 flex flex-col gap-3">
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
           {groups.map((g) => (
             <li key={g.id}>
               <Link
                 href={`/grupos/${g.id}`}
-                className="card pressable flex min-h-12 items-center justify-between px-4 py-3"
+                className="card pressable flex min-h-16 items-center gap-3 px-4 py-3"
               >
-                <span className="font-medium">{g.name}</span>
+                <span
+                  aria-hidden="true"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft font-display font-bold text-accent"
+                >
+                  {g.name.trim().charAt(0).toUpperCase() || "G"}
+                </span>
+                <span className="min-w-0 flex-1 break-words font-semibold">{g.name}</span>
                 {roles.get(g.id) === "admin" && (
-                  <span className="text-sm text-muted">Administrador</span>
+                  <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
+                    Admin
+                  </span>
                 )}
               </Link>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-muted">Aún no perteneces a ningún grupo.</p>
+        <p className="card mt-3 p-5 text-center text-muted">
+          Aún no perteneces a ningún grupo. Crea uno o únete con un código.
+        </p>
       )}
     </>
   );
@@ -72,19 +65,20 @@ async function MisGrupos() {
 
 export default function GruposPage() {
   return (
-    <Page>
-      <Suspense fallback={<h1 className="text-2xl font-bold">Hola</h1>}>
+    <Page width="wide">
+      <Suspense fallback={<h1 className="font-display text-3xl font-extrabold">Hola</h1>}>
         <MisGrupos />
       </Suspense>
 
-      <h2 className="mt-8 text-lg font-semibold">Crear un grupo</h2>
-      <div className="mt-3">
-        <CreateGroupForm />
-      </div>
-
-      <h2 className="mt-8 text-lg font-semibold">Unirme a un grupo</h2>
-      <div className="mt-3">
-        <JoinGroupForm />
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <section className="card p-5">
+          <h2 className="mb-3 font-display text-lg font-bold">Crear un grupo</h2>
+          <CreateGroupForm />
+        </section>
+        <section className="card p-5">
+          <h2 className="mb-3 font-display text-lg font-bold">Unirme a un grupo</h2>
+          <JoinGroupForm />
+        </section>
       </div>
 
       <form action="/auth/signout" method="post" className="mt-10">

@@ -413,7 +413,7 @@ export function DictionaryView({
             </Link>
           )}
           {error && (
-            <p role="alert" className="mt-3 text-gender-f">
+            <p role="alert" className="mt-3 text-danger">
               {error}
             </p>
           )}

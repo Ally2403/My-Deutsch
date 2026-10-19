@@ -31,7 +31,7 @@ const toneClass: Record<string, string> = {
   pending: "text-muted",
   working: "text-foreground",
   ready: "text-foreground",
-  error: "text-red-700 dark:text-red-400",
+  error: "text-danger",
 };
 
 export function BookStatus({
@@ -213,7 +213,7 @@ export function BookStatus({
         </p>
       )}
       {retryError && (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+        <p role="alert" className="text-sm text-danger">
           {retryError}
         </p>
       )}

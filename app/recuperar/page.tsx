@@ -21,8 +21,8 @@ export default function RecuperarPage() {
   }
 
   return (
-    <Page>
-      <h1 className="text-2xl font-bold">Recuperar contraseña</h1>
+    <Page width="narrow"><div className="card p-6 sm:p-8">
+      <h1 className="font-display text-3xl font-extrabold">Recuperar contraseña</h1>
       {sent ? (
         <p className="mt-4">
           Si el correo está registrado, te enviamos un enlace para definir una
@@ -30,11 +30,11 @@ export default function RecuperarPage() {
         </p>
       ) : (
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
-          <label className="flex flex-col gap-1">
+          <label className="flex flex-col gap-1.5 text-sm font-medium">
             Correo
             <Input name="email" type="email" autoComplete="email" required />
           </label>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" className="w-full" disabled={busy}>
             Enviar enlace
           </Button>
         </form>
@@ -44,6 +44,6 @@ export default function RecuperarPage() {
           Volver a iniciar sesión
         </Link>
       </p>
-    </Page>
+    </div></Page>
   );
 }

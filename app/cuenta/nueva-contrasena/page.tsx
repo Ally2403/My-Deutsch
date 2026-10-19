@@ -28,10 +28,10 @@ export default function NuevaContrasenaPage() {
   }
 
   return (
-    <Page>
-      <h1 className="text-2xl font-bold">Nueva contraseña</h1>
+    <Page width="narrow"><div className="card p-6 sm:p-8">
+      <h1 className="font-display text-3xl font-extrabold">Nueva contraseña</h1>
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
           Contraseña
           <Input
             name="password"
@@ -39,19 +39,19 @@ export default function NuevaContrasenaPage() {
             autoComplete="new-password"
             required
           />
-          <span className="text-sm text-muted">
+          <span className="text-sm font-normal text-muted">
             Mínimo 8 caracteres, con una letra y un número.
           </span>
         </label>
         {error && (
-          <p role="alert" className="text-gender-f">
+          <p role="alert" className="text-danger">
             {error}
           </p>
         )}
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" className="w-full" disabled={busy}>
           Guardar
         </Button>
       </form>
-    </Page>
+    </div></Page>
   );
 }

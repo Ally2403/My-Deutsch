@@ -132,7 +132,7 @@ export function BookCard({
                 eliminan en 7 días. Tus palabras guardadas se conservan.
               </p>
               {removeError && (
-                <p role="alert" className="mt-2 text-sm text-gender-f">
+                <p role="alert" className="mt-2 text-sm text-danger">
                   {removeError}
                 </p>
               )}

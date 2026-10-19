@@ -41,8 +41,8 @@ export default function RegistroPage() {
 
   if (sent) {
     return (
-      <Page>
-        <h1 className="text-2xl font-bold">Revisa tu correo</h1>
+      <Page width="narrow"><div className="card p-6 sm:p-8">
+        <h1 className="font-display text-3xl font-extrabold">Revisa tu correo</h1>
         <p className="mt-3">
           Te enviamos un enlace para verificar tu cuenta. Ábrelo y luego inicia
           sesión.
@@ -52,19 +52,19 @@ export default function RegistroPage() {
             Ir a iniciar sesión
           </Link>
         </p>
-      </Page>
+      </div></Page>
     );
   }
 
   return (
-    <Page>
-      <h1 className="text-2xl font-bold">Crear cuenta</h1>
+    <Page width="narrow"><div className="card p-6 sm:p-8">
+      <h1 className="font-display text-3xl font-extrabold">Crear cuenta</h1>
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
           Correo
           <Input name="email" type="email" autoComplete="email" required />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
           Contraseña
           <Input
             name="password"
@@ -72,12 +72,12 @@ export default function RegistroPage() {
             autoComplete="new-password"
             required
           />
-          <span className="text-sm text-muted">
+          <span className="text-sm font-normal text-muted">
             Mínimo 8 caracteres, con una letra y un número.
           </span>
         </label>
         {error && (
-          <p role="alert" className="text-gender-f">
+          <p role="alert" className="text-danger">
             {error}{" "}
             {error.startsWith("Este correo") && (
               <Link href="/login" className="tap-link underline">
@@ -86,11 +86,11 @@ export default function RegistroPage() {
             )}
           </p>
         )}
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" className="w-full" disabled={busy}>
           Crear cuenta
         </Button>
       </form>
-      <div className="my-4 text-center text-muted">o</div>
+      <div className="my-5 flex items-center gap-3 text-sm text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">o</div>
       <GoogleButton next="/grupos" />
       <p className="mt-6 text-sm">
         ¿Ya tienes cuenta?{" "}
@@ -98,6 +98,6 @@ export default function RegistroPage() {
           Iniciar sesión
         </Link>
       </p>
-    </Page>
+    </div></Page>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
+import { THEME_INIT_SCRIPT } from "@/lib/domain/theme";
 import "./globals.css";
 
 const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
@@ -15,12 +16,22 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#5b2a86",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f7fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1016" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${body.variable} ${heading.variable} h-full antialiased`}>
+    <html
+      lang="es"
+      suppressHydrationWarning
+      className={`${body.variable} ${heading.variable} h-full antialiased`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

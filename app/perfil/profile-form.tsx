@@ -48,8 +48,8 @@ export function ProfileForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-4">
-      <label className="flex flex-col gap-1">
+    <form onSubmit={onSubmit} className="card mt-4 flex flex-col gap-4 p-5">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
         Nombre visible
         <Input
           value={name}
@@ -57,11 +57,11 @@ export function ProfileForm({
           maxLength={60}
           required
         />
-        <span className="text-sm text-muted">
+        <span className="text-sm font-normal text-muted">
           Lo ven los miembros de tus grupos.
         </span>
       </label>
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1.5 text-sm font-medium">
         Nivel de alemán
         <select
           value={lvl}
@@ -77,7 +77,7 @@ export function ProfileForm({
         </select>
       </label>
       {error && (
-        <p role="alert" className="text-gender-f">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
@@ -139,7 +139,7 @@ export function DeleteAccount() {
         autoComplete="off"
       />
       {error && (
-        <p role="alert" className="mt-2 text-gender-f">
+        <p role="alert" className="mt-2 text-danger">
           {error}
         </p>
       )}

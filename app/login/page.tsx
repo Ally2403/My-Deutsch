@@ -41,14 +41,14 @@ function LoginForm() {
   }
 
   return (
-    <Page>
-      <h1 className="text-2xl font-bold">Iniciar sesión</h1>
+    <Page width="narrow"><div className="card p-6 sm:p-8">
+      <h1 className="font-display text-3xl font-extrabold">Iniciar sesión</h1>
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
           Correo
           <Input name="email" type="email" autoComplete="email" required />
         </label>
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
           Contraseña
           <Input
             name="password"
@@ -58,15 +58,15 @@ function LoginForm() {
           />
         </label>
         {error && (
-          <p role="alert" className="text-gender-f">
+          <p role="alert" className="text-danger">
             {error}
           </p>
         )}
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" className="w-full" disabled={busy}>
           Entrar
         </Button>
       </form>
-      <div className="my-4 text-center text-muted">o</div>
+      <div className="my-5 flex items-center gap-3 text-sm text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">o</div>
       <GoogleButton next={next} />
       <p className="mt-6 text-sm">
         <Link href="/recuperar" className="tap-link underline">
@@ -77,7 +77,7 @@ function LoginForm() {
           Crear cuenta
         </Link>
       </p>
-    </Page>
+    </div></Page>
   );
 }
 
