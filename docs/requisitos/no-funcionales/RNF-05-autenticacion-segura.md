@@ -7,7 +7,7 @@
 | **Módulo** | M-1 Cuenta |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso (c2 y c3 cubiertos; c1 sin verificar) |
 | **Dependencias** | [RF-01](../funcionales/RF-01-registrar-usuario-con-correo-y-contrasena.md), [RF-02](../funcionales/RF-02-iniciar-sesion-con-correo-y-contrasena.md), [RF-03](../funcionales/RF-03-iniciar-sesion-con-google.md) |
 | **Reglas de negocio** | — |
 
