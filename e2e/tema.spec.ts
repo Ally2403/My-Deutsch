@@ -11,28 +11,30 @@ const ROUTES = [
   "/lector/demo",
 ];
 
-test("RF-44 c1/c2: el selector recorre Sistema → Claro → Oscuro y se recuerda al recargar", async ({
+test("RF-44 c1: el botón alterna sol/luna entre claro y oscuro y se recuerda al recargar", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/login");
   const html = page.locator("html");
   await expect(html).not.toHaveAttribute("data-theme", /.*/);
-  const toggle = page.getByRole("button", { name: /^Tema:/ });
-  await expect(toggle).toHaveAccessibleName(/Tema: Sistema/);
-  await toggle.click();
-  await expect(html).toHaveAttribute("data-theme", "light");
-  await toggle.click();
+  // Claro: el botón ofrece la luna.
+  await page.getByRole("button", { name: "Cambiar a modo oscuro" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  const bg = await page.evaluate(
-    () => getComputedStyle(document.body).backgroundColor,
-  );
+  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   expect(bg).toBe("rgb(14, 16, 22)");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  await page.getByRole("button", { name: /^Tema:/ }).click(); // Sistema
-  await expect(html).not.toHaveAttribute("data-theme", /.*/);
-  expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBeNull();
+  // Oscuro: el botón ofrece el sol.
+  await page.getByRole("button", { name: "Cambiar a modo claro" }).click();
+  await expect(html).toHaveAttribute("data-theme", "light");
+  expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe("light");
+});
+
+test("RF-44 c1: sin preferencia guardada el botón parte del tema del sistema", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/login");
+  await expect(page.getByRole("button", { name: "Cambiar a modo claro" })).toBeVisible();
 });
 
 test("RF-44 c2: «Sistema» sigue prefers-color-scheme", async ({ page }) => {

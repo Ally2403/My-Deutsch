@@ -34,6 +34,7 @@ function Nav() {
         <Link
           key={l.href}
           href={l.href}
+          prefetch={false}
           className="pressable inline-flex min-h-11 items-center rounded-full px-2.5 text-sm font-medium text-muted hover:text-foreground sm:px-3.5 sm:text-base"
         >
           {l.label}
