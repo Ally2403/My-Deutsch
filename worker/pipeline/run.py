@@ -23,6 +23,7 @@ from pipeline.analyze import analyze
 from pipeline.fields import detect_fields, detect_lines, merge_fields
 from pipeline.geometry import build_tokens, words_from_rows
 from pipeline.image import MAX_INPUT_PIXELS, render_webp, webp_size
+from pipeline.images import detect_images
 from pipeline.noise import drop_noise
 from pipeline.ocr import ocr_words, osd_rotation, printed_candidates, to_png
 from pipeline.page_json import LexRegistry, build_page, validate_page
@@ -169,11 +170,12 @@ def _process_page(page, n, pages, engine, lex, nlp, translator, registry) -> int
     raw_words = words_from_rows(rows, width, height)
     # RF-34: antes de drop_noise, que descarta las líneas «____», y además las rayas de la imagen
     fields = merge_fields(detect_fields(raw_words), detect_lines(page))
+    images = detect_images(page, [w.box for w in raw_words])  # RF-18
     words = drop_noise(raw_words)
     tokens = build_tokens(words, known=lambda w: bool(lex.lookup_form(w.lower())))
     analyzed = analyze(tokens, nlp, lex)
     size = webp_size(page.shape)
-    data = build_page(size, tokens, analyzed, lex, translator, registry, fields)
+    data = build_page(size, tokens, analyzed, lex, translator, registry, fields, images)
     validate_page(data)
     confs = [w.conf for w in words if w.conf >= 0]
     meta = {

@@ -90,7 +90,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 
 ## Alcance del MVP (cierre 2026-10-19)
 
-El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: (nada de funcionalidad pendiente salvo lo señalado en ESTADO.md), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
+El MVP incluye todo lo marcado **Hecho**. Siguen **En progreso**, a la espera de acciones de la usuaria (secretos, cuenta de prueba, primera ejecución en Actions): RNF-08 (rendimiento web), RNF-10 (concurrencia) y RNF-13 (respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md) y [`docs/ESTADO.md`](../ESTADO.md).
 
 ## Plantilla para un requisito nuevo
 
