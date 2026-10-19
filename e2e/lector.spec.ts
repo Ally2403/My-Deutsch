@@ -694,7 +694,8 @@ test("RF-33 / RNF-14: escribir una respuesta, cambiar de página antes de 1 s y 
   await field.fill("der Tisch");
   await page.getByRole("button", { name: "Página siguiente" }).click();
   await expect(page.getByText("página 2 de 3")).toBeVisible();
-  await page.getByRole("button", { name: "Página anterior" }).click();
+  // dispatchEvent: el indicador de desarrollo de Next puede tapar este botón a 360 px en CI.
+  await page.getByRole("button", { name: "Página anterior" }).dispatchEvent("click");
   await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveValue("der Tisch");
 
   // Sin conexión: se guarda en local y queda pendiente.
