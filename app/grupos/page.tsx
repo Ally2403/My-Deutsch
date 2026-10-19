@@ -37,6 +37,15 @@ async function MisGrupos() {
           ›
         </span>
       </Link>
+      <Link
+        href="/perfil"
+        className="card pressable mt-3 flex min-h-12 items-center justify-between px-4 py-3 font-semibold"
+      >
+        Mi perfil
+        <span aria-hidden="true" className="text-muted">
+          ›
+        </span>
+      </Link>
       <h2 className="mt-6 text-lg font-semibold">Mis grupos</h2>
       {groups && groups.length > 0 ? (
         <ul className="mt-3 flex flex-col gap-3">
