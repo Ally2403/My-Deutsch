@@ -52,6 +52,8 @@ export function BookReader({
   const save = useCallback(
     async (p: { lastPage: number; pagesRead: number[] }) => {
       if (!userId) return;
+      // Solo se guardan valores plausibles; la fila es propia (RLS) y `updated_at` es informativo.
+      const pages = [...new Set(p.pagesRead)].filter((n) => n >= 1 && n <= total);
       // RLS (RN-04): solo se escribe el progreso propio de un libro visible.
       await createClient()
         .from("reading_progress")
@@ -59,14 +61,14 @@ export function BookReader({
           {
             user_id: userId,
             book_id: bookId,
-            last_page: p.lastPage,
-            pages_read: p.pagesRead,
+            last_page: Math.min(Math.max(p.lastPage, 1), total),
+            pages_read: pages,
             updated_at: new Date().toISOString(),
           },
           { onConflict: "user_id,book_id" },
         );
     },
-    [userId, bookId],
+    [userId, bookId, total],
   );
   const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
   return (

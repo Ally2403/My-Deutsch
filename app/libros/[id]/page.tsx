@@ -115,6 +115,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
       {chooseView(total) === "reader" && (
         <div className="min-h-0 flex-1">
           <BookReader
+            key={book.id}
             bookId={book.id}
             total={total}
             userId={user?.id}
