@@ -25,7 +25,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-02 | [Iniciar sesión con correo y contraseña](funcionales/RF-02-iniciar-sesion-con-correo-y-contrasena.md)                          | M-1    | Alta      | 3    | En progreso |
 | RF-03 | [Iniciar sesión con Google](funcionales/RF-03-iniciar-sesion-con-google.md)                                                    | M-1    | Alta      | 3    | En progreso |
 | RF-04 | [Cerrar sesión y recuperar contraseña](funcionales/RF-04-cerrar-sesion-y-recuperar-contrasena.md)                              | M-1    | Media     | 3    | En progreso |
-| RF-05 | [Gestionar perfil](funcionales/RF-05-gestionar-perfil.md)                                                                      | M-1    | Baja      | 4    | Pendiente   |
+| RF-05 | [Gestionar perfil](funcionales/RF-05-gestionar-perfil.md)                                                                      | M-1    | Baja      | 4    | Hecho       |
 | RF-06 | [Crear grupo](funcionales/RF-06-crear-grupo.md)                                                                                | M-2    | Alta      | 3    | Hecho       |
 | RF-07 | [Unirse a un grupo](funcionales/RF-07-unirse-a-un-grupo.md)                                                                    | M-2    | Alta      | 3    | En progreso |
 | RF-08 | [Ver miembros del grupo](funcionales/RF-08-ver-miembros-del-grupo.md)                                                          | M-2    | Media     | 3    | Hecho       |
