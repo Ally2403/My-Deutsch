@@ -15,6 +15,10 @@ INFINITIVE = re.compile(r"^[a-zñáéíóúü]*(?:ar|er|ir|ír)(?:se)?$")
 CLITIC = re.compile(r"^([a-zñáéíóúü]*(?:ar|er|ir|ír))(me|te|lo|la)$")
 
 
+# Pronombres u objetos que la frase portadora pega al infinitivo («ser yo», «conseguir algo»).
+TRAILING = {"yo", "mí", "él", "ella", "ello", "esto", "eso", "algo", "alguien", "lo", "la", "le"}
+
+
 def german_probe(lemma: str, pos: str, genders: list[str]) -> str:
     if pos == "noun" and genders:
         return f"{ARTICLE[genders[0]]} {lemma}"
@@ -38,7 +42,10 @@ def _infinitive(text: str) -> str | None:
         first = match.group(1) + ("se" if match.group(2) == "me" else "")
     if not INFINITIVE.match(first):
         return None
-    return " ".join([first, *words[1:]])
+    rest = words[1:]
+    while rest and rest[-1].lower() in TRAILING:
+        rest.pop()
+    return " ".join([first, *rest])
 
 
 def clean_output(text: str, pos: str, source: str) -> str | None:
@@ -50,6 +57,6 @@ def clean_output(text: str, pos: str, source: str) -> str | None:
         text = WANT.sub("", text)
         text = _infinitive(text) or ""
     text = text[:1].lower() + text[1:]
-    if not text or text.lower() == source.lower():
+    if not re.search(r"[^\W\d_]", text) or text.lower() == source.lower():
         return None
     return text

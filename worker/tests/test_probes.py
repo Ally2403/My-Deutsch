@@ -41,6 +41,10 @@ def test_english_probe(gloss, pos, expected):
         ("Quiero irme.", "verb", "gehen", "irse"),
         ("Quiero comprenderlo.", "verb", "verstehen", "comprender"),
         ("Quiero tener esperanza.", "verb", "hoffen", "tener esperanza"),
+        ("Quiero ser yo.", "verb", "sein", "ser"),
+        ("Quiero conseguir algo.", "verb", "verschaffen", "conseguir"),
+        ("Quiero ir tras él.", "verb", "verfolgen", "ir tras"),
+        ("Quiero dar a conocer.", "verb", "nennen", "dar a conocer"),
         ("Sin embargo,", "adv", "trotzdem", "sin embargo"),
         ("hermosa", "adj", "schön", "hermosa"),
     ],
@@ -66,3 +70,8 @@ def test_clean_output_discards_what_is_not_usable(text, pos, source):
 def test_a_noun_keeps_words_that_only_look_like_clitics():
     # «caballo» termina en «lo» pero no es un infinitivo: solo los verbos se tocan
     assert clean_output("el caballo", "noun", "Pferd") == "caballo"
+
+
+def test_output_without_letters_is_discarded():
+    assert clean_output("•", "pron", "dieser") is None
+    assert clean_output("...", "adv", "x") is None

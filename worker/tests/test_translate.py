@@ -124,3 +124,18 @@ def test_a_translation_equal_to_the_german_word_is_discarded():
 def test_null_translator_leaves_only_wiktionary_spanish():
     out = senses_for(entry(en=["help"], es=["socorro"]), NullTranslator())
     assert out == [{"es": "socorro", "m": False}]
+
+
+def test_closed_class_words_skip_the_bare_german_translation():
+    # «ich» suelto sale como «na»: pronombres, determinantes, partículas e interjecciones
+    # se quedan con sus definiciones
+    for pos in ("pron", "det", "part", "intj"):
+        t = Fake(german={"ich": "na"}, english={"I": "yo"})
+        out = senses_for(entry("ich", pos, (), en=["I"]), t)
+        assert spanish(out) == ["yo"], pos
+        assert "ich" not in t.calls
+
+
+def test_prepositions_and_conjunctions_still_get_the_main_sense():
+    out = senses_for(entry("mit", "prep", (), en=["with"]), Fake(german={"mit": "con"}))
+    assert spanish(out) == ["con"]

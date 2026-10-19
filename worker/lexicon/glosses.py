@@ -3,7 +3,8 @@
 import re
 
 MAX_FRAGMENT = 40
-BRACKETS = re.compile(r"\([^)]*\)|\[[^\]]*\]")
+BRACKETS = re.compile(r"\([^()]*\)|\[[^\[\]]*\]")  # el más interno
+STRAY = re.compile(r"[()\[\]“”\"]")
 # Fórmulas de definición: describen la palabra en vez de nombrarla, y traducidas dan
 # «el acto de ayudar» o «una cosa o persona que ayuda».
 FORMULA = re.compile(
@@ -16,15 +17,27 @@ FORMULA = re.compile(
 )
 
 
+def _is_formula(fragment: str) -> bool:
+    return bool(FORMULA.match(fragment) or re.search(r"\bthe act of\b", fragment, re.IGNORECASE))
+
+
+def _without_brackets(text: str) -> str:
+    """Quita los paréntesis y corchetes con su contenido, también los anidados."""
+    previous = None
+    while previous != text:
+        previous, text = text, BRACKETS.sub("", text)
+    return text
+
+
 def clean_glosses(glosses: list[str]) -> list[str]:
     """Fragmentos cortos y únicos (sin distinguir mayúsculas) en el orden de aparición."""
     out: list[str] = []
     seen: set[str] = set()
     for gloss in glosses:
-        for fragment in re.split(r"[;,]", BRACKETS.sub("", gloss)):
+        for fragment in re.split(r"[;,]", STRAY.sub("", _without_brackets(gloss))):
             fragment = " ".join(fragment.split())
             key = fragment.lower()
-            if not fragment or len(fragment) > MAX_FRAGMENT or FORMULA.match(fragment):
+            if not fragment or len(fragment) > MAX_FRAGMENT or _is_formula(fragment):
                 continue
             if key not in seen:
                 seen.add(key)

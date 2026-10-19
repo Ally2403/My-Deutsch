@@ -40,3 +40,17 @@ def test_duplicates_are_removed_ignoring_case():
 
 def test_very_long_fragments_are_dropped():
     assert clean_glosses(["x" * 41]) == []
+
+
+def test_nested_parentheses_are_removed_completely():
+    assert clean_glosses(["to say (verbally (aloud) or in writing)"]) == ["to say"]
+
+
+def test_stray_brackets_and_quotes_never_survive():
+    out = clean_glosses(["to hear a sound)", "to ask ”)", "(first-person) I"])
+    assert out == ["to hear a sound", "to ask", "I"]
+    assert not any(c in fragment for fragment in out for c in '()[]“”"')
+
+
+def test_a_formula_in_the_middle_of_a_fragment_is_dropped_too():
+    assert clean_glosses(["experience or the act of playing", "game"]) == ["game"]

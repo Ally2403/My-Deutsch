@@ -10,6 +10,8 @@ from lexicon.probes import clean_output, english_probe, german_probe
 from lexicon.store import Entry
 
 MAX_SENSES = 5
+# Una palabra funcional suelta no tiene contexto («ich» sale «na»): solo se usan sus definiciones.
+NO_DIRECT_TRANSLATION = {"pron", "det", "part", "intj"}
 log = logging.getLogger(__name__)
 
 
@@ -50,9 +52,10 @@ def senses_for(entry: Entry, translator: Translator) -> list[dict]:
 
     for es in entry.glosses_es:
         add(es, False)
-    machine_sense(
-        translator.from_german, german_probe(entry.lemma, entry.pos, entry.genders), entry.lemma
-    )
+    if entry.pos not in NO_DIRECT_TRANSLATION:
+        machine_sense(
+            translator.from_german, german_probe(entry.lemma, entry.pos, entry.genders), entry.lemma
+        )
     for gloss in clean_glosses(entry.glosses_en):
         if len(senses) >= MAX_SENSES:
             break
