@@ -132,7 +132,7 @@ describe("WordPanel (RF-21, RF-22)", () => {
 
   it("sin entrada: forma tal cual y enlace de búsqueda externa", () => {
     open(5);
-    const link = screen.getByRole("link", { name: /unbekannt/ });
+    const link = screen.getByRole("link", { name: /Wiktionary/ });
     expect(link).toHaveAttribute(
       "href",
       "https://de.wiktionary.org/wiki/unbekannt",
@@ -300,5 +300,60 @@ describe("WordPanel: diccionario personal (RF-28, RF-29)", () => {
       <WordPanel page={page} tokenIndex={8} pageNumber={1} anchor={null} onClose={() => {}} />,
     );
     expect(screen.queryByRole("button", { name: /conocida|eliminar/i })).toBeNull();
+  });
+});
+
+describe("WordPanel: palabra no encontrada (RF-25)", () => {
+  const open = (searchLexicon?: (w: string) => Promise<import("@/lib/domain/page").LexEntry | null>) =>
+    render(
+      <WordPanel
+        page={page}
+        tokenIndex={5}
+        pageNumber={1}
+        anchor={null}
+        onClose={() => {}}
+        searchLexicon={searchLexicon}
+      />,
+    );
+
+  it("dice «no encontramos», muestra la forma y enlaza a Wiktionary y DWDS en pestaña nueva", () => {
+    open();
+    expect(screen.getByText("No encontramos esta palabra en el diccionario.")).toBeInTheDocument();
+    expect(screen.getByText("unbekannt", { selector: "p" })).toBeInTheDocument();
+    const wik = screen.getByRole("link", { name: /Wiktionary/ });
+    const dwds = screen.getByRole("link", { name: /DWDS/ });
+    expect(wik).toHaveAttribute("href", "https://de.wiktionary.org/wiki/unbekannt");
+    expect(dwds).toHaveAttribute("href", "https://www.dwds.de/wb/unbekannt");
+    for (const a of [wik, dwds]) {
+      expect(a).toHaveAttribute("target", "_blank");
+      expect(a).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    }
+    expect(screen.queryByRole("button", { name: "Buscar de nuevo" })).toBeNull();
+  });
+
+  it("permite corregir la forma, buscar de nuevo y mostrar la entrada hallada", async () => {
+    const search = vi.fn().mockResolvedValue({
+      lemma: "Katze",
+      pos: "noun",
+      g: ["f"],
+      senses: [{ es: "gato", m: false }],
+    });
+    open(search);
+    fireEvent.change(screen.getByLabelText("Corregir la forma de la palabra"), {
+      target: { value: "Katze" },
+    });
+    expect(screen.getByRole("link", { name: /«Katze» en DWDS/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Buscar de nuevo" }));
+    expect(await screen.findByText("gato")).toBeInTheDocument();
+    expect(search).toHaveBeenCalledWith("Katze");
+  });
+
+  it("avisa si tampoco existe y si falla la búsqueda", async () => {
+    const search = vi.fn().mockResolvedValueOnce(null).mockRejectedValueOnce(new Error("red"));
+    open(search);
+    fireEvent.click(screen.getByRole("button", { name: "Buscar de nuevo" }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Tampoco encontramos «unbekannt»");
+    fireEvent.click(screen.getByRole("button", { name: "Buscar de nuevo" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudo buscar");
   });
 });

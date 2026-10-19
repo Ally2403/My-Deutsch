@@ -7,6 +7,18 @@ import type { SeenWord } from "@/lib/domain/seen-words";
 
 const TOTAL = 3;
 
+/** Búsqueda de ejemplo (RF-25) sin red: solo conoce «Katze». */
+async function searchLexicon(word: string) {
+  if (word.trim().toLowerCase() !== "katze") return null;
+  return {
+    lemma: "Katze",
+    pos: "noun",
+    g: ["f" as const],
+    pl: "Katzen",
+    senses: [{ es: "gato", m: false }],
+  };
+}
+
 async function loadPage(n: number) {
   const res = await fetch(`/demo/page-${n}.json`);
   if (!res.ok) throw new Error(`No se pudo cargar la página ${n}`);
@@ -29,6 +41,7 @@ export function DemoReader() {
       loadPage={loadPage}
       imageUrl={imageUrl}
       seenWords={seen}
+      searchLexicon={searchLexicon}
       seenBookTitles={{ demo: "Libro de ejemplo" }}
       onSeenStatus={(id, status) =>
         setSeen((m) => {

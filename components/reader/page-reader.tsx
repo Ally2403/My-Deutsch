@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { highlightFor, pluralFor } from "@/lib/domain/noun-highlight";
-import type { PageData } from "@/lib/domain/page";
+import type { LexEntry, PageData } from "@/lib/domain/page";
 import {
   clampPage,
   keyDirection,
@@ -33,6 +33,8 @@ type Props = {
   /** RF-29: cambiar el estado o eliminar una palabra desde el panel. */
   onSeenStatus?: (lexiconId: number, status: SeenWord["status"]) => void;
   onSeenRemove?: (lexiconId: number) => void;
+  /** RF-25: buscar de nuevo una forma corregida de una palabra sin entrada. */
+  searchLexicon?: (word: string) => Promise<LexEntry | null>;
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
@@ -48,6 +50,7 @@ export function PageReader({
   seenBookTitles,
   onSeenStatus,
   onSeenRemove,
+  searchLexicon,
 }: Props) {
   const [page, setPage] = useState(() => clampPage(initialPage, total));
   const [loaded, setLoaded] = useState<{ n: number; data: PageData } | null>(
@@ -304,6 +307,7 @@ export function PageReader({
           })()}
           onStatus={onSeenStatus}
           onRemove={onSeenRemove}
+          searchLexicon={searchLexicon}
           onClose={() => setSelected(null)}
         />
       )}

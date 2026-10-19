@@ -482,3 +482,16 @@ test("RF-28 / RF-29: las palabras vistas se marcan, el panel lo explica y el int
     "false",
   );
 });
+
+test("RF-25: una palabra sin entrada ofrece DWDS y Wiktionary y permite corregir la forma", async ({
+  page,
+}) => {
+  await ready(page);
+  await page.getByRole("button", { name: "Anna", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("No encontramos esta palabra");
+  await expect(dialog.getByRole("link", { name: /DWDS/ })).toHaveAttribute("target", "_blank");
+  await dialog.getByLabel("Corregir la forma de la palabra").fill("Katze");
+  await dialog.getByRole("button", { name: "Buscar de nuevo" }).click();
+  await expect(dialog).toContainText("gato");
+});
