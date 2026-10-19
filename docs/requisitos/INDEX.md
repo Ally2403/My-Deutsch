@@ -39,7 +39,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-16 | [Pasar páginas](funcionales/RF-16-pasar-paginas.md)                                                                            | M-5    | Alta      | 3    | En progreso |
 | RF-17 | [Texto seleccionable alineado al original](funcionales/RF-17-texto-seleccionable-alineado-al-original.md)                      | M-5    | Alta      | 3    | En progreso |
 | RF-18 | [Modo lectura adaptado](funcionales/RF-18-modo-lectura-adaptado.md)                                                            | M-5    | Media     | 4    | Pendiente   |
-| RF-19 | [Zoom y ajuste de página](funcionales/RF-19-zoom-y-ajuste-de-pagina.md)                                                        | M-5    | Media     | 3    | Pendiente   |
+| RF-19 | [Zoom y ajuste de página](funcionales/RF-19-zoom-y-ajuste-de-pagina.md)                                                        | M-5    | Media     | 3    | En progreso |
 | RF-20 | [Recordar última página](funcionales/RF-20-recordar-ultima-pagina.md)                                                          | M-5    | Alta      | 3    | En progreso |
 | RF-21 | [Consultar palabra](funcionales/RF-21-consultar-palabra.md)                                                                    | M-6    | Alta      | 3    | En progreso |
 | RF-22 | [Mostrar género y color del sustantivo](funcionales/RF-22-mostrar-genero-y-color-del-sustantivo.md)                            | M-6    | Alta      | 3    | Hecho       |

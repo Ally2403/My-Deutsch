@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { highlightFor, pluralFor } from "@/lib/domain/noun-highlight";
 import type { LexEntry, PageData } from "@/lib/domain/page";
 import {
@@ -13,6 +13,16 @@ import {
 } from "@/lib/domain/paging";
 import { pairOf } from "@/lib/domain/page-lookup";
 import { seenMarksFor, type SeenMap, type SeenWord } from "@/lib/domain/seen-words";
+import {
+  baseWidth,
+  clampZoom,
+  distance,
+  doubleTapZoom,
+  pinchZoom,
+  swipeChangesPage,
+  wheelZoom,
+  type Fit,
+} from "@/lib/domain/zoom";
 import { TextLayer } from "./text-layer";
 import { useHideSeenPref, useHighlightPref, usePluralPref } from "./use-highlight-pref";
 import { WordPanel } from "./word-panel";
@@ -75,6 +85,40 @@ export function PageReader({
   const cache = useRef(new Map<number, Promise<PageData>>());
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
+  // RF-19: zoom y ajuste de página.
+  const [zoom, setZoomState] = useState(1);
+  const [fit, setFit] = useState<Fit>("width");
+  const [viewport, setViewport] = useState<{ w: number; h: number } | null>(null);
+  const scroller = useRef<HTMLDivElement | null>(null);
+  const zoomRef = useRef(1);
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+  const keepCenter = useRef<{ x: number; y: number } | null>(null);
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinch = useRef<{ dist: number; zoom: number } | null>(null);
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null);
+
+  const setZoom = useCallback((next: number) => {
+    const el = scroller.current;
+    if (el && el.scrollWidth > 0 && el.scrollHeight > 0)
+      keepCenter.current = {
+        x: (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth,
+        y: (el.scrollTop + el.clientHeight / 2) / el.scrollHeight,
+      };
+    setZoomState(clampZoom(next));
+  }, []);
+
+  // Mantiene el centro de la vista al cambiar el zoom.
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    const c = keepCenter.current;
+    keepCenter.current = null;
+    if (!el || !c) return;
+    el.scrollLeft = c.x * el.scrollWidth - el.clientWidth / 2;
+    el.scrollTop = c.y * el.scrollHeight - el.clientHeight / 2;
+  }, [zoom]);
+
   const getPage = useCallback(
     (n: number) => {
       let p = cache.current.get(n);
@@ -116,8 +160,45 @@ export function PageReader({
   }, [page, attempt, total, getPage, imageUrl]);
 
   useEffect(() => {
+    const el = scroller.current;
+    if (el) {
+      el.scrollTop = 0;
+      el.scrollLeft = 0;
+    }
+  }, [page]);
+
+  useEffect(() => {
     onPageChange?.(page);
   }, [page, onPageChange]);
+
+  // Tamaño disponible para la página (RF-19: ajustar al ancho o al alto).
+  const scrollerRef = useCallback((el: HTMLDivElement | null) => {
+    scroller.current = el;
+  }, []);
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const measure = () =>
+      setViewport({ w: Math.max(el.clientWidth - 16, 1), h: Math.max(el.clientHeight - 16, 1) });
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Rueda con Ctrl: zoom en la página en lugar del zoom del navegador (RF-19).
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      setZoom(wheelZoom(zoomRef.current, e.deltaY));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [setZoom]);
 
   // Flechas y AvPág/RePág (RF-16 c2).
   useEffect(() => {
@@ -166,13 +247,59 @@ export function PageReader({
 
   return (
     <div className={`flex ${heightClassName} min-h-0 flex-col`}>
-      <div className="flex flex-wrap justify-end gap-2 border-b border-border px-3 py-1">
+      <div className="border-b border-border px-3 py-1">
+        <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Zoom">
+          <button
+            type="button"
+            aria-pressed={fit === "width" && zoom === 1}
+            onClick={() => {
+              setFit("width");
+              setZoom(1);
+            }}
+            className="pressable min-h-11 shrink-0 rounded border border-border px-3 text-sm"
+          >
+            Ajustar al ancho
+          </button>
+          <button
+            type="button"
+            aria-pressed={fit === "height" && zoom === 1}
+            onClick={() => {
+              setFit("height");
+              setZoom(1);
+            }}
+            className="pressable min-h-11 shrink-0 rounded border border-border px-3 text-sm"
+          >
+            Ajustar al alto
+          </button>
+          <button
+            type="button"
+            aria-label="Alejar"
+            disabled={zoom <= 1}
+            onClick={() => setZoom(zoom / 1.25)}
+            className="pressable min-h-11 min-w-11 shrink-0 rounded border border-border text-lg disabled:opacity-40"
+          >
+            −
+          </button>
+          <span aria-live="polite" className="min-w-12 text-center text-sm">
+            {Math.round(zoom * 100)} %
+          </span>
+          <button
+            type="button"
+            aria-label="Acercar"
+            disabled={zoom >= 4}
+            onClick={() => setZoom(zoom * 1.25)}
+            className="pressable min-h-11 min-w-11 shrink-0 rounded border border-border text-lg disabled:opacity-40"
+          >
+            +
+          </button>
+        </div>
+        <div className="mt-1 flex gap-2 overflow-x-auto [scrollbar-width:none] md:justify-end">
         <button
           type="button"
           aria-pressed={pluralsOn}
           onClick={() => setPluralsOn(!pluralsOn)}
           className={
-            "min-h-11 rounded border px-3 text-sm " +
+            "min-h-11 shrink-0 rounded border px-3 text-sm " +
             (pluralsOn
               ? "border-accent bg-accent/10 font-medium"
               : "border-border")
@@ -185,7 +312,7 @@ export function PageReader({
           aria-pressed={highlightOn}
           onClick={() => setHighlightOn(!highlightOn)}
           className={
-            "min-h-11 rounded border px-3 text-sm " +
+            "min-h-11 shrink-0 rounded border px-3 text-sm " +
             (highlightOn
               ? "border-accent bg-accent/10 font-medium"
               : "border-border")
@@ -199,7 +326,7 @@ export function PageReader({
             aria-pressed={!hideSeen}
             onClick={() => setHideSeen(!hideSeen)}
             className={
-              "min-h-11 rounded border px-3 text-sm " +
+              "min-h-11 shrink-0 rounded border px-3 text-sm " +
               (!hideSeen
                 ? "border-accent bg-accent/10 font-medium"
                 : "border-border")
@@ -208,17 +335,69 @@ export function PageReader({
             Marcar palabras vistas
           </button>
         )}
+        </div>
       </div>
       <div
-        className="flex-1 touch-pan-y overflow-auto p-2"
+        ref={scrollerRef}
+        data-testid="page-scroller"
+        className={
+          "flex-1 overflow-auto p-2 " +
+          (zoom > 1 ? "touch-pan-x touch-pan-y" : "touch-pan-y")
+        }
+        onDoubleClick={(e) => {
+          if ((e.target as Element).closest(".reader-word")) return;
+          setZoom(doubleTapZoom(zoom));
+        }}
         onPointerDown={(e) => {
-          swipeStart.current =
-            e.pointerType === "touch" ? { x: e.clientX, y: e.clientY } : null;
+          if (e.pointerType !== "touch") {
+            swipeStart.current = null;
+            return;
+          }
+          pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          if (pointers.current.size === 2) {
+            const [a, b] = [...pointers.current.values()];
+            pinch.current = { dist: distance(a, b), zoom };
+            swipeStart.current = null;
+          } else {
+            swipeStart.current = { x: e.clientX, y: e.clientY };
+          }
+        }}
+        onPointerMove={(e) => {
+          if (!pointers.current.has(e.pointerId)) return;
+          pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          if (pinch.current && pointers.current.size === 2) {
+            const [a, b] = [...pointers.current.values()];
+            setZoom(pinchZoom(pinch.current.zoom, pinch.current.dist, distance(a, b)));
+          }
+        }}
+        onPointerCancel={(e) => {
+          pointers.current.delete(e.pointerId);
+          if (pointers.current.size < 2) pinch.current = null;
         }}
         onPointerUp={(e) => {
+          const wasPinching = pinch.current !== null;
+          pointers.current.delete(e.pointerId);
+          if (pointers.current.size < 2) pinch.current = null;
           const s = swipeStart.current;
           swipeStart.current = null;
-          if (!s) return;
+          if (wasPinching || !s) return;
+          // Doble toque táctil en una zona sin palabra (RF-19 c2).
+          const now = e.timeStamp;
+          const moved = Math.hypot(e.clientX - s.x, e.clientY - s.y);
+          if (moved < 10 && !(e.target as Element).closest(".reader-word")) {
+            const prev = lastTap.current;
+            if (
+              prev &&
+              now - prev.t < 300 &&
+              Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < 30
+            ) {
+              lastTap.current = null;
+              setZoom(doubleTapZoom(zoom));
+              return;
+            }
+            lastTap.current = { t: now, x: e.clientX, y: e.clientY };
+          }
+          if (!swipeChangesPage(zoom)) return; // con zoom, deslizar desplaza (RF-19 c1)
           const dir = swipeDirection({
             startX: s.x,
             dx: e.clientX - s.x,
@@ -229,8 +408,18 @@ export function PageReader({
         }}
       >
         <div
-          className="relative mx-auto w-full max-w-[900px] bg-white shadow"
-          style={{ aspectRatio: aspect, containerType: "inline-size" }}
+          data-testid="page-surface"
+          className={
+            "relative mx-auto bg-white shadow " +
+            (viewport ? "" : "w-full max-w-[900px]")
+          }
+          style={{
+            aspectRatio: aspect,
+            containerType: "inline-size",
+            ...(viewport
+              ? { width: baseWidth({ fit, viewport, aspect }) * zoom }
+              : {}),
+          }}
         >
           {!error && (
             // eslint-disable-next-line @next/next/no-img-element -- WebP estático con tamaño propio
@@ -246,14 +435,14 @@ export function PageReader({
             type="button"
             tabIndex={-1}
             aria-hidden="true"
-            className="absolute inset-y-0 left-0 w-[8%]"
+            className={"absolute inset-y-0 left-0 w-[8%]" + (zoom > 1 ? " pointer-events-none" : "")}
             onClick={() => go("prev")}
           />
           <button
             type="button"
             tabIndex={-1}
             aria-hidden="true"
-            className="absolute inset-y-0 right-0 w-[8%]"
+            className={"absolute inset-y-0 right-0 w-[8%]" + (zoom > 1 ? " pointer-events-none" : "")}
             onClick={() => go("next")}
           />
           {data && (
