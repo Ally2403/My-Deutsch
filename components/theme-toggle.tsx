@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { savePrefs } from "@/lib/prefs/client";
 import {
   THEME_KEY,
   effectiveTheme,
@@ -46,6 +47,7 @@ function apply(theme: "light" | "dark") {
     /* el tema vale solo para esta visita */
   }
   listeners.forEach((l) => l());
+  void savePrefs({ theme }); // RF-37: el tema sigue a la persona en todos sus dispositivos
 }
 
 /** Botón de sol/luna: muestra el tema al que se cambiará (RF-44). */

@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-19, RF-37)
+
+**RF-37 preferencias de lectura — Hecho (rama `feat/RF-37-preferencias`):** sección «Preferencias de lectura» en `/perfil` (tema, tamaño de letra del modo lectura, coloreo y marcas de «vistas» por defecto), guardadas en `profiles.prefs` y aplicadas al abrir la app en otro dispositivo (`syncPrefsOnce`, una vez por pestaña); el botón sol/luna también guarda el tema en el perfil. Imagen de página sin filtros en oscuro (c2). Suite 494/494. **Sin verificar:** comportamiento entre dos dispositivos con sesión real; el tamaño de letra se usará en RF-18.
+
 # Retomar aquí (2026-10-19, ejercicios escritos y exportación)
 
 **Rama `feat/RF-33-35-respuestas-escritas`** (sin fusionar aún): RF-33 respuestas escritas sobre la página (modo «Escribir», coordenadas relativas, mover/borrar, interruptor «Mis respuestas»), RNF-14 guardado fiable (IndexedDB + cola pendiente + reintento al reconectar, ≤ 0,5 s), RF-35 «Reiniciar página» con confirmación, RF-32 «Exportar CSV» en el diccionario (UTF-8 con BOM, separador `;`). Los cuatro quedan **Hecho** en INDEX.
