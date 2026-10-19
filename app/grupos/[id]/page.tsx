@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { BookCard } from "@/components/book-card";
 import { percentRead } from "@/lib/domain/progress";
 import { GroupAdminPanel, LeaveGroup, MemberActions } from "@/components/group-admin";
+import { Icon } from "@/components/icons";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
@@ -228,9 +229,10 @@ export default function GrupoPage({
     <Page width="wide">
       <Link
         href="/grupos"
-        className="pressable -ml-2 mb-2 inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-sm font-medium text-muted hover:text-foreground"
+        className="back-link mb-3"
       >
-        <span aria-hidden="true">←</span> Mis grupos
+        <Icon name="left" size={18} />
+        Mis grupos
       </Link>
       <Suspense fallback={<p className="text-muted">Cargando…</p>}>
         <Grupo params={params} />

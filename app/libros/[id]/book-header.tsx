@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Icon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
@@ -21,11 +22,9 @@ export function BookHeader({
       <div className="mx-auto flex w-full max-w-5xl items-center gap-1">
         <Link
           href={backHref}
-          className="pressable inline-flex min-h-11 items-center gap-1 rounded-full pr-3 pl-2 text-sm font-medium text-muted hover:text-foreground"
+          className="back-link"
         >
-          <span aria-hidden="true" className="text-lg">
-            ←
-          </span>
+          <Icon name="left" size={18} />
           Biblioteca
         </Link>
         <h1 className="min-w-0 flex-1 text-ellipsis whitespace-nowrap overflow-hidden text-center font-display text-base font-bold sm:text-lg">

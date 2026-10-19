@@ -339,7 +339,7 @@ export function WordPanel({
                 <div className="mt-2 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm font-medium"
+                    className="chip"
                     onClick={() =>
                       onStatus?.(
                         token.l as number,
@@ -355,7 +355,7 @@ export function WordPanel({
                     <>
                       <button
                         type="button"
-                        className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm font-medium"
+                        className="chip"
                         onClick={() => {
                           onRemove?.(token.l as number);
                           setConfirmRemove(false);
@@ -365,7 +365,7 @@ export function WordPanel({
                       </button>
                       <button
                         type="button"
-                        className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm"
+                        className="chip"
                         onClick={() => setConfirmRemove(false)}
                       >
                         Cancelar
@@ -374,7 +374,7 @@ export function WordPanel({
                   ) : (
                     <button
                       type="button"
-                      className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm"
+                      className="chip"
                       onClick={() => setConfirmRemove(true)}
                     >
                       Eliminar de mi diccionario

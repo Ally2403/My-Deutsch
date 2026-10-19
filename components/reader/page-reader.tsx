@@ -34,6 +34,7 @@ import {
   wheelZoom,
   type Fit,
 } from "@/lib/domain/zoom";
+import { Icon } from "@/components/icons";
 import { TextLayer } from "./text-layer";
 import {
   useHideSeenPref,
@@ -337,7 +338,7 @@ export function PageReader({
             onClick={() => setZoom(zoom / 1.25)}
             className="chip chip-icon"
           >
-            −
+            <Icon name="minus" />
           </button>
           <span aria-live="polite" className="min-w-12 text-center text-sm">
             {Math.round(zoom * 100)} %
@@ -349,7 +350,7 @@ export function PageReader({
             onClick={() => setZoom(zoom * 1.25)}
             className="chip chip-icon"
           >
-            +
+            <Icon name="plus" />
           </button>
         </div>
       </div>
@@ -535,14 +536,14 @@ export function PageReader({
           aria-label="Página anterior"
           disabled={page <= 1}
           onClick={() => go("prev")}
-          className="chip chip-icon"
+          className="btn-round"
         >
-          ←
+          <Icon name="left" size={22} />
         </button>
         <form onSubmit={onSubmit} className="flex items-center gap-2">
           <span
             aria-live="polite"
-            className="text-sm"
+            className="text-sm font-medium text-muted"
           >{`página ${page} de ${total}`}</span>
           <label className="sr-only" htmlFor="reader-goto">
             Ir a la página
@@ -555,7 +556,7 @@ export function PageReader({
             aria-invalid={inputError}
             className="min-h-11 w-16 rounded-full border border-border bg-surface px-2 text-center focus:border-accent"
           />
-          <button type="submit" className="chip">
+          <button type="submit" className="btn-go">
             Ir
           </button>
         </form>
@@ -564,9 +565,9 @@ export function PageReader({
           aria-label="Página siguiente"
           disabled={page >= total}
           onClick={() => go("next")}
-          className="chip chip-icon"
+          className="btn-round"
         >
-          →
+          <Icon name="right" size={22} />
         </button>
       </nav>
       {inputError && (
