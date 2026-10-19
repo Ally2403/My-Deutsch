@@ -495,3 +495,83 @@ test("RF-25: una palabra sin entrada ofrece DWDS y Wiktionary y permite corregir
   await dialog.getByRole("button", { name: "Buscar de nuevo" }).click();
   await expect(dialog).toContainText("gato");
 });
+
+test.describe("RF-19: zoom y ajuste de página", () => {
+  const widthOf = (page: Page) =>
+    page.getByTestId("page-surface").evaluate((el) => el.getBoundingClientRect().width);
+
+  test("los botones acercan hasta 4× y «Ajustar al ancho» vuelve al 100 %", async ({ page }) => {
+    await ready(page);
+    const base = await widthOf(page);
+    const zoomIn = page.getByRole("button", { name: "Acercar" });
+    for (let i = 0; i < 10; i++) if (await zoomIn.isEnabled()) await zoomIn.click();
+    await expect(page.getByText("400 %")).toBeVisible();
+    expect(Math.round((await widthOf(page)) / base)).toBe(4);
+    await page.getByRole("button", { name: "Ajustar al ancho" }).click();
+    await expect(page.getByText("100 %")).toBeVisible();
+    expect(Math.abs((await widthOf(page)) - base)).toBeLessThan(1);
+  });
+
+  test("«Ajustar al alto» cabe en la pantalla y el texto sigue alineado", async ({ page }) => {
+    await ready(page);
+    await page.getByRole("button", { name: "Ajustar al alto" }).click();
+    const box = await page.getByTestId("page-surface").boundingBox();
+    const area = await page.getByTestId("page-scroller").boundingBox();
+    expect(box!.height).toBeLessThanOrEqual(area!.height + 1);
+    // La palabra sigue dentro de la página (coordenadas relativas).
+    const w = await page.getByRole("button", { name: "Tisch", exact: true }).boundingBox();
+    expect(w!.x).toBeGreaterThanOrEqual(box!.x);
+    expect(w!.x + w!.width).toBeLessThanOrEqual(box!.x + box!.width + 1);
+  });
+
+  test("Ctrl + rueda amplía la página y no el navegador; el doble clic alterna 100 % ↔ 200 %", async ({
+    page,
+    hasTouch,
+  }) => {
+    test.skip(hasTouch === true && test.info().project.name !== "pc-1280", "solo con ratón");
+    await ready(page);
+    const scroller = page.getByTestId("page-scroller");
+    const box = (await scroller.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.keyboard.down("Control");
+    await page.mouse.wheel(0, -200);
+    await page.keyboard.up("Control");
+    await expect(page.getByText(/^(1[3-9]\d|[2-4]\d\d) %$/)).toBeVisible();
+    await page.getByRole("button", { name: "Ajustar al ancho" }).click();
+    await page.getByTestId("page-scroller").dblclick({ position: { x: 20, y: 400 } });
+    await expect(page.getByText("200 %")).toBeVisible();
+    await page.getByTestId("page-scroller").dblclick({ position: { x: 20, y: 400 } });
+    await expect(page.getByText("100 %")).toBeVisible();
+  });
+
+  test("el pellizco amplía y con zoom deslizar no cambia de página", async ({ page, hasTouch }) => {
+    test.skip(!hasTouch, "solo en dispositivos táctiles");
+    await ready(page);
+    const scroller = page.getByTestId("page-scroller");
+    const fire = (type: string, id: number, x: number, y: number) =>
+      scroller.evaluate(
+        (el, a) => {
+          el.dispatchEvent(
+            new PointerEvent(a.type, {
+              pointerType: "touch",
+              pointerId: a.id,
+              bubbles: true,
+              clientX: a.x,
+              clientY: a.y,
+            }),
+          );
+        },
+        { type, id, x, y },
+      );
+    await fire("pointerdown", 1, 150, 300);
+    await fire("pointerdown", 2, 200, 300);
+    await fire("pointermove", 2, 350, 300); // distancia 50 → 200: ×4
+    await expect(page.getByText("400 %")).toBeVisible();
+    await fire("pointerup", 2, 350, 300);
+    await fire("pointerup", 1, 150, 300);
+    // Con zoom, el deslizamiento horizontal no pasa de página (c1).
+    await fire("pointerdown", 3, 200, 300);
+    await fire("pointerup", 3, 100, 300);
+    await expect(page.getByText("página 1 de 3")).toBeVisible();
+  });
+});
