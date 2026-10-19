@@ -13,8 +13,17 @@ import { BookReader } from "./book-reader";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-async function Libro({ params }: { params: Promise<{ id: string }> }) {
+async function Libro({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ pagina?: string }>;
+}) {
   const { id } = await params;
+  const { pagina } = await searchParams;
+  // RF-30 c3: el diccionario enlaza a la página donde apareció la palabra.
+  const linkedPage = /^\d{1,5}$/.test(pagina ?? "") ? Number(pagina) : null;
   if (!UUID.test(id)) notFound();
 
   const supabase = await createClient();
@@ -119,7 +128,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
             bookId={book.id}
             total={total}
             userId={user?.id}
-            lastPage={progressRes.data?.last_page ?? null}
+            lastPage={linkedPage ?? progressRes.data?.last_page ?? null}
             pagesRead={progressRes.data?.pages_read ?? []}
           />
         </div>
@@ -130,13 +139,15 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
 
 export default function LibroPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ pagina?: string }>;
 }) {
   return (
     <main className="flex h-dvh min-h-0 flex-col">
       <Suspense fallback={<p className="p-4 text-muted">Cargando…</p>}>
-        <Libro params={params} />
+        <Libro params={params} searchParams={searchParams} />
       </Suspense>
     </main>
   );
