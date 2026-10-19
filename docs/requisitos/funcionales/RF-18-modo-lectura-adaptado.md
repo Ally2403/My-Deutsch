@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Media |
 | **Fase** | 4 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 

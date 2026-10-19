@@ -425,3 +425,42 @@ h3 {
 .seen-known::after {
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
 }
+
+/* Modo lectura (RF-18): párrafos ajustados al ancho; tamaño de letra de la preferencia (RF-37). */
+.reading-view {
+  --reading-size: 1.125rem;
+  font-size: var(--reading-size);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.reading-view[data-size="sm"] {
+  --reading-size: 1rem;
+}
+.reading-view[data-size="lg"] {
+  --reading-size: 1.375rem;
+}
+.reading-view[data-size="xl"] {
+  --reading-size: 1.625rem;
+}
+.reading-paragraph {
+  margin-block: 0 1rem;
+}
+.reading-word {
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Área táctil ≥ 44 px sin mover el texto. */
+.reading-word::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: max(100%, 44px);
+  transform: translateY(-50%);
+}
+.reading-word:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
