@@ -71,3 +71,49 @@ describe("AnnotationLayer (RF-33)", () => {
     await waitFor(async () => expect(await sync.get(1)).toEqual([]));
   });
 });
+
+describe("AnnotationLayer: campos detectados (RF-34)", () => {
+  const fields = [
+    [0.1, 0.2, 0.3, 0.02],
+    [0.5, 0.6, 0.2, 0.02],
+  ] as const;
+
+  beforeEach(() => localStorage.clear());
+
+  it("muestra una casilla por campo y al tocarla crea la respuesta ya ubicada", async () => {
+    const { sync } = setup({ fields: [...fields], hiddenKey: "k" });
+    const slots = await screen.findAllByRole("button", { name: /^Campo de ejercicio/ });
+    expect(slots).toHaveLength(2);
+    fireEvent.click(slots[0]);
+    const box = await screen.findByRole("textbox", { name: "Respuesta" });
+    fireEvent.change(box, { target: { value: "der" } });
+    await waitFor(async () => {
+      const [saved] = await sync.get(1);
+      expect(saved).toMatchObject({ kind: "field", x: 0.1, y: 0.2, w: 0.3, text: "der" });
+    });
+    expect(screen.getAllByRole("button", { name: /^Campo de ejercicio/ })).toHaveLength(1);
+  });
+
+  it("un campo mal detectado se puede ocultar y sigue oculto al volver", async () => {
+    const first = setup({ fields: [...fields], hiddenKey: "libro:1" });
+    fireEvent.click((await screen.findAllByRole("button", { name: "Ocultar campo" }))[0]);
+    expect(screen.getAllByRole("button", { name: /^Campo de ejercicio/ })).toHaveLength(1);
+    first.unmount();
+    setup({ fields: [...fields], hiddenKey: "libro:1" });
+    expect(await screen.findAllByRole("button", { name: /^Campo de ejercicio/ })).toHaveLength(1);
+  });
+
+  it("el modo libre sigue disponible aunque se oculten todos los campos", async () => {
+    const { layer } = setup({ fields: [...fields], hiddenKey: "k2" });
+    for (const b of await screen.findAllByRole("button", { name: "Ocultar campo" }))
+      fireEvent.click(b);
+    expect(screen.queryAllByRole("button", { name: /^Campo de ejercicio/ })).toHaveLength(0);
+    fireEvent.click(layer, { clientX: 200, clientY: 400 });
+    expect(await screen.findByRole("textbox", { name: "Respuesta" })).toBeInTheDocument();
+  });
+
+  it("fuera del modo Escribir no se ven las casillas", () => {
+    setup({ fields: [...fields], hiddenKey: "k3", writeMode: false });
+    expect(screen.queryAllByRole("button", { name: /^Campo de ejercicio/ })).toHaveLength(0);
+  });
+});

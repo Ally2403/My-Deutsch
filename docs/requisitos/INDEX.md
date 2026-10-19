@@ -54,7 +54,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-31 | [Filtrar y ordenar el diccionario personal](funcionales/RF-31-filtrar-y-ordenar-el-diccionario-personal.md)                    | M-7    | Alta      | 4    | Hecho       |
 | RF-32 | [Exportar diccionario personal](funcionales/RF-32-exportar-diccionario-personal.md)                                            | M-7    | Baja      | 5    | Hecho       |
 | RF-33 | [Escribir respuestas sobre la página](funcionales/RF-33-escribir-respuestas-sobre-la-pagina.md)                                | M-8    | Media     | 3    | Hecho       |
-| RF-34 | [Campos de ejercicio detectados automáticamente](funcionales/RF-34-campos-de-ejercicio-detectados-automaticamente.md)          | M-8    | Baja      | 4    | Pendiente   |
+| RF-34 | [Campos de ejercicio detectados automáticamente](funcionales/RF-34-campos-de-ejercicio-detectados-automaticamente.md)          | M-8    | Baja      | 4    | Hecho       |
 | RF-35 | [Reiniciar ejercicios de una página](funcionales/RF-35-reiniciar-ejercicios-de-una-pagina.md)                                  | M-8    | Baja      | 4    | Hecho       |
 | RF-36 | [Interfaz responsive en celular, tablet y computador](funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) | M-T    | Alta      | 3    | Hecho       |
 | RF-37 | [Preferencias de lectura](funcionales/RF-37-preferencias-de-lectura.md)                                                        | M-T    | Baja      | 5    | Hecho       |
@@ -90,7 +90,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 
 ## Alcance del MVP (cierre 2026-10-19)
 
-El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: RF-34 (campos de ejercicio detectados automáticamente), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
+El MVP incluye todo lo marcado **Hecho**. Quedan **Pendiente** y fuera del MVP, por decisión de la usuaria: (nada de funcionalidad pendiente salvo lo señalado en ESTADO.md), RNF-08 (rendimiento web), RNF-10 (concurrencia), RNF-13 (portabilidad y respaldo). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md).
 
 ## Plantilla para un requisito nuevo
 

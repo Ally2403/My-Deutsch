@@ -753,3 +753,37 @@ test("RF-18: el modo lectura ajusta el texto sin desplazamiento horizontal y con
   await page.reload();
   await expect(page.getByTestId("reading-view")).toHaveAttribute("data-size", "lg");
 });
+
+test("RF-34: los campos detectados se llenan con un toque y uno mal detectado se oculta", async ({
+  page,
+}) => {
+  await ready(page);
+  await page.evaluate(() => {
+    localStorage.removeItem("my-deutsch:hidden-fields:demo:1");
+  });
+  await page.getByRole("button", { name: "Escribir", exact: true }).click();
+  const slots = page.getByRole("button", { name: /^Campo de ejercicio/ });
+  await expect(slots).toHaveCount(2);
+  await slots.first().dispatchEvent("click");
+  await page.getByRole("textbox", { name: "Respuesta" }).fill("der Tisch");
+  await expect(slots).toHaveCount(1);
+  await page.getByRole("button", { name: "Ocultar campo" }).dispatchEvent("click");
+  await expect(slots).toHaveCount(0);
+  // El modo libre sigue disponible.
+  const layer = page.getByTestId("annotation-layer");
+  const box = (await layer.boundingBox())!;
+  await layer.click({ position: { x: box.width * 0.5, y: box.height * 0.2 } });
+  await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveCount(2);
+});
+
+test("RF-18 c2: en modo lectura la ilustración de la página se muestra recortada", async ({ page }) => {
+  await ready(page);
+  await page.getByRole("button", { name: "Modo lectura" }).click();
+  await page.getByLabel("Ir a la página").fill("3");
+  await page.getByRole("button", { name: "Ir", exact: true }).click();
+  const img = page.getByRole("img", { name: "Ilustración de la página" });
+  await expect(img).toBeVisible();
+  const box = (await img.boundingBox())!;
+  expect(box.width).toBeGreaterThan(100);
+  expect(box.height).toBeGreaterThan(50);
+});

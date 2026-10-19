@@ -160,6 +160,7 @@ export function BookReader({
       onSeenRemove={onSeenRemove}
       searchLexicon={searchLexicon}
       annotations={annotations}
+      bookKey={bookId}
     />
   );
 }

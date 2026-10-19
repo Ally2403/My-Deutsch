@@ -15,11 +15,11 @@ export function useAnnotationSync({ bookId, userId }: { bookId: string; userId?:
       async load(page) {
         const { data, error } = await supabase
           .from("annotations")
-          .select("id, page, x, y, text, kind")
+          .select("id, page, x, y, w, text, kind")
           .eq("book_id", bookId)
           .eq("page", page);
         if (error) throw error;
-        return (data ?? []) as Annotation[];
+        return (data ?? []).map(({ w, ...a }) => ({ ...a, ...(w ? { w } : {}) })) as Annotation[];
       },
       async upsert(a) {
         const { error } = await supabase.from("annotations").upsert({
@@ -29,6 +29,7 @@ export function useAnnotationSync({ bookId, userId }: { bookId: string; userId?:
           page: a.page,
           x: a.x,
           y: a.y,
+          w: a.w ?? null,
           text: a.text,
           kind: a.kind,
           updated_at: new Date().toISOString(),

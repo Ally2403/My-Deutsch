@@ -53,6 +53,7 @@ export function DemoReader() {
   return (
     <PageReader
       annotations={annotations}
+      bookKey="demo"
       total={TOTAL}
       loadPage={loadPage}
       imageUrl={imageUrl}

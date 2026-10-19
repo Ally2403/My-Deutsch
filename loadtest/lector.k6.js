@@ -55,6 +55,7 @@ function lookup() {
   check(res, { "record_lookup 2xx": (r) => r.status >= 200 && r.status < 300 });
 }
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default function () {
   if (SMOKE || !__ENV.COOKIE) {
     const r = http.get(`${BASE}/demo/page-${1 + (__ITER % 3)}.json`);

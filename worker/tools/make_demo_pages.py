@@ -118,6 +118,10 @@ def lex_json(tokens):
     return out
 
 
+# RF-34: huecos de ejemplo para probar los campos de ejercicio sin libro real.
+DEMO_FIELDS = {1: [[0.1, 0.9, 0.3, 0.02], [0.55, 0.9, 0.3, 0.02]]}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     font = load_font()
@@ -134,7 +138,7 @@ def main():
             lines=line_ranges,
             paragraphs=[[0, len(tokens) - 1]] if tokens else [],
             images=images,
-            fields=[],
+            fields=DEMO_FIELDS.get(n, []),
             tokens=tokens,
             lex=lex_json(tokens),
         )

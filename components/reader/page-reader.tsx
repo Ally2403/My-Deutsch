@@ -70,6 +70,8 @@ type Props = {
   searchLexicon?: (word: string) => Promise<LexEntry | null>;
   /** RF-33, RNF-14: respuestas escritas sobre la página con guardado local y sincronizado. */
   annotations?: AnnotationSync;
+  /** Identifica el libro para recordar los campos de ejercicio ocultos (RF-34). */
+  bookKey?: string;
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
@@ -87,6 +89,7 @@ export function PageReader({
   onSeenRemove,
   searchLexicon,
   annotations,
+  bookKey = "local",
 }: Props) {
   const [page, setPage] = useState(() => clampPage(initialPage, total));
   const [loaded, setLoaded] = useState<{ n: number; data: PageData } | null>(
@@ -617,6 +620,8 @@ export function PageReader({
               writeMode={writeMode}
               visible={!hideAnswers}
               version={answersVersion}
+              fields={data?.fields}
+              hiddenKey={`${bookKey}:${page}`}
             />
           )}
           {error && (
