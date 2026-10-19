@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { PageReader } from "@/components/reader/page-reader";
 import { useLookupSync } from "@/components/reader/use-lookup-sync";
 import { useReadingProgress } from "@/components/reader/use-reading-progress";
+import { candidates, toLexEntry } from "@/lib/domain/lexicon-search";
 import { parsePage } from "@/lib/domain/page";
 import { resumePage } from "@/lib/domain/progress";
 import { withLookup, type SeenWord } from "@/lib/domain/seen-words";
@@ -125,6 +126,23 @@ export function BookReader({
     },
     [userId, seen],
   );
+  // RF-25: única petición de léxico del lector, solo al corregir una palabra sin entrada.
+  const searchLexicon = useCallback(async (word: string) => {
+    const { data, error } = await createClient()
+      .from("lexicon")
+      .select("lemma, pos, genders, plural, senses")
+      .in("lemma", candidates(word))
+      .limit(5);
+    if (error) throw error;
+    // Prefiere sustantivos y verbos sobre otras clases cuando hay varias entradas.
+    const rank = (pos: string) => (pos === "noun" ? 0 : pos === "verb" ? 1 : 2);
+    const rows = [...(data ?? [])].sort((a, b) => rank(a.pos) - rank(b.pos));
+    for (const r of rows) {
+      const entry = toLexEntry(r);
+      if (entry) return entry;
+    }
+    return null;
+  }, []);
   const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
   return (
     <PageReader
@@ -138,6 +156,7 @@ export function BookReader({
       seenBookTitles={seenBookTitles}
       onSeenStatus={onSeenStatus}
       onSeenRemove={onSeenRemove}
+      searchLexicon={searchLexicon}
     />
   );
 }

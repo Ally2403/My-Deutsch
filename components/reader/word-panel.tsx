@@ -24,6 +24,8 @@ type Props = {
   firstBookTitle?: string;
   onStatus?: (lexiconId: number, status: SeenWord["status"]) => void;
   onRemove?: (lexiconId: number) => void;
+  /** RF-25: busca de nuevo una forma corregida (una petición; solo para palabras sin entrada). */
+  searchLexicon?: (word: string) => Promise<LexEntry | null>;
 };
 
 const CLOSE_SWIPE_PX = 60;
@@ -65,6 +67,120 @@ function Heading({ entry }: { entry: LexEntry }) {
   return <p className="text-xl font-semibold">{entry.lemma}</p>;
 }
 
+
+/** Palabra sin entrada (RF-25): dice «no sé», ofrece Wiktionary y DWDS y permite corregir la forma. */
+function UnknownWord({
+  form,
+  searchLexicon,
+}: {
+  form: string;
+  searchLexicon?: (word: string) => Promise<LexEntry | null>;
+}) {
+  const [query, setQuery] = useState(form);
+  const [state, setState] = useState<
+    | { kind: "idle" }
+    | { kind: "loading" }
+    | { kind: "none"; word: string }
+    | { kind: "error" }
+    | { kind: "found"; entry: LexEntry }
+  >({ kind: "idle" });
+  const word = query.trim();
+  const link =
+    "inline-flex min-h-11 items-center text-accent underline";
+
+  async function search(e: React.FormEvent) {
+    e.preventDefault();
+    if (!word || !searchLexicon) return;
+    setState({ kind: "loading" });
+    try {
+      const entry = await searchLexicon(word);
+      setState(entry ? { kind: "found", entry } : { kind: "none", word });
+    } catch {
+      setState({ kind: "error" });
+    }
+  }
+
+  if (state.kind === "found") {
+    const entry = state.entry;
+    return (
+      <>
+        <Heading entry={entry} />
+        <p className="mt-1 text-sm text-muted">{posLabel(entry.pos)}</p>
+        <ol className="mt-3 list-decimal space-y-1 pl-5">
+          {entry.senses.slice(0, MAX_SENSES).map((s, i) => (
+            <li key={i}>{s.es}</li>
+          ))}
+        </ol>
+        <button
+          type="button"
+          className="mt-3 min-h-11 underline"
+          onClick={() => setState({ kind: "idle" })}
+        >
+          Corregir otra vez
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="text-xl font-semibold">{form}</p>
+      <p className="mt-1 text-sm text-muted">
+        No encontramos esta palabra en el diccionario.
+      </p>
+      <div className="mt-2 flex flex-wrap gap-x-4">
+        <a
+          className={link}
+          href={`https://de.wiktionary.org/wiki/${encodeURIComponent(word || form)}`}
+          target="_blank"
+          rel="noopener"
+        >
+          Buscar «{word || form}» en Wiktionary
+        </a>
+        <a
+          className={link}
+          href={`https://www.dwds.de/wb/${encodeURIComponent(word || form)}`}
+          target="_blank"
+          rel="noopener"
+        >
+          Buscar «{word || form}» en DWDS
+        </a>
+      </div>
+      {searchLexicon && (
+        <form onSubmit={search} className="mt-3 flex gap-2">
+          <label className="sr-only" htmlFor="unknown-form">
+            Corregir la forma de la palabra
+          </label>
+          <input
+            id="unknown-form"
+            lang="de"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="min-h-11 min-w-0 flex-1 rounded-control border border-border bg-surface px-3"
+          />
+          <button
+            type="submit"
+            disabled={!word || state.kind === "loading"}
+            className="pressable min-h-11 rounded-control bg-accent px-4 font-semibold text-on-accent disabled:opacity-60"
+          >
+            Buscar de nuevo
+          </button>
+        </form>
+      )}
+      {state.kind === "none" && (
+        <p role="status" className="mt-2 text-sm text-muted">
+          Tampoco encontramos «{state.word}».
+        </p>
+      )}
+      {state.kind === "error" && (
+        <p role="alert" className="mt-2 text-sm text-gender-f">
+          No se pudo buscar. Revisa tu conexión e inténtalo de nuevo.
+        </p>
+      )}
+    </>
+  );
+}
+
 /** Panel de palabra (RF-21, RF-22): hoja inferior en móvil, tarjeta junto a la palabra desde 768 px. */
 export function WordPanel({
   page,
@@ -76,6 +192,7 @@ export function WordPanel({
   firstBookTitle,
   onStatus,
   onRemove,
+  searchLexicon,
 }: Props) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const token = page.tokens[tokenIndex];
@@ -268,20 +385,7 @@ export function WordPanel({
             )}
           </>
         ) : (
-          <>
-            <p className="text-xl font-semibold">{form}</p>
-            <p className="mt-1 text-sm text-muted">
-              No encontramos esta palabra en el diccionario.
-            </p>
-            <a
-              className="mt-3 inline-flex min-h-11 items-center text-accent underline"
-              href={`https://de.wiktionary.org/wiki/${encodeURIComponent(form)}`}
-              target="_blank"
-              rel="noopener"
-            >
-              Buscar «{form}» en Wiktionary
-            </a>
-          </>
+          <UnknownWord form={form} searchLexicon={searchLexicon} />
         )}
       </div>
     </>
