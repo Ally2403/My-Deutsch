@@ -50,7 +50,7 @@ export function AppBar() {
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-3 sm:px-6">
         <Link
           href="/"
-          className="pressable inline-flex min-h-11 items-center gap-2 font-display text-lg font-extrabold tracking-tight"
+          className="pressable inline-flex min-h-11 min-w-11 items-center justify-center gap-2 font-display text-lg font-extrabold tracking-tight"
         >
           <span
             aria-hidden="true"

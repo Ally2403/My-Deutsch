@@ -1,4 +1,11 @@
-# Retomar aquí (2026-10-19, tarde)
+# Retomar aquí (2026-10-19, noche, trabajo autónomo)
+
+**PR #32 abierto, SIN fusionar** (el clasificador bloquea `gh pr merge`; hay que fusionarlo tú o añadir la regla de permiso): RF-44 tema claro/oscuro con selector (Sistema·Claro·Oscuro, sin destello), barra superior común (`components/app-bar.tsx`), rediseño minimalista de inicio, ingreso, grupos, grupo, perfil, diccionario, cabecera del lector y barra de herramientas del lector; tokens nuevos (`--danger`, chips `.chip`). Además en la misma rama: `ci.yml` (RNF-12), prueba e2e de objetivos táctiles (RNF-07, corrigió el logo de 28 px) y arreglo de ruff en el worker.
+**Verificado:** suite 463/463 · e2e 110 pasadas (Chromium 360/768/1280 + WebKit iPhone) · cobertura de dominio 97,5 % · pytest 255 · ruff limpio · producción 200.
+**Marcados Hecho:** RF-44, RF-42 (diseño), RNF-07, RNF-16. **RNF-12** en progreso (falta ver el primer run de CI en GitHub y proteger `main`).
+**Sigue pendiente y necesita a la usuaria:** Google OAuth (RF-40 c3, RF-03), iPhone real (RNF-15), contraseña bcrypt (RNF-05 c1), revisar con datos reales las pantallas de grupo/biblioteca a 360 px en ambos temas, comprobar variables de Vercel (RNF-16 c4).
+
+# Antes (2026-10-19, tarde)
 
 **Hecho hoy (en `main`):** RNF-05 cabeceras de seguridad (PR #28) · RF-42 selector de archivo de la subida (PR #29). **Verificado:** suite RLS (`rls.test.sql`, 22 pruebas) pasa contra la base real, con rollback · auditoría responsive de 9 pantallas (`/`, login, registro, privacidad, grupos, grupo, diccionario, perfil, lector demo) a 360/768/1280 px: 0 desbordes y 0 controles < 44 px · e2e 82/82 (Chromium + WebKit iPhone). Usuario y grupo de prueba creados y borrados (quedan solo las 2 cuentas reales).
 **Actualización (usuaria, 2026-10-19):** subió un libro real en producción y el flujo completo funciona («sirve perfecto»). **Google OAuth (RF-40 c3) queda pendiente para después.** La usuaria no tiene iPhone: RNF-15 se verifica con WebKit emulado (e2e iPhone 13, ya verde) y la prueba en iPhone real se hará con sus compañeros cuando la app esté terminada.

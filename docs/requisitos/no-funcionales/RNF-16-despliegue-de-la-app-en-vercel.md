@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-36](../funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) |
 | **Reglas de negocio** | — |
 
@@ -22,3 +22,7 @@ Vercel detecta la carpeta `worker/` y propone desplegarla como un segundo servic
 2. El proyecto se crea en Vercel sin servicios adicionales y compila.
 3. `/lector/demo` carga en la dirección de vista previa.
 4. Las variables `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` se configuran en Vercel; la clave de service role no se configura en el cliente (ver CLAUDE.md, Seguridad).
+
+## Verificación (2026-10-19)
+- Criterios 1–3 ✅ `vercel.json` solo con el servicio `app`; producción en https://my-deutsch.vercel.app responde 200 en `/lector/demo` con HSTS; la usuaria lo usa con un libro real.
+- Criterio 4 ◐ la app funciona con esas variables; no se pudo listar las variables de Vercel (el MCP no tiene permiso sobre el equipo) ni comprobar que la service role no esté en el cliente más allá de que el código no la importa en `use client`.

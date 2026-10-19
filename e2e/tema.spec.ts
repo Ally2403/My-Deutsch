@@ -128,3 +128,40 @@ test("RF-44 c5: la barra superior cabe a 360 px y sus controles miden ≥ 44 px"
     expect(b.right).toBeLessThanOrEqual(page.viewportSize()!.width + 0.5);
   }
 });
+
+test("RF-36 / RNF-07: ningún control visible de las rutas públicas mide menos de 44 px de alto o ancho", async ({
+  page,
+}) => {
+  for (const route of [
+    "/",
+    "/login",
+    "/registro",
+    "/recuperar",
+    "/privacidad",
+  ]) {
+    await page.goto(route);
+    await expect(page.getByRole("banner")).toBeVisible();
+    const small = await page.evaluate(() =>
+      [
+        ...document.querySelectorAll<HTMLElement>(
+          "a[href], button, input, select, textarea",
+        ),
+      ]
+        .filter((e) => e.offsetParent !== null && !e.closest("nextjs-portal"))
+        .filter(
+          (e) =>
+            !(
+              e.tagName === "A" &&
+              e.closest("p") &&
+              e.classList.contains("tap-link")
+            ),
+        )
+        .map((e) => {
+          const r = e.getBoundingClientRect();
+          return { t: e.outerHTML.slice(0, 80), w: r.width, h: r.height };
+        })
+        .filter((b) => b.h < 43.5 || b.w < 43.5),
+    );
+    expect(small, route).toEqual([]);
+  }
+});
