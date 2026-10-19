@@ -82,7 +82,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-10 | [Concurrencia en el plan gratuito](no-funcionales/RNF-10-concurrencia-en-el-plan-gratuito.md)                             | M-T    | Media     | 5    | Pendiente   |
 | RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md)                                                         | M-3    | Media     | 3    | Hecho       |
 | RNF-12 | [Calidad y pruebas](no-funcionales/RNF-12-calidad-y-pruebas.md)                                                           | M-T    | Media     | 3    | Hecho       |
-| RNF-13 | [Portabilidad de datos y respaldo](no-funcionales/RNF-13-portabilidad-de-datos-y-respaldo.md)                             | M-T    | Baja      | 5    | Pendiente   |
+| RNF-13 | [Portabilidad de datos y respaldo](no-funcionales/RNF-13-portabilidad-de-datos-y-respaldo.md)                             | M-T    | Baja      | 5    | En progreso |
 | RNF-14 | [Guardado fiable de anotaciones](no-funcionales/RNF-14-guardado-fiable-de-anotaciones.md)                                 | M-8    | Media     | 3    | Hecho       |
 | RNF-15 | [Compatibilidad con iPhone y PWA](no-funcionales/RNF-15-compatibilidad-con-iphone-y-pwa.md)                               | M-T    | Alta      | 3    | Hecho       |
 | RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Hecho       |
