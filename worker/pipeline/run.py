@@ -18,7 +18,7 @@ import numpy as np
 import pymupdf
 
 from lexicon.store import Lexicon
-from lexicon.translate import ArgosTranslator, NullTranslator, Translator
+from lexicon.translate import NullTranslator, Translator
 from pipeline.analyze import analyze
 from pipeline.geometry import build_tokens, words_from_rows
 from pipeline.image import MAX_INPUT_PIXELS, render_webp, webp_size
@@ -215,7 +215,12 @@ def main() -> None:
     configure_logging()
     if args.force:
         reset_output(args.out)
-    translator = NullTranslator() if args.no_translate else ArgosTranslator()
+    if args.no_translate:
+        translator = NullTranslator()
+    else:
+        from lexicon.opus import OpusTranslator
+
+        translator = OpusTranslator()
     summary = process_pdf(
         args.pdf,
         args.out,

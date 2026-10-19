@@ -14,8 +14,10 @@ BARS = "Haus"  # texto que devuelve el OCR simulado: no debe aparecer en los reg
 
 
 class FakeTranslator:
-    def translate(self, text: str) -> str:
+    def from_german(self, text: str) -> str:
         return f"es:{text}"
+
+    from_english = from_german
 
 
 class FakeNlp:

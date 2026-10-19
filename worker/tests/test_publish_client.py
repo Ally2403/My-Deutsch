@@ -57,8 +57,7 @@ def test_upsert_lexicon_maps_lemma_pos_to_id_in_batches_of_500():
         return httpx.Response(
             201,
             json=[
-                {"id": 1000 + i, "lemma": r["lemma"], "pos": r["pos"]}
-                for i, r in enumerate(rows)
+                {"id": 1000 + i, "lemma": r["lemma"], "pos": r["pos"]} for i, r in enumerate(rows)
             ],
         )
 

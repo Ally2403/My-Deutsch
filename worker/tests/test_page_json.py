@@ -13,8 +13,10 @@ from pipeline.page_json import LexRegistry, build_page, validate_page
 
 
 class FakeTranslator:
-    def translate(self, text: str) -> str:
+    def from_german(self, text: str) -> str:
         return f"es:{text}"
+
+    from_english = from_german
 
 
 def _e(word, pos, forms=(), senses=None, translations=None):
@@ -72,7 +74,11 @@ def test_known_word_gets_a_lexicon_entry_with_gender_plural_and_senses(lex):
         "pos": "noun",
         "g": ["n"],
         "pl": "Häuser",
-        "senses": [{"es": "casa", "m": False}, {"es": "es:house", "m": True}],
+        "senses": [
+            {"es": "casa", "m": False},
+            {"es": "es:das Haus", "m": True},
+            {"es": "es:house", "m": True},
+        ],
     }
     validate_page(p)
 
@@ -83,8 +89,28 @@ def test_plural_only_noun_has_an_empty_gender_list(lex):
     assert "pl" not in p["lex"][str(p["tokens"][0]["l"])]
 
 
+class InfinitiveTranslator:
+    """Devuelve infinitivos distintos (solo letras), como los que acepta la validación."""
+
+    def __init__(self):
+        self.n = 0
+
+    def from_german(self, text: str) -> str:
+        self.n += 1
+        return "".join(chr(97 + int(d)) for d in str(self.n)) + "ar"
+
+    from_english = from_german
+
+
 def test_non_noun_has_no_gender_key_and_at_most_five_senses(lex):
-    p = page([tok("ging")], [Analyzed("gehen", "verb", "pret", None)], lex)
+    p = build_page(
+        (1600, 2263),
+        [tok("ging")],
+        [Analyzed("gehen", "verb", "pret", None)],
+        lex,
+        InfinitiveTranslator(),
+        LexRegistry(),
+    )
     entry = p["lex"][str(p["tokens"][0]["l"])]
     assert "g" not in entry and len(entry["senses"]) == 5
 
@@ -263,6 +289,6 @@ def test_compound_without_its_own_entry_is_colored_by_its_head(lex):
         "pos": "noun",
         "g": ["m"],
         "pl": "Kunstschätze",
-        "senses": [],
+        "senses": [{"es": "es:der Kunstschatz", "m": True}],
     }
     validate_page(p)
