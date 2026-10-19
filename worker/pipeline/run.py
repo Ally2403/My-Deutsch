@@ -20,6 +20,7 @@ import pymupdf
 from lexicon.store import Lexicon
 from lexicon.translate import NullTranslator, Translator
 from pipeline.analyze import analyze
+from pipeline.fields import detect_fields, detect_lines, merge_fields
 from pipeline.geometry import build_tokens, words_from_rows
 from pipeline.image import MAX_INPUT_PIXELS, render_webp, webp_size
 from pipeline.noise import drop_noise
@@ -165,11 +166,14 @@ def process_pdf(
 def _process_page(page, n, pages, engine, lex, nlp, translator, registry) -> int:
     height, width = page.shape
     rows = engine.rows(to_png(page))
-    words = drop_noise(words_from_rows(rows, width, height))
+    raw_words = words_from_rows(rows, width, height)
+    # RF-34: antes de drop_noise, que descarta las líneas «____», y además las rayas de la imagen
+    fields = merge_fields(detect_fields(raw_words), detect_lines(page))
+    words = drop_noise(raw_words)
     tokens = build_tokens(words, known=lambda w: bool(lex.lookup_form(w.lower())))
     analyzed = analyze(tokens, nlp, lex)
     size = webp_size(page.shape)
-    data = build_page(size, tokens, analyzed, lex, translator, registry)
+    data = build_page(size, tokens, analyzed, lex, translator, registry, fields)
     validate_page(data)
     confs = [w.conf for w in words if w.conf >= 0]
     meta = {

@@ -6,7 +6,7 @@ from lexicon.resolve import compound_entry
 from lexicon.store import Lexicon
 from lexicon.translate import MAX_SENSES, Translator, senses_for
 from pipeline.analyze import Analyzed
-from pipeline.geometry import RawToken
+from pipeline.geometry import Box, RawToken
 
 FORM_TAGS = {"pret", "part", "pres", "pl", "comp", "sup"}
 
@@ -82,6 +82,7 @@ def build_page(
     lex: Lexicon,
     translator: Translator,
     registry: LexRegistry,
+    fields: list[Box] | None = None,
 ) -> dict:
     out_tokens: list[dict] = []
     used: set[int] = set()
@@ -106,7 +107,7 @@ def build_page(
         "lines": _ranges(t.line for t in tokens),
         "paragraphs": _ranges(t.par for t in tokens),
         "images": [],
-        "fields": [],
+        "fields": [list(f) for f in fields or []],
         "tokens": out_tokens,
         "lex": {str(i): registry.entry(i) for i in sorted(used)},
     }

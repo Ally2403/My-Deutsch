@@ -6,6 +6,8 @@ export type Annotation = {
   page: number;
   x: number;
   y: number;
+  /** Ancho relativo; solo en los campos detectados de un ejercicio (RF-34). */
+  w?: number;
   text: string;
   kind: "free" | "field";
 };
