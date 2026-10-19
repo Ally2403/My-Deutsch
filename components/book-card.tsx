@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BookStatus } from "@/components/book-status";
+import { Button, OutlineButton } from "@/components/ui";
 import type { BookStatusInput } from "@/lib/domain/book-status";
+import { createClient } from "@/lib/supabase/client";
 
 /** RF-13, RF-14: tarjeta de libro de la biblioteca. */
 
@@ -20,6 +23,8 @@ export function BookCard({
   jobStartedAt,
   status,
   percentRead = 0,
+  groupId,
+  canRemove = false,
 }: {
   id: string;
   title: string;
@@ -32,7 +37,33 @@ export function BookCard({
   status: BookStatusInput;
   /** RF-20, RN-14: porcentaje de páginas leídas por esta persona. */
   percentRead?: number;
+  /** RF-15: grupo desde el que se quita el libro y si esta persona puede hacerlo (RN-08). */
+  groupId?: string;
+  canRemove?: boolean;
 }) {
+  const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+
+  async function remove() {
+    if (!groupId) return;
+    setRemoving(true);
+    setRemoveError(null);
+    // RLS decide quién puede; `select()` permite saber si de verdad se borró una fila.
+    const { data, error } = await createClient()
+      .from("group_books")
+      .delete()
+      .eq("group_id", groupId)
+      .eq("book_id", id)
+      .select("book_id");
+    setRemoving(false);
+    if (error || !data?.length) {
+      setRemoveError("No se pudo quitar el libro. Inténtalo de nuevo.");
+      return;
+    }
+    router.refresh();
+  }
   const [coverFailed, setCoverFailed] = useState(false);
   const showImage = hasPublishedPages && !coverFailed;
   const openable = hasPublishedPages || status.bookStatus === "ready";
@@ -92,6 +123,39 @@ export function BookCard({
         jobCreatedAt={jobCreatedAt}
         jobStartedAt={jobStartedAt}
       />
+      {canRemove && groupId && (
+        <div className="border-t border-border pt-3">
+          {confirming ? (
+            <div role="group" aria-label={`Quitar ${title} del grupo`}>
+              <p className="text-sm">
+                ¿Quitar «{title}» de este grupo? Si ningún otro grupo lo usa, sus archivos se
+                eliminan en 7 días. Tus palabras guardadas se conservan.
+              </p>
+              {removeError && (
+                <p role="alert" className="mt-2 text-sm text-gender-f">
+                  {removeError}
+                </p>
+              )}
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button loading={removing} onClick={remove}>
+                  Sí, quitar libro
+                </Button>
+                <OutlineButton disabled={removing} onClick={() => setConfirming(false)}>
+                  Cancelar
+                </OutlineButton>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="tap-link min-h-11 text-sm text-muted underline"
+              onClick={() => setConfirming(true)}
+            >
+              Quitar del grupo
+            </button>
+          )}
+        </div>
+      )}
     </li>
   );
 }

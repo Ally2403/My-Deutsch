@@ -187,3 +187,47 @@ class Supabase:
 
     def delete_upload(self, upload_path: str) -> None:
         self._request("delete_upload", "DELETE", f"/storage/v1/object/uploads/{upload_path}")
+
+    # --- RN-11: limpieza de libros sin grupo pasados 7 días (RF-15) ---------------------------
+
+    def expired_book_ids(self) -> list[str]:
+        resp = self._request(
+            "expired_books",
+            "GET",
+            "/rest/v1/books",
+            params={"delete_after": f"lt.{_now()}", "select": "id", "limit": "200"},
+        )
+        return [row["id"] for row in resp.json()]
+
+    def delete_expired_book(self, book_id: str) -> bool:
+        """Borra el libro solo si sigue vencido (un grupo pudo volver a vincularlo): las páginas,
+        trabajos y anotaciones caen en cascada y el diccionario personal conserva sus lemas."""
+        resp = self._request(
+            "delete_book",
+            "DELETE",
+            "/rest/v1/books",
+            params={"id": f"eq.{book_id}", "delete_after": f"lt.{_now()}"},
+            headers={"Prefer": "return=representation"},
+        )
+        return bool(resp.json())
+
+    def delete_book_files(self, book_id: str) -> int:
+        """Elimina todos los archivos de `pages/<book_id>/`; devuelve cuántos."""
+        removed = 0
+        while True:
+            resp = self._request(
+                "list_page_files",
+                "POST",
+                "/storage/v1/object/list/pages",
+                json={"prefix": book_id, "limit": 1000, "offset": 0},
+            )
+            names = [f"{book_id}/{o['name']}" for o in resp.json() if o.get("name")]
+            if not names:
+                return removed
+            self._request(
+                "delete_page_files",
+                "DELETE",
+                "/storage/v1/object/pages",
+                json={"prefixes": names},
+            )
+            removed += len(names)

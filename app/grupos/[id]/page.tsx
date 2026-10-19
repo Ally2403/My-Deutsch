@@ -57,10 +57,11 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
     (members ?? []).some((m) => m.user_id === user.id && m.role === "admin");
   const { data: links } = await supabase
     .from("group_books")
-    .select("book_id, added_at")
+    .select("book_id, added_at, added_by")
     .eq("group_id", id)
     .order("added_at", { ascending: false });
   const bookIds = (links ?? []).map((l) => l.book_id);
+  const addedBy = new Map((links ?? []).map((l) => [l.book_id, l.added_by]));
   const [booksRes, jobsRes, coversRes, progressRes] = bookIds.length
     ? await Promise.all([
         supabase
@@ -125,6 +126,8 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
                 id={b.id}
                 title={b.title}
                 pageCount={b.page_count}
+                groupId={group.id}
+                canRemove={isAdmin || (!!user && addedBy.get(b.id) === user.id)}
                 hasPublishedPages={withPages.has(b.id)}
                 percentRead={percentRead(
                   pagesReadByBook.get(b.id) ?? [],

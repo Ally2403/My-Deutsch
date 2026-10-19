@@ -35,7 +35,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-12 | [Procesar libro en segundo plano](funcionales/RF-12-procesar-libro-en-segundo-plano.md)                                        | M-4    | Alta      | 3    | En progreso |
 | RF-13 | [Ver estado del procesamiento](funcionales/RF-13-ver-estado-del-procesamiento.md)                                              | M-3    | Media     | 3    | En progreso |
 | RF-14 | [Ver biblioteca del grupo](funcionales/RF-14-ver-biblioteca-del-grupo.md)                                                      | M-3    | Alta      | 3    | En progreso |
-| RF-15 | [Quitar libro de un grupo](funcionales/RF-15-quitar-libro-de-un-grupo.md)                                                      | M-3    | Baja      | 4    | Pendiente   |
+| RF-15 | [Quitar libro de un grupo](funcionales/RF-15-quitar-libro-de-un-grupo.md)                                                      | M-3    | Baja      | 4    | Hecho       |
 | RF-16 | [Pasar páginas](funcionales/RF-16-pasar-paginas.md)                                                                            | M-5    | Alta      | 3    | En progreso |
 | RF-17 | [Texto seleccionable alineado al original](funcionales/RF-17-texto-seleccionable-alineado-al-original.md)                      | M-5    | Alta      | 3    | En progreso |
 | RF-18 | [Modo lectura adaptado](funcionales/RF-18-modo-lectura-adaptado.md)                                                            | M-5    | Media     | 4    | Pendiente   |

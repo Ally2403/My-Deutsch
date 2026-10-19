@@ -1,0 +1,36 @@
+# RF-15 · RN-11: elimina los libros sin grupo pasados 7 días (filas y archivos de Storage).
+# La consulta diaria también cuenta como actividad: evita que el plan gratuito de Supabase se
+# pause tras 7 días sin uso. El repositorio es público: los registros llevan solo conteos.
+name: mantenimiento
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: mantenimiento
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  limpieza:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+
+      - name: Limpieza de libros vencidos
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: uv run python -m maintenance
