@@ -472,6 +472,7 @@ export type Database = {
     Functions: {
       can_read_book: { Args: { bid: string }; Returns: boolean };
       create_group: { Args: { p_name: string }; Returns: string };
+      delete_group: { Args: { p_group: string }; Returns: undefined };
       finalize_submission: {
         Args: { p_sha256: string; p_submission: string };
         Returns: Json;
@@ -487,6 +488,14 @@ export type Database = {
           p_page: number;
           p_sentence: string;
         };
+        Returns: undefined;
+      };
+      remove_member: {
+        Args: { p_group: string; p_user: string };
+        Returns: undefined;
+      };
+      set_member_role: {
+        Args: { p_group: string; p_role: string; p_user: string };
         Returns: undefined;
       };
       regenerate_invite: { Args: { p_group: string }; Returns: string };
