@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 
@@ -29,3 +29,7 @@ Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lec
 2. ✅ El texto seleccionado conserva espacios y un salto por línea, en orden de lectura.
 3. ✅ La capa sigue alineada con la imagen al girar el dispositivo. El zoom con pellizco no se probó.
 Páginas reales (worker, 10 páginas de un libro escaneado): desviación entre la caja y la tinta con mediana 0,07 % y p95 0,20 % del ancho; unas pocas palabras llegan a 4,7 % (criterio 1 cumplido en el 99 %+ de las palabras, no en todas). Falta revisar esos casos atípicos.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: unas pocas palabras (máx. 4,7 % del ancho) quedan desalineadas frente a la tinta (99 %+ cumple ≤ 2 %).

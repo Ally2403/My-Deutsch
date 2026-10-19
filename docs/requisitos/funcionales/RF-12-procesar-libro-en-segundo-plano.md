@@ -7,7 +7,7 @@
 | **Módulo** | M-4 Procesamiento (worker) |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-11](RF-11-subir-pdf-escaneado-a-un-grupo.md) |
 | **Reglas de negocio** | RN-01, RN-06, RN-07, RN-10 |
 
@@ -41,3 +41,7 @@ Entrega 2b (2026-10-18): `worker/publish/` + `.github/workflows/process-book.yml
 2. ⚠ Parcial: el avance se publica por página (`jobs.pages_done`), pero un reintento reprocesa desde la primera hoja (el runner de Actions es nuevo en cada ejecución); las páginas se vuelven a subir sin duplicarse.
 3. ✅ (simulado) Al terminar: libro y trabajo en «ready», `page_count` y confianza media; el PDF subido se borra. Si falla, el libro queda en «error» con un código (`hash_mismatch`, `invalid_pdf`, `too_many_pages`, `empty_book`, `processing_failed`, `publish_failed`).
 4. ⚠ RNF-04 sin medir en Actions. RN-02 (huella recalculada) y RN-10 (≤ 400 páginas del PDF) probados en simulación.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: un reintento reprocesa el libro desde la primera hoja (el runner de Actions es nuevo en cada ejecución). RNF-04 ya está medido (ver RNF-04).

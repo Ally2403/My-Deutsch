@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-22](RF-22-mostrar-genero-y-color-del-sustantivo.md) |
 | **Reglas de negocio** | RN-01 |
 
@@ -28,3 +28,7 @@ Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lec
 1. ⚠ Parcial: el DOM se actualiza en 3–6 ms y el pintado tarda 16–35 ms en Chromium. En el WebKit emulado en Windows el pintado llega a 148–320 ms; no se ha medido en un iPhone real.
 2. ✅ Opacidad del resaltado 0,3 (≤ 0,35).
 3. ✅ La preferencia persiste entre páginas y recargas (`localStorage`, con respaldo en memoria si está bloqueado).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: el pintado en iOS no se midió en un iPhone real (WebKit emulado: 148–320 ms).

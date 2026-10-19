@@ -7,7 +7,7 @@
 | **Módulo** | M-7 Vocabulario personal |
 | **Prioridad** | Alta |
 | **Fase** | 4 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-21](RF-21-consultar-palabra.md) |
 | **Reglas de negocio** | RN-05, RN-06 |
 
@@ -27,3 +27,7 @@ La usuaria pidió que las palabras averiguadas se guarden solas.
 - Criterios 1 y 2 ✅ en la base real con la prueba `supabase/tests/record_lookup.test.sql` ejecutada en una transacción con rollback: primera consulta → estado «seen», contador 1; segunda → contador 2, una sola fila, conserva la primera oración; otro usuario no ve nada; sin sesión → `not_authenticated`.
 - Criterio 3 ✅ por pruebas unitarias de la cola (reintento tras fallo, persistencia, orden, sin doble envío); sin verificar cortando la red en un teléfono real.
 - **Pendiente para que funcione: aplicar la migración `20261019100000_registrar_consulta.sql` al proyecto Supabase** (el clasificador bloqueó aplicarla desde Claude). Hasta entonces las consultas quedan en la cola del navegador y se reenvían solas. La pantalla del diccionario es RF-30.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: la cola offline no se probó cortando la red en un teléfono real.

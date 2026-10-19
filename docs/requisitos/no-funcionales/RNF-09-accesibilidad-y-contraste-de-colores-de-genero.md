@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-22](../funcionales/RF-22-mostrar-genero-y-color-del-sustantivo.md), [RF-26](../funcionales/RF-26-colorear-todos-los-sustantivos.md) |
 | **Reglas de negocio** | — |
 
@@ -28,3 +28,7 @@ Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lec
 1. ✅ Los tokens der/das/die (y el gris de solo plural) dan ≥ 4,5:1 en tema claro y oscuro (prueba automática).
 2. ⚠ Parcial: el artículo siempre se escribe y el resaltado ya no usa bordes; el género se lee en el panel.
 3. ⚠ Parcial: axe-core sin violaciones serias en el lector y con el panel abierto; las palabras se activan con teclado (Enter/Espacio). Sin prueba con lector de pantalla real.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: sin prueba con lector de pantalla real ni simulación de deuteranopía (el género se escribe siempre en el panel).

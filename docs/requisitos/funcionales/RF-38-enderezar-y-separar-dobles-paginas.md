@@ -7,7 +7,7 @@
 | **Módulo** | M-4 Procesamiento (worker) |
 | **Prioridad** | Alta |
 | **Fase** | 2 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 
@@ -25,3 +25,6 @@ El PDF de muestra del curso (*Der Schatz*) trae cada hoja girada 90° y con dos 
 
 ## Verificación
 Spike (2026-10-17): criterio 1 ✅ (10 páginas en orden); 2 ✅ (prueba unitaria con una página sencilla y OSD en 0/90/180/270°); 3 ✅ (4–13, por votación del desfase); 4 ✅ (el lomo cae en una franja sin tinta en las 5 hojas y las referencias de texto están completas). Falta integrarlo en el worker (Fase 3).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.

@@ -31,3 +31,7 @@ Entrega 2a (2026-10-18, pgTAP sobre el proyecto Supabase; `supabase/tests/join_a
 1. ✅ Tras 10 fallos en una hora, `join_group` lanza `too_many_attempts` incluso con un código válido; con intentos de hace 2 h no bloquea. La app muestra «Demasiados intentos, inténtalo más tarde» (prueba Vitest); sin verificar en navegador.
 2. ✅ Los intentos exitosos no se registran.
 3. ✅ `authenticated` no puede leer `join_attempts` (sin privilegios ni políticas).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: el mensaje «Demasiados intentos» no se vio en el navegador (probado con Vitest y en la base).

@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | — |
 | **Reglas de negocio** | — |
 
@@ -19,3 +19,7 @@ Es el requisito transversal pedido: se usará sobre todo en esos tres tipos de d
 
 ## Criterios de aceptación
 1. Ver RNF-07 y RNF-15 para los criterios medibles.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Cubierto por RNF-07 (Hecho) y RNF-15 (Hecho).

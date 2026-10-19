@@ -7,7 +7,7 @@
 | **Módulo** | M-1 Cuenta |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente (aprobado 2026-10-17) |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-03](RF-03-iniciar-sesion-con-google.md) |
 | **Reglas de negocio** | RN-03, RN-04 |
 
@@ -22,3 +22,6 @@ Google exige una página de inicio y una política de privacidad en el dominio d
 2. La política enumera los datos guardados, su visibilidad y un correo de contacto para pedir su eliminación.
 3. Ambas URLs están registradas en la pantalla de consentimiento de Google y la verificación de marca queda aprobada.
 4. Los libros del grupo nunca aparecen en páginas públicas (RN-03).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Criterios 1, 2 y 4 por e2e (rutas públicas a 360 px) y revisión. Criterio 3: la usuaria publicó el cliente OAuth de Google en producción con las URLs de inicio y privacidad y probó el ingreso con una cuenta que no es de prueba (no verificado por Claude: sin acceso a la consola de Google).

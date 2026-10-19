@@ -7,7 +7,7 @@
 | **Módulo** | M-1 Cuenta |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso (c2 y c3 cubiertos; c1 sin verificar) |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-01](../funcionales/RF-01-registrar-usuario-con-correo-y-contrasena.md), [RF-02](../funcionales/RF-02-iniciar-sesion-con-correo-y-contrasena.md), [RF-03](../funcionales/RF-03-iniciar-sesion-con-google.md) |
 | **Reglas de negocio** | — |
 
@@ -21,3 +21,7 @@ Requisito mínimo de seguridad (OWASP) para cualquier sistema con cuentas.
 1. En la tabla auth.users, la columna de contraseña siempre tiene el prefijo $2a$ o $2b$, nunca texto legible.
 2. Las peticiones HTTP se redirigen a HTTPS y la cabecera Strict-Transport-Security está presente.
 3. Ninguna clave service_role existe en el código del cliente ni en el repositorio (lo verifica el hook guard-secrets).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- La usuaria creó una cuenta con correo y contraseña y entró; Supabase Auth guarda las contraseñas con bcrypt. Cabeceras de seguridad (HSTS, nosniff, frame, referrer, permissions) en producción.

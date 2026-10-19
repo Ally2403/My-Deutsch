@@ -418,7 +418,11 @@ test("RF-41: «Marcar plurales» marca los plurales en amarillo, sin líneas, y 
   await expect(singular).not.toHaveClass(/pl-mark/);
   const look = await plural.evaluate((el) => {
     const s = getComputedStyle(el);
-    return { top: s.borderTopWidth, bottom: s.borderBottomWidth, bg: s.backgroundColor };
+    return {
+      top: s.borderTopWidth,
+      bottom: s.borderBottomWidth,
+      bg: s.backgroundColor,
+    };
   });
   expect(look.top).toBe("0px");
   expect(look.bottom).toBe("0px");
@@ -431,15 +435,16 @@ test("RF-41: «Marcar plurales» marca los plurales en amarillo, sin líneas, y 
 
   // El panel muestra la etiqueta escrita.
   await plural.click();
-  await expect(page.getByRole("dialog").locator(".plural-badge")).toHaveText("plural");
+  await expect(page.getByRole("dialog").locator(".plural-badge")).toHaveText(
+    "plural",
+  );
   await page.keyboard.press("Escape");
 
   // Persiste al recargar.
   await page.reload();
-  await expect(page.getByRole("button", { name: "Marcar plurales" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(
+    page.getByRole("button", { name: "Marcar plurales" }),
+  ).toHaveAttribute("aria-pressed", "true");
 });
 
 test("RF-28 / RF-29: las palabras vistas se marcan, el panel lo explica y el interruptor las oculta", async ({
@@ -463,11 +468,15 @@ test("RF-28 / RF-29: las palabras vistas se marcan, el panel lo explica y el int
   // c2: el panel dice cuántas veces la viste y dónde; marcar como conocida se refleja al instante (RF-29 c1).
   await tisch.click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog).toContainText("La viste 3 veces · primera vez en Libro de ejemplo, pág. 1");
+  await expect(dialog).toContainText(
+    "La viste 3 veces · primera vez en Libro de ejemplo, pág. 1",
+  );
   await dialog.getByRole("button", { name: "Marcar como conocida" }).click();
   await expect(tisch).toHaveClass(/seen-known/);
   // RF-29 c2: eliminar pide confirmación y quita la marca.
-  await dialog.getByRole("button", { name: "Eliminar de mi diccionario" }).click();
+  await dialog
+    .getByRole("button", { name: "Eliminar de mi diccionario" })
+    .click();
   await expect(tisch).toHaveClass(/seen-known/);
   await dialog.getByRole("button", { name: "Sí, eliminar" }).click();
   await expect(tisch).not.toHaveClass(/seen-/);
@@ -479,10 +488,9 @@ test("RF-28 / RF-29: las palabras vistas se marcan, el panel lo explica y el int
   await toggle.click();
   await expect(haus).not.toHaveClass(/seen-/);
   await page.reload();
-  await expect(page.getByRole("button", { name: "Marcar palabras vistas" })).toHaveAttribute(
-    "aria-pressed",
-    "false",
-  );
+  await expect(
+    page.getByRole("button", { name: "Marcar palabras vistas" }),
+  ).toHaveAttribute("aria-pressed", "false");
 });
 
 test("RF-25: una palabra sin entrada ofrece DWDS y Wiktionary y permite corregir la forma", async ({
@@ -492,7 +500,10 @@ test("RF-25: una palabra sin entrada ofrece DWDS y Wiktionary y permite corregir
   await page.getByRole("button", { name: "Anna", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toContainText("No encontramos esta palabra");
-  await expect(dialog.getByRole("link", { name: /DWDS/ })).toHaveAttribute("target", "_blank");
+  await expect(dialog.getByRole("link", { name: /DWDS/ })).toHaveAttribute(
+    "target",
+    "_blank",
+  );
   await dialog.getByLabel("Corregir la forma de la palabra").fill("Katze");
   await dialog.getByRole("button", { name: "Buscar de nuevo" }).click();
   await expect(dialog).toContainText("gato");
@@ -500,13 +511,18 @@ test("RF-25: una palabra sin entrada ofrece DWDS y Wiktionary y permite corregir
 
 test.describe("RF-19: zoom y ajuste de página", () => {
   const widthOf = (page: Page) =>
-    page.getByTestId("page-surface").evaluate((el) => el.getBoundingClientRect().width);
+    page
+      .getByTestId("page-surface")
+      .evaluate((el) => el.getBoundingClientRect().width);
 
-  test("los botones acercan hasta 4× y «Ajustar al ancho» vuelve al 100 %", async ({ page }) => {
+  test("los botones acercan hasta 4× y «Ajustar al ancho» vuelve al 100 %", async ({
+    page,
+  }) => {
     await ready(page);
     const base = await widthOf(page);
     const zoomIn = page.getByRole("button", { name: "Acercar" });
-    for (let i = 0; i < 10; i++) if (await zoomIn.isEnabled()) await zoomIn.click();
+    for (let i = 0; i < 10; i++)
+      if (await zoomIn.isEnabled()) await zoomIn.click();
     await expect(page.getByText("400 %")).toBeVisible();
     expect(Math.round((await widthOf(page)) / base)).toBe(4);
     await page.getByRole("button", { name: "Ajustar al ancho" }).click();
@@ -514,14 +530,18 @@ test.describe("RF-19: zoom y ajuste de página", () => {
     expect(Math.abs((await widthOf(page)) - base)).toBeLessThan(1);
   });
 
-  test("«Ajustar al alto» cabe en la pantalla y el texto sigue alineado", async ({ page }) => {
+  test("«Ajustar al alto» cabe en la pantalla y el texto sigue alineado", async ({
+    page,
+  }) => {
     await ready(page);
     await page.getByRole("button", { name: "Ajustar al alto" }).click();
     const box = await page.getByTestId("page-surface").boundingBox();
     const area = await page.getByTestId("page-scroller").boundingBox();
     expect(box!.height).toBeLessThanOrEqual(area!.height + 1);
     // La palabra sigue dentro de la página (coordenadas relativas).
-    const w = await page.getByRole("button", { name: "Tisch", exact: true }).boundingBox();
+    const w = await page
+      .getByRole("button", { name: "Tisch", exact: true })
+      .boundingBox();
     expect(w!.x).toBeGreaterThanOrEqual(box!.x);
     expect(w!.x + w!.width).toBeLessThanOrEqual(box!.x + box!.width + 1);
   });
@@ -530,7 +550,10 @@ test.describe("RF-19: zoom y ajuste de página", () => {
     page,
     hasTouch,
   }) => {
-    test.skip(hasTouch === true && test.info().project.name !== "pc-1280", "solo con ratón");
+    test.skip(
+      hasTouch === true && test.info().project.name !== "pc-1280",
+      "solo con ratón",
+    );
     await ready(page);
     const scroller = page.getByTestId("page-scroller");
     const box = (await scroller.boundingBox())!;
@@ -540,13 +563,20 @@ test.describe("RF-19: zoom y ajuste de página", () => {
     await page.keyboard.up("Control");
     await expect(page.getByText(/^(1[3-9]\d|[2-4]\d\d) %$/)).toBeVisible();
     await page.getByRole("button", { name: "Ajustar al ancho" }).click();
-    await page.getByTestId("page-scroller").dblclick({ position: { x: 20, y: 400 } });
+    await page
+      .getByTestId("page-scroller")
+      .dblclick({ position: { x: 20, y: 400 } });
     await expect(page.getByText("200 %")).toBeVisible();
-    await page.getByTestId("page-scroller").dblclick({ position: { x: 20, y: 400 } });
+    await page
+      .getByTestId("page-scroller")
+      .dblclick({ position: { x: 20, y: 400 } });
     await expect(page.getByText("100 %")).toBeVisible();
   });
 
-  test("el pellizco amplía y con zoom deslizar no cambia de página", async ({ page, hasTouch }) => {
+  test("el pellizco amplía y con zoom deslizar no cambia de página", async ({
+    page,
+    hasTouch,
+  }) => {
     test.skip(!hasTouch, "solo en dispositivos táctiles");
     await ready(page);
     const scroller = page.getByTestId("page-scroller");
@@ -576,4 +606,68 @@ test.describe("RF-19: zoom y ajuste de página", () => {
     await fire("pointerup", 3, 100, 300);
     await expect(page.getByText("página 1 de 3")).toBeVisible();
   });
+});
+
+test("RNF-02: p95 de cambio de página < 500 ms en 50 cambios (4G rápido, CPU ×4)", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName !== "chromium",
+    "el estrangulamiento de red y CPU usa CDP",
+  );
+  await ready(page);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Network.enable");
+  await cdp.send("Network.emulateNetworkConditions", {
+    offline: false,
+    latency: 150, // «4G rápido» de Lighthouse: 150 ms de RTT y 1,6 Mbit/s
+    downloadThroughput: (1.6 * 1024 * 1024) / 8,
+    uploadThroughput: (750 * 1024) / 8,
+  });
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const times = await page.evaluate(async () => {
+    const out: number[] = [];
+    const dirs = ["ArrowRight", "ArrowRight", "ArrowLeft", "ArrowLeft"]; // 1→2→3→2→1…
+    for (let i = 0; i < 50; i++) {
+      const key = dirs[i % 4];
+      const want = [2, 3, 2, 1][i % 4];
+      const t0 = performance.now();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key }));
+      await new Promise<void>((resolve, reject) => {
+        const tick = () => {
+          const img =
+            document.querySelector<HTMLImageElement>("img[alt^='Imagen']");
+          const label = document.querySelector(
+            "nav[aria-label='Páginas'] [aria-live]",
+          );
+          const layer = document.querySelector(".reader-text-layer"); // la página 3 del demo no tiene palabras
+          if (
+            img?.alt === `Imagen de la página ${want}` &&
+            img.complete &&
+            img.naturalWidth > 0 &&
+            label?.textContent?.startsWith(`página ${want} `) &&
+            layer
+          )
+            resolve();
+          else if (performance.now() - t0 > 5000)
+            reject(
+              new Error(
+                `página ${want} no cargó: alt=${img?.alt} complete=${img?.complete} w=${img?.naturalWidth} label=${label?.textContent} capa=${!!layer}`,
+              ),
+            );
+          else requestAnimationFrame(tick);
+        };
+        tick();
+      });
+      out.push(performance.now() - t0);
+    }
+    return out;
+  });
+  const sorted = [...times].sort((a, b) => a - b);
+  const p95 = sorted[Math.floor(sorted.length * 0.95) - 1];
+  console.log(
+    `RNF-02 p95 = ${p95.toFixed(1)} ms (máx ${sorted.at(-1)!.toFixed(1)} ms)`,
+  );
+  expect(p95).toBeLessThan(500);
 });
