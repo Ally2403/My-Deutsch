@@ -4,7 +4,7 @@
 
 **Alcance recortado por la usuaria (2026-10-19): NO se hace en esta entrega** los ejercicios y lo opcional: RF-33/34/35 y RNF-14 (respuestas escritas; el avance quedó en `git stash` «WIP RF-33», recuperable con `git stash pop`), RF-18, RF-32, RF-37, RNF-08, RNF-10, RNF-13. Solo funcionalidades core.
 
-**Lo que falta para cerrar (en este orden):** (1) revisión final del diseño en pantallas con sesión (grupos, grupo, subida, biblioteca, diccionario, perfil) a 360 px, terminando RF-42; (2) RNF-15 PWA/iPhone: `manifest`, iconos, instalable, safe areas; (3) RF-36/RNF-07 auditoría responsive de todas las pantallas; (4) cierre de RNF-05/06/16 y RF-40 (verificar RLS completo con `rls.test.sql`, cabeceras, página de privacidad lista para publicar Google OAuth); (5) humo de extremo a extremo con un libro real (subir → procesar → leer) y reprocesar el libro de muestra para ver RF-24; (6) actualizar INDEX (marcar Hecho o Descartado lo que corresponda) y este archivo.
+**Lo que falta para cerrar (en este orden):** (1) revisión final del diseño en pantallas con sesión (grupos, grupo, subida, biblioteca, diccionario, perfil) a 360 px, terminando RF-42; (2) RNF-15 **solo web** (la usuaria descartó la PWA instalable): comprobar Safari iPhone, inicio de sesión con Google por redirección, safe areas y gestos; (3) RF-36/RNF-07 auditoría responsive de todas las pantallas; (4) cierre de RNF-05/06/16 y RF-40 (verificar RLS completo con `rls.test.sql`, cabeceras, página de privacidad lista para publicar Google OAuth); (5) humo de extremo a extremo con un libro real (subir → procesar → leer) y reprocesar el libro de muestra para ver RF-24; (6) actualizar INDEX (marcar Hecho o Descartado lo que corresponda) y este archivo.
 
 # Antes (2026-10-19, noche autónoma)
 
