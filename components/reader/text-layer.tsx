@@ -13,6 +13,8 @@ type Props = {
   highlight?: ReadonlyMap<number, Gender>;
   /** Sustantivos en plural a marcar en amarillo (RF-41). */
   plurals?: ReadonlySet<number>;
+  /** Palabras cuyo lema ya está en el diccionario personal (RF-28). */
+  seen?: ReadonlyMap<number, "seen" | "known">;
 };
 
 const pct = (v: number) => `${+(v * 100).toFixed(3)}%`;
@@ -22,7 +24,7 @@ function boxStyle([x, y, w, h]: Box) {
 }
 
 /** Capa de texto transparente sobre la imagen: cada palabra ocupa su posición (RF-17). */
-export function TextLayer({ page, onWordClick, active, highlight, plurals }: Props) {
+export function TextLayer({ page, onWordClick, active, highlight, plurals, seen }: Props) {
   const lineEnds = new Set(page.lines.map(([, last]) => last));
 
   return (
@@ -36,6 +38,7 @@ export function TextLayer({ page, onWordClick, active, highlight, plurals }: Pro
           active?.has(i) && "reader-word-active",
           gender && `hl-${gender}`,
           plurals?.has(i) && "pl-mark",
+          seen?.has(i) && `seen-${seen.get(i)}`,
         ]
           .filter(Boolean)
           .join(" ");

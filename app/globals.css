@@ -251,3 +251,21 @@ h3 {
   padding-block: 0.8rem;
   margin-block: -0.8rem;
 }
+
+/* Palabras ya vistas (RF-28): línea bajo la caja de la palabra, debajo del resalte de género,
+   para que no lo tape. «Vista» punteada; «conocida» más tenue y continua. */
+.seen-seen::after,
+.seen-known::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  pointer-events: none;
+}
+.seen-seen::after {
+  border-bottom: 2px dotted var(--accent);
+}
+.seen-known::after {
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+}

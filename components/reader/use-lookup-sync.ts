@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { setLookupHandler, type Lookup } from "@/lib/domain/lookup-log";
 import { createLookupQueue } from "@/lib/domain/lookup-queue";
 import { createClient } from "@/lib/supabase/client";
@@ -12,10 +12,17 @@ import { createClient } from "@/lib/supabase/client";
 export function useLookupSync({
   bookId,
   userId,
+  onLookup,
 }: {
   bookId: string;
   userId?: string;
+  /** Se llama en cada consulta, antes de guardarla, para reflejarla de inmediato (RF-28). */
+  onLookup?: (lookup: Lookup) => void;
 }) {
+  const onLookupRef = useRef(onLookup);
+  useEffect(() => {
+    onLookupRef.current = onLookup;
+  }, [onLookup]);
   useEffect(() => {
     if (!userId) return;
     const supabase = createClient();
@@ -33,6 +40,7 @@ export function useLookupSync({
       },
     });
     setLookupHandler((l) => {
+      onLookupRef.current?.(l);
       queue.enqueue({ ...l, bookId });
       void queue.flush();
     });

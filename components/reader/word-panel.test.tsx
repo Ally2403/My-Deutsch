@@ -240,3 +240,65 @@ describe("WordPanel: plural y sin significados (RF-41, RF-21)", () => {
     expect(screen.getByRole("dialog")).toHaveTextContent("Todavía no hay significados");
   });
 });
+
+describe("WordPanel: diccionario personal (RF-28, RF-29)", () => {
+  const seenWord = { status: "seen" as const, lookups: 3, bookId: "b", page: 12 };
+
+  it("indica cuántas veces la viste y dónde, desde la segunda consulta", () => {
+    render(
+      <WordPanel
+        page={page}
+        tokenIndex={8}
+        pageNumber={1}
+        anchor={null}
+        onClose={() => {}}
+        seen={seenWord}
+        firstBookTitle="Der Schatz"
+      />,
+    );
+    expect(
+      screen.getByText("La viste 3 veces · primera vez en Der Schatz, pág. 12"),
+    ).toBeInTheDocument();
+  });
+
+  it("marca como conocida y pide confirmación antes de eliminar", () => {
+    const onStatus = vi.fn();
+    const onRemove = vi.fn();
+    render(
+      <WordPanel
+        page={page}
+        tokenIndex={8}
+        pageNumber={1}
+        anchor={null}
+        onClose={() => {}}
+        seen={seenWord}
+        onStatus={onStatus}
+        onRemove={onRemove}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Marcar como conocida" }));
+    expect(onStatus).toHaveBeenCalledWith(431, "known");
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar de mi diccionario" }));
+    expect(onRemove).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Sí, eliminar" }));
+    expect(onRemove).toHaveBeenCalledWith(431);
+  });
+
+  it("una palabra conocida ofrece volver a «vista»; sin diccionario no hay acciones", () => {
+    const { rerender } = render(
+      <WordPanel
+        page={page}
+        tokenIndex={8}
+        pageNumber={1}
+        anchor={null}
+        onClose={() => {}}
+        seen={{ ...seenWord, status: "known" }}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Volver a «vista»" })).toBeInTheDocument();
+    rerender(
+      <WordPanel page={page} tokenIndex={8} pageNumber={1} anchor={null} onClose={() => {}} />,
+    );
+    expect(screen.queryByRole("button", { name: /conocida|eliminar/i })).toBeNull();
+  });
+});

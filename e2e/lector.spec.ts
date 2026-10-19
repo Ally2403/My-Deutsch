@@ -21,6 +21,7 @@ test.beforeEach(async ({ page }) => {
     if (!sessionStorage.getItem("e2e-init")) {
       localStorage.removeItem("my-deutsch:highlight");
       localStorage.removeItem("my-deutsch:plurals");
+      localStorage.removeItem("my-deutsch:hide-seen");
       sessionStorage.setItem("e2e-init", "1");
     }
   });
@@ -436,5 +437,48 @@ test("RF-41: «Marcar plurales» marca los plurales en amarillo con borde superi
   await expect(page.getByRole("button", { name: "Marcar plurales" })).toHaveAttribute(
     "aria-pressed",
     "true",
+  );
+});
+
+test("RF-28 / RF-29: las palabras vistas se marcan, el panel lo explica y el interruptor las oculta", async ({
+  page,
+}) => {
+  await ready(page);
+  const tisch = page.getByRole("button", { name: "Tisch", exact: true });
+  const haus = page.getByRole("button", { name: "Haus.", exact: true });
+  await expect(tisch).toHaveClass(/seen-seen/);
+  await expect(haus).toHaveClass(/seen-known/);
+
+  // La marca va debajo de la palabra y no tapa el resalte de género (c3).
+  await page.getByRole("button", { name: "Colorear sustantivos" }).click();
+  await expect(tisch).toHaveClass(/hl-m/);
+  const mark = await tisch.evaluate((el) => {
+    const s = getComputedStyle(el, "::after");
+    return { style: s.borderBottomStyle, width: s.borderBottomWidth };
+  });
+  expect(mark).toEqual({ style: "dotted", width: "2px" });
+
+  // c2: el panel dice cuántas veces la viste y dónde; marcar como conocida se refleja al instante (RF-29 c1).
+  await tisch.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("La viste 3 veces · primera vez en Libro de ejemplo, pág. 1");
+  await dialog.getByRole("button", { name: "Marcar como conocida" }).click();
+  await expect(tisch).toHaveClass(/seen-known/);
+  // RF-29 c2: eliminar pide confirmación y quita la marca.
+  await dialog.getByRole("button", { name: "Eliminar de mi diccionario" }).click();
+  await expect(tisch).toHaveClass(/seen-known/);
+  await dialog.getByRole("button", { name: "Sí, eliminar" }).click();
+  await expect(tisch).not.toHaveClass(/seen-/);
+  await page.keyboard.press("Escape");
+
+  // El interruptor oculta las marcas y se recuerda.
+  const toggle = page.getByRole("button", { name: "Marcar palabras vistas" });
+  await expect(haus).toHaveClass(/seen-known/);
+  await toggle.click();
+  await expect(haus).not.toHaveClass(/seen-/);
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Marcar palabras vistas" })).toHaveAttribute(
+    "aria-pressed",
+    "false",
   );
 });

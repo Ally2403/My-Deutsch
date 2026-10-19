@@ -12,8 +12,9 @@ import {
   type Direction,
 } from "@/lib/domain/paging";
 import { pairOf } from "@/lib/domain/page-lookup";
+import { seenMarksFor, type SeenMap, type SeenWord } from "@/lib/domain/seen-words";
 import { TextLayer } from "./text-layer";
-import { useHighlightPref, usePluralPref } from "./use-highlight-pref";
+import { useHideSeenPref, useHighlightPref, usePluralPref } from "./use-highlight-pref";
 import { WordPanel } from "./word-panel";
 
 type Props = {
@@ -26,6 +27,12 @@ type Props = {
   initialPage?: number;
   /** Se llama al abrir y en cada cambio de página (RF-20). */
   onPageChange?: (page: number) => void;
+  /** RF-28: palabras del diccionario personal (por id de léxico) y títulos de sus primeros libros. */
+  seenWords?: SeenMap;
+  seenBookTitles?: Record<string, string>;
+  /** RF-29: cambiar el estado o eliminar una palabra desde el panel. */
+  onSeenStatus?: (lexiconId: number, status: SeenWord["status"]) => void;
+  onSeenRemove?: (lexiconId: number) => void;
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
@@ -37,6 +44,10 @@ export function PageReader({
   heightClassName = "h-dvh",
   initialPage = 1,
   onPageChange,
+  seenWords,
+  seenBookTitles,
+  onSeenStatus,
+  onSeenRemove,
 }: Props) {
   const [page, setPage] = useState(() => clampPage(initialPage, total));
   const [loaded, setLoaded] = useState<{ n: number; data: PageData } | null>(
@@ -52,6 +63,7 @@ export function PageReader({
   const [inputError, setInputError] = useState(false);
   const [highlightOn, setHighlightOn] = useHighlightPref();
   const [pluralsOn, setPluralsOn] = usePluralPref();
+  const [hideSeen, setHideSeen] = useHideSeenPref();
   const [selected, setSelected] = useState<{
     page: number;
     token: number;
@@ -143,6 +155,10 @@ export function PageReader({
     () => (data && pluralsOn ? pluralFor(data) : undefined),
     [data, pluralsOn],
   );
+  const seenMarks = useMemo(
+    () => (data && seenWords && !hideSeen ? seenMarksFor(data, seenWords) : undefined),
+    [data, seenWords, hideSeen],
+  );
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
 
   return (
@@ -174,6 +190,21 @@ export function PageReader({
         >
           Colorear sustantivos
         </button>
+        {seenWords && (
+          <button
+            type="button"
+            aria-pressed={!hideSeen}
+            onClick={() => setHideSeen(!hideSeen)}
+            className={
+              "min-h-11 rounded border px-3 text-sm " +
+              (!hideSeen
+                ? "border-accent bg-accent/10 font-medium"
+                : "border-border")
+            }
+          >
+            Marcar palabras vistas
+          </button>
+        )}
       </div>
       <div
         className="flex-1 touch-pan-y overflow-auto p-2"
@@ -228,6 +259,7 @@ export function PageReader({
               active={active}
               highlight={highlight}
               plurals={plurals}
+              seen={seenMarks}
               onWordClick={(token, rect) => setSelected({ page, token, rect })}
             />
           )}
@@ -255,10 +287,23 @@ export function PageReader({
 
       {data && open && (
         <WordPanel
+          key={`${page}-${open.token}`}
           page={data}
           tokenIndex={open.token}
           pageNumber={page}
           anchor={open.rect}
+          seen={
+            data.tokens[open.token]?.l !== undefined
+              ? seenWords?.get(data.tokens[open.token].l as number)
+              : undefined
+          }
+          firstBookTitle={(() => {
+            const id = data.tokens[open.token]?.l;
+            const bid = id === undefined ? null : seenWords?.get(id)?.bookId;
+            return bid ? seenBookTitles?.[bid] : undefined;
+          })()}
+          onStatus={onSeenStatus}
+          onRemove={onSeenRemove}
           onClose={() => setSelected(null)}
         />
       )}
