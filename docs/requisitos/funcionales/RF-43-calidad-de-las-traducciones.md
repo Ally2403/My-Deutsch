@@ -7,7 +7,7 @@
 | **Módulo**            | M-6 Léxico                                                                             |
 | **Prioridad**         | Alta                                                                                   |
 | **Fase**              | 3                                                                                      |
-| **Estado**            | En progreso                                                                            |
+| **Estado**            | Hecho                                                                                  |
 | **Dependencias**      | [RF-21](RF-21-consultar-palabra.md), [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | —                                                                                      |
 
@@ -31,10 +31,10 @@ La usuaria probó un libro real y varias traducciones eran literales o rebuscada
 
 2026-10-18/19: Docker (mismo Ubuntu que Actions), libro de muestra `samples/Der Schatz-3-7.pdf` (10 páginas, 693 entradas de léxico), modelos reales Opus-MT. Suite del worker: 248 pruebas.
 
-1. ⚠ Parcial: de una muestra de 46 palabras revisadas por Claude, la primera acepción es la corriente en la gran mayoría (_Hilfe → ayuda_, _Schatz → tesoro_, _Kommissar → comisario_, _anfangen → empezar_, _ich → yo_, _Ziel → objetivo_); fallan algunas palabras raras (_Lernkrimi → «delito de aprendizaje»_) y _ihr_ (sale «ella»). **Falta la revisión de la usuaria** sobre la tabla de ≥ 40 palabras (el 90 % lo decide ella).
+1. ✅ La usuaria probó el libro de muestra en la app real (2026-10-19) y aprobó las traducciones («me encantan»). Revisión previa de Claude sobre 46 palabras: _Hilfe → ayuda_, _Schatz → tesoro_, _Kommissar → comisario_, _anfangen → empezar_, _ich → yo_; fallan algunas palabras raras (_Lernkrimi_) y _ihr_ (sale «ella»). No se contó formalmente el 90 % palabra por palabra.
 2. ✅ 0 de 693 entradas con «acto de», «persona o cosa que», paréntesis, corchetes o comillas (se encontraron y corrigieron 5 defectos al verificar: paréntesis anidados, fórmulas a medias, pronombres pegados a verbos, palabras funcionales y salidas sin letras).
 3. ✅ Sin red al consultar (las acepciones viajan en el JSON de la página, sin cambios en el cliente); plan gratuito (modelos Apache-2.0, caché de Actions); los archivos se descargan en una revisión fija, se verifican con SHA-256 y el modelo instalado se vuelve a verificar al cargarse (pruebas de huella alterada, archivo extra o faltante, marcador falsificado y enlace simbólico).
-4. ⚠ Parcial: 10 páginas en 137 s (13,7 s por página, ≈ 46 min por 200 páginas) en un equipo de 8 núcleos con Docker; antes con Argos ≈ 27 s por página. **No medido en un runner de Actions** (4 vCPU), donde puede variar. La primera ejecución convierte los modelos (≈ 3 min) y las siguientes los toman de la caché.
+4. ✅ En Actions (runner estándar, 2026-10-19, libro de muestra de 10 páginas, con caché de modelos): «Procesar y publicar» tardó 115 s (11,5 s por página, ≈ 38 min por 200 páginas); instalar los modelos desde la caché, 18 s. La primera ejecución sin caché convierte los modelos (≈ 3–5 min más). RNF-04 con 200 páginas reales sigue pendiente de medir. (Local con Docker: 137 s; antes con Argos ≈ 27 s por página.)
 5. ✅ 693 entradas: todas las acepciones automáticas llevan `m: true`; ninguna acepción tiene `m: false` porque el volcado de Wiktionary no trae español.
 
 Resultado en el libro de muestra: 684 de 693 entradas (98,7 %) con al menos una acepción (antes 98,3 %).
