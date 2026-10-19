@@ -56,3 +56,6 @@ export const useHideSeenPref = createBooleanPref("my-deutsch:hide-seen");
 
 /** Ocultar mis respuestas escritas sobre la página (RF-33 c4). */
 export const useHideAnswersPref = createBooleanPref("my-deutsch:hide-answers");
+
+/** Modo lectura: texto ajustado al ancho en lugar de la imagen de la página (RF-18). */
+export const useReadingModePref = createBooleanPref("my-deutsch:reading-mode");

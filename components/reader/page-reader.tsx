@@ -38,13 +38,16 @@ import {
 import { Icon } from "@/components/icons";
 import type { AnnotationSync, SyncStatus } from "@/lib/annotations/sync";
 import { AnnotationLayer } from "./annotation-layer";
+import { ReadingView } from "./reading-view";
 import { TextLayer } from "./text-layer";
 import {
   useHideAnswersPref,
+  useReadingModePref,
   useHideSeenPref,
   useHighlightPref,
   usePluralPref,
 } from "./use-highlight-pref";
+import { useFontSizePref } from "./use-font-size-pref";
 import { WordPanel } from "./word-panel";
 
 type Props = {
@@ -101,6 +104,8 @@ export function PageReader({
   const [pluralsOn, setPluralsOn] = usePluralPref();
   const [hideSeen, setHideSeen] = useHideSeenPref();
   const [hideAnswers, setHideAnswers] = useHideAnswersPref();
+  const [readingMode, setReadingMode] = useReadingModePref();
+  const [fontSize, stepFont] = useFontSizePref();
   const [writeMode, setWriteMode] = useState(false);
   const [answersVersion, setAnswersVersion] = useState(0);
   const syncStatus: SyncStatus = useSyncExternalStore(
@@ -294,6 +299,34 @@ export function PageReader({
         >
           <button
             type="button"
+            aria-pressed={readingMode}
+            onClick={() => setReadingMode(!readingMode)}
+            className="chip"
+          >
+            Modo lectura
+          </button>
+          {readingMode && (
+            <>
+              <button
+                type="button"
+                aria-label="Letra más pequeña"
+                onClick={() => stepFont(-1)}
+                className="chip chip-icon"
+              >
+                A−
+              </button>
+              <button
+                type="button"
+                aria-label="Letra más grande"
+                onClick={() => stepFont(1)}
+                className="chip chip-icon"
+              >
+                A+
+              </button>
+            </>
+          )}
+          <button
+            type="button"
             aria-pressed={pluralsOn}
             onClick={() => setPluralsOn(!pluralsOn)}
             className="chip"
@@ -319,6 +352,7 @@ export function PageReader({
             </button>
           )}
         </div>
+        {!readingMode && (
         <div
           className="flex shrink-0 items-center gap-2 md:mr-auto"
           role="group"
@@ -368,7 +402,8 @@ export function PageReader({
             <Icon name="plus" />
           </button>
         </div>
-        {annotations && (
+        )}
+        {annotations && !readingMode && (
           <div className="flex shrink-0 items-center gap-2" role="group" aria-label="Respuestas">
             <button
               type="button"
@@ -490,6 +525,37 @@ export function PageReader({
           if (dir) go(dir);
         }}
       >
+        {readingMode ? (
+          data ? (
+            <ReadingView
+              page={data}
+              imageUrl={imageUrl(page)}
+              fontSize={fontSize}
+              active={active}
+              highlight={highlight}
+              plurals={plurals}
+              seen={seenMarks}
+              onWordClick={(token, rect) => setSelected({ page, token, rect })}
+            />
+          ) : (
+            <p role={error ? "alert" : "status"} className="p-4 text-center text-sm text-muted">
+              {error ? (errorMessage ?? "No se pudo cargar la página.") : "Cargando…"}{" "}
+              {error && (
+                <button
+                  type="button"
+                  className="min-h-11 font-medium underline"
+                  onClick={() => {
+                    cache.current.delete(page);
+                    setFailed(null);
+                    setAttempt((a) => a + 1);
+                  }}
+                >
+                  Reintentar
+                </button>
+              )}
+            </p>
+          )
+        ) : (
         <div
           data-testid="page-surface"
           className={
@@ -573,6 +639,7 @@ export function PageReader({
             </div>
           )}
         </div>
+        )}
       </div>
 
       {data && open && (

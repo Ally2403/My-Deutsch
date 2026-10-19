@@ -22,6 +22,8 @@ test.beforeEach(async ({ page }) => {
       localStorage.removeItem("my-deutsch:highlight");
       localStorage.removeItem("my-deutsch:plurals");
       localStorage.removeItem("my-deutsch:hide-seen");
+      localStorage.removeItem("my-deutsch:reading-mode");
+      localStorage.removeItem("my-deutsch:font-size");
       sessionStorage.setItem("e2e-init", "1");
     }
   });
@@ -724,4 +726,30 @@ test("RF-33 c3: fuera del modo Escribir, tocar la página consulta palabras", as
   await ready(page);
   await page.getByRole("button", { name: "Tisch", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
+});
+
+test("RF-18: el modo lectura ajusta el texto sin desplazamiento horizontal y conserva consulta y colores", async ({
+  page,
+}) => {
+  await ready(page);
+  await page.getByRole("button", { name: "Modo lectura" }).click();
+  const view = page.getByTestId("reading-view");
+  await expect(view).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+  const inner = await view.evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(inner).toBeLessThanOrEqual(0);
+  // Colores de género y consulta funcionan igual (RF-18 c3).
+  await page.getByRole("button", { name: "Colorear sustantivos" }).click();
+  await expect(view.locator(".hl-n, .hl-m, .hl-f").first()).toBeVisible();
+  await view.getByRole("button", { name: "Tisch", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("Tisch");
+  await page.keyboard.press("Escape");
+  // El tamaño de letra cambia y se recuerda.
+  await page.getByRole("button", { name: "Letra más grande" }).click();
+  await expect(view).toHaveAttribute("data-size", "lg");
+  await page.reload();
+  await expect(page.getByTestId("reading-view")).toHaveAttribute("data-size", "lg");
 });

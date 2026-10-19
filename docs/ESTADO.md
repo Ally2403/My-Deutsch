@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-19, RF-18)
+
+**RF-18 modo lectura — Hecho (rama `feat/RF-18-modo-lectura`):** chip «Modo lectura» en el lector: párrafos ajustados al ancho en el orden del original (`lib/domain/reading.ts`), ilustraciones recortadas de la imagen entre párrafos, tamaño de letra A−/A+ (preferencia de RF-37, local y en el perfil), mismas marcas (género, plurales, vistas) y panel de palabra. e2e en 4 perfiles: sin desborde horizontal desde 360 px. Suite 504/504. **Sin verificar:** ilustraciones reales en un libro con imágenes (la demo no tiene; solo pruebas unitarias del recorte).
+
 # Retomar aquí (2026-10-19, RF-37)
 
 **RF-37 preferencias de lectura — Hecho (rama `feat/RF-37-preferencias`):** sección «Preferencias de lectura» en `/perfil` (tema, tamaño de letra del modo lectura, coloreo y marcas de «vistas» por defecto), guardadas en `profiles.prefs` y aplicadas al abrir la app en otro dispositivo (`syncPrefsOnce`, una vez por pestaña); el botón sol/luna también guarda el tema en el perfil. Imagen de página sin filtros en oscuro (c2). Suite 494/494. **Sin verificar:** comportamiento entre dos dispositivos con sesión real; el tamaño de letra se usará en RF-18.
