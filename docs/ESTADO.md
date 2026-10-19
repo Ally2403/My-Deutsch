@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-19, ilustraciones para RF-18)
+
+**RF-18 c2 en libros reales:** el worker ahora detecta ilustraciones (`worker/pipeline/images.py`: celdas con textura o relleno plano claramente distinto del papel, fuera de lo que cubre el OCR; ignora encabezado, pie y bandas pegadas al borde) y las escribe en `images` de la página. **Medido:** las 10 páginas de texto de la muestra → 0 falsos positivos; la página de ilustración de la demo → detectada casi exacta (ancho 0,766 vs 0,75). **Sin verificar:** fotos o dibujos de un libro real (la muestra no trae ninguno). Reprocesar los libros ya subidos para que aparezcan.
+
 # Retomar aquí (2026-10-19, RF-34)
 
 **RF-34 campos de ejercicio — Hecho (rama `feat/RF-34-campos-ejercicio`):** el worker (`worker/pipeline/fields.py`) detecta huecos de dos maneras y los une: líneas «____» que lee el OCR (antes de `drop_noise`) y **rayas horizontales finas en la imagen** (Tesseract solo leyó 6 de 21 huecos). Se ignoran encabezado/pie y bordes del escaneo. En el lector, en modo «Escribir», cada campo es una casilla tocable que crea la respuesta ya ubicada (tipo `field`, con ancho); un campo mal detectado se oculta (se recuerda en el dispositivo) y el modo libre sigue disponible.

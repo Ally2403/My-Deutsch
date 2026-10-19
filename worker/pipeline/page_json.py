@@ -83,6 +83,7 @@ def build_page(
     translator: Translator,
     registry: LexRegistry,
     fields: list[Box] | None = None,
+    images: list[Box] | None = None,
 ) -> dict:
     out_tokens: list[dict] = []
     used: set[int] = set()
@@ -106,7 +107,7 @@ def build_page(
         "size": [size[0], size[1]],
         "lines": _ranges(t.line for t in tokens),
         "paragraphs": _ranges(t.par for t in tokens),
-        "images": [],
+        "images": [list(b) for b in images or []],
         "fields": [list(f) for f in fields or []],
         "tokens": out_tokens,
         "lex": {str(i): registry.entry(i) for i in sorted(used)},

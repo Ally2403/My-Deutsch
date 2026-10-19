@@ -310,3 +310,18 @@ def test_detected_fields_are_serialized_and_valid(lex):
 
 def test_pages_without_fields_keep_an_empty_list(lex):
     assert page([tok("a")], [Analyzed(None, None, None, None)], lex)["fields"] == []
+
+
+def test_detected_images_are_serialized_and_valid(lex):
+    p = build_page(
+        (1600, 2263),
+        [tok("a")],
+        [Analyzed(None, None, None, None)],
+        lex,
+        FakeTranslator(),
+        LexRegistry(),
+        None,
+        [(0.1, 0.3, 0.8, 0.2)],
+    )
+    assert p["images"] == [[0.1, 0.3, 0.8, 0.2]]
+    validate_page(p)
