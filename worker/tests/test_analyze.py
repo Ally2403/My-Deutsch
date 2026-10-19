@@ -5,7 +5,7 @@ import pytest
 
 from lexicon.build import build_lexicon
 from lexicon.store import Lexicon
-from pipeline.analyze import analyze, form_tag
+from pipeline.analyze import analyze, form_tag, trailing_particle_pairs
 from pipeline.geometry import RawToken
 
 B = (0.1, 0.1, 0.05, 0.01)
@@ -44,6 +44,10 @@ def _e(word, pos, forms=()):
 ENTRIES = [
     _e("anrufen", "verb", [("ruft", ["present"]), ("rief", ["past"])]),
     _e("rufen", "verb", [("ruft", ["present"])]),
+    _e("aufstehen", "verb", [("steht auf", ["present"])]),
+    _e("stehen", "verb", [("steht", ["present"])]),
+    _e("anfangen", "verb", [("fängt an", ["present"])]),
+    _e("fangen", "verb", [("fängt", ["present"])]),
     _e("Haus", "noun", [("Häuser", ["plural"])]),
     _e("sein", "verb", [("sind", ["present"])]),
     _e("alt", "adj"),
@@ -105,3 +109,103 @@ def test_form_tag_uses_the_wiktionary_plural_when_spacy_misses_the_number():
     assert form_tag({}, "noun", "Frau", "Frau", plural="Frauen") is None
     assert form_tag({}, "noun", "Hauses", "Haus", plural="Häuser") is None
     assert form_tag({}, "verb", "Frauen", "frauen", plural="Frauen") is None
+
+
+class FakeLex:
+    """Solo responde a pos_of: los compuestos que existen como verbo."""
+
+    def __init__(self, *verbs):
+        self._verbs = set(verbs)
+
+    def pos_of(self, lemma):
+        return ["verb"] if lemma in self._verbs else []
+
+
+def pairs(raws, lemmas, finite, lex, starts=None):
+    cores = [r.strip(".,!?") for r in raws]
+    starts = starts or {0}
+    return trailing_particle_pairs(
+        raws, cores, lemmas, finite, [i in starts for i in range(len(raws))], lex
+    )
+
+
+def test_trailing_particle_links_to_the_finite_verb():
+    raws = ["Er", "steht", "um", "sieben", "Uhr", "auf."]
+    lemmas = [None, "stehen", None, None, None, None]
+    finite = [False, True, False, False, False, False]
+    assert pairs(raws, lemmas, finite, FakeLex("aufstehen")) == [(1, 5, "aufstehen")]
+
+
+def test_particle_in_the_middle_of_the_clause_is_not_linked():
+    raws = ["Er", "steht", "auf", "dem", "Stuhl."]
+    lemmas = [None, "stehen", None, None, None]
+    finite = [False, True, False, False, False]
+    assert pairs(raws, lemmas, finite, FakeLex("aufstehen")) == []
+
+
+def test_no_pair_when_the_compound_is_not_in_the_lexicon():
+    raws = ["Er", "steht", "heute", "auf."]
+    lemmas = [None, "stehen", None, None]
+    finite = [False, True, False, False]
+    assert pairs(raws, lemmas, finite, FakeLex()) == []
+
+
+def test_particle_does_not_cross_a_comma_or_a_sentence_start():
+    lex = FakeLex("aufstehen")
+    raws = ["Er", "steht,", "wenn", "es", "geht", "auf."]
+    lemmas = [None, "stehen", None, None, "gehen", None]
+    finite = [False, True, False, False, True, False]
+    assert pairs(raws, lemmas, finite, lex) == []
+    raws = ["Er", "steht.", "Sie", "ruft", "auf."]
+    lemmas = [None, "stehen", None, "rufen", None]
+    finite = [False, True, False, True, False]
+    assert pairs(raws, lemmas, finite, lex, starts={0, 2}) == []
+
+
+def test_infinitive_or_participle_is_not_a_finite_verb():
+    raws = ["Er", "will", "früh", "aufstehen."]
+    assert pairs(raws, [None, "wollen", None, None], [False, True, False, False], FakeLex()) == []
+    raws = ["Er", "ist", "früh", "auf."]
+    lemmas = [None, "sein", None, None]
+    assert pairs(raws, lemmas, [False, True, False, False], FakeLex("aufsein")) == [
+        (1, 3, "aufsein")
+    ]
+
+
+@pytest.mark.slow
+def test_separable_verb_without_svp_is_linked_by_the_fallback_rule(nlp, lex):
+    out = analyze(tokens("Er", "fängt", "morgen", "um", "acht", "Uhr", "an."), nlp, lex)
+    assert out[1].sep == 6 and out[6].sep == 1
+    assert out[1].lemma == "anfangen" and out[6].lemma == "anfangen"
+
+
+@pytest.mark.slow
+def test_separable_detection_rate_on_the_sentence_set():
+    """RF-24, criterio 2: ≥ 80 % de los verbos separables con partícula separada se detectan.
+    Usa el léxico real si existe (worker/.local/lexicon.sqlite); si no, se omite."""
+    import spacy
+
+    path = Path(__file__).parents[1] / ".local" / "lexicon.sqlite"
+    if not path.exists():
+        pytest.skip("falta el léxico real")
+    real, model = Lexicon(path), spacy.load("de_core_news_md")
+    rows = [
+        line.split("\t")
+        for line in (Path(__file__).parent / "fixtures" / "separable_sentences.tsv")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line and not line.startswith("#")
+    ]
+    hits, misses = 0, []
+    for sentence, verb, particle, compound in rows:
+        words = sentence.split()
+        out = analyze(tokens(*words), model, real)
+        v = next(i for i, w in enumerate(words) if w.strip(".,") == verb)
+        p = next(i for i, w in enumerate(words) if w.strip(".,") == particle)
+        ok = out[v].sep == p and out[p].sep == v and out[v].lemma == compound
+        hits += ok
+        if not ok:
+            misses.append((sentence, out[v].lemma, out[p].lemma))
+    rate = hits / len(rows)
+    print(f"RF-24: {hits}/{len(rows)} = {rate:.0%}", misses)
+    assert rate >= 0.8, f"{rate:.0%}: {misses}"
