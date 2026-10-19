@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { PageReader } from "@/components/reader/page-reader";
+import { useLookupSync } from "@/components/reader/use-lookup-sync";
 import { useReadingProgress } from "@/components/reader/use-reading-progress";
 import { parsePage } from "@/lib/domain/page";
 import { resumePage } from "@/lib/domain/progress";
@@ -70,6 +71,7 @@ export function BookReader({
     },
     [userId, bookId, total],
   );
+  useLookupSync({ bookId, userId });
   const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
   return (
     <PageReader

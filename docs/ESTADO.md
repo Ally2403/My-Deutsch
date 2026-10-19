@@ -1,4 +1,11 @@
-# Retomar aquí (2026-10-18, cierre de la entrega 2)
+# Retomar aquí (2026-10-19, noche autónoma)
+
+**PR abiertos, SIN fusionar (el clasificador bloquea `gh pr merge` y `apply_migration`; hay que hacerlo tú):** fusionar en este orden en GitHub: **#15** RF-24 (verbos separables, 29/30 = 97 %) · **#16** RF-42 (diseño visual, primera entrega: tokens, tipografía Bricolage+Figtree, botones con carga/pulsado, inicio interactivo, lector) · **#17** RF-20 (recordar última página + «% leído» real; sin migración) · **#18** RF-27 (diccionario personal: cola offline + `record_lookup`; apilado sobre #17, cambiar su base a `main` tras fusionar #17).
+**Acción tuya:** aplicar a Supabase `supabase/migrations/20261019100000_registrar_consulta.sql` (SQL Editor o `apply_migration`); probada en rollback contra la base real. Sin ella las consultas quedan en la cola del navegador.
+**Qué verificar con sesión real:** RF-20 (leer en un dispositivo, abrir en otro ≤ 5 s), RF-27 (consultar palabras → filas en `user_words`), UI de grupos/biblioteca/subida en iPhone 360 px (solo se auditaron las rutas públicas). Reprocesar un libro para ver RF-24.
+**Siguiente:** RF-30/31 (pantalla del diccionario personal), RF-28 (palabras ya vistas en el texto), terminar RF-42 (grupo, subida, estados de éxito/error), RF-15.
+
+# Antes (2026-10-18, cierre de la entrega 2)
 
 **En `main` (PR #1–#11), desplegado en https://my-deutsch.vercel.app:** ingreso (correo y Google), grupos, lector (colores de género, plurales RF-41), worker (OCR → JSON + WebP, léxico, traducción Argos), **entrega 2 completa**: subida reanudable (TUS), `POST /api/libros/finalizar` (huella SHA-256 en el servidor, RN-02), `process-book.yml` disparado con `workflow_dispatch` (ADR-006; el token de Vercel necesita «Actions: Read and write»), estado en vivo, biblioteca con portadas, «Reintentar» (`request_retry`), lector `/libros/[id]`. Migraciones aplicadas al proyecto Supabase real `rgzguilhkilaizamvyuq`. Suite 377/377, typecheck y lint limpios.
 
