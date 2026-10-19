@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-16](RF-16-pasar-paginas.md) |
 | **Reglas de negocio** | — |
 
@@ -32,3 +32,7 @@ En móvil hace falta ampliar para leer las letras pequeñas de los ejercicios.
   Ctrl + rueda (sin zoom del navegador) y los botones (hasta 400 %).
 - Sin verificar: pellizco con dedos reales en un iPhone (iOS puede aplicar su propio zoom de página
   si ignora `touch-action`), vista de dos páginas.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: el pellizco no se automatizó con dedos reales de iOS.

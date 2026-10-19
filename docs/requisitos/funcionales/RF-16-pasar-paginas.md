@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-14](RF-14-ver-biblioteca-del-grupo.md) |
 | **Reglas de negocio** | RN-14 |
 
@@ -31,3 +31,7 @@ Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lec
 3. ✅ El selector salta a cualquier página, muestra «página X de Y» y rechaza valores fuera de rango.
 4. ✅ Pruebas unitarias: se precargan la página siguiente y la anterior (JSON e imagen). No se midió el efecto sobre RNF-02.
 Pendiente: la vista de dos páginas en pantallas anchas (opcional en la descripción) no está implementada.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: el gesto de deslizar se probó con eventos sintéticos y con el iPhone de la usuaria, sin medición automática en iOS real.

@@ -7,7 +7,7 @@
 | **Módulo** | M-3 Biblioteca |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-11](../funcionales/RF-11-subir-pdf-escaneado-a-un-grupo.md) |
 | **Reglas de negocio** | — |
 
@@ -28,3 +28,7 @@ El límite baja de 100 MB a 50 MB: es el máximo por archivo del plan gratuito d
 Entrega 2c (2026-10-18): la ruta `POST /api/libros/finalizar` rechaza un PDF de más de 50 MB (`too_large`, probado con un tope reducido) y lo borra de Storage; el bucket `uploads` ya limita a 52 428 800 bytes. Criterio 1, parte de las 401 páginas: la aplica el worker (sin verificar de extremo a extremo). Criterio 2: sin verificar.
 
 Entrega 2d (2026-10-18): la pantalla de subida rechaza en el navegador, antes de subir, un archivo de más de 50 MB, vacío o que no es PDF, con el mensaje «El PDF supera el límite de 50 MB. Comprímelo y vuelve a intentarlo» (pruebas). El límite de 400 páginas lo aplica el worker (`too_many_pages`, mensaje en `summarizeError`); sin verificar de extremo a extremo.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: el rechazo de libros de más de 400 páginas se probó en simulación.

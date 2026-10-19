@@ -7,7 +7,7 @@
 | **Módulo** | M-6 Léxico |
 | **Prioridad** | Alta |
 | **Fase** | 2 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md), [RF-23](RF-23-resolver-formas-flexionadas-al-lema.md) |
 | **Reglas de negocio** | RN-06 |
 
@@ -25,3 +25,6 @@ En los libros escaneados los cortes de línea son frecuentes; tratar cada mitad 
 
 ## Verificación
 Spike (2026-10-17): criterio 1 ✅ (29/30 = 96,7 %); 2 ✅ solo con pruebas unitarias (no hay casos en la muestra); 3 y 4 quedan para la Fase 3 (JSON de página y lector).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.

@@ -7,7 +7,7 @@
 | **Módulo** | M-7 Vocabulario personal |
 | **Prioridad** | Alta |
 | **Fase** | 4 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-27](RF-27-guardar-palabras-en-el-diccionario-personal.md) |
 | **Reglas de negocio** | RN-04 |
 
@@ -28,3 +28,7 @@ La usuaria quiere observar su vocabulario aprendido.
 - Criterio 2 ✅ pruebas: parcial, sin mayúsculas ni tildes, ß=ss, ä=ae (lema o significado).
 - Criterio 3 ✅ pruebas de componente: detalle con todos los significados, oración y enlace `/libros/[id]?pagina=N` (el lector abre en esa página).
 - Sin verificar con datos reales de una sesión (la pantalla pide ingreso).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Pantalla probada con datos reales por la usuaria.

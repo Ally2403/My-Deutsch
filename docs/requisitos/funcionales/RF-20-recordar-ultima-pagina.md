@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-16](RF-16-pasar-paginas.md) |
 | **Reglas de negocio** | RN-14 |
 
@@ -23,3 +23,7 @@ Los estudiantes leen en el celular y luego continúan en el computador.
 ## Verificación (2026-10-19)
 - Implementado: `lib/domain/progress.ts` (RN-14: 10 s por página leída, `resumePage`, `percentRead`), `useReadingProgress` (guarda con 1 s de retraso, sin romper la lectura si falla la red, y vacía lo pendiente al salir), `PageReader` con `initialPage`/`onPageChange`, `/libros/[id]` que abre en `last_page`, y «N % leído» real en la tarjeta del libro. Usa la tabla `reading_progress` existente (RLS propia, sin migración).
 - Criterio 1 ◐ cubierto por pruebas unitarias (388/388) del flujo guardar → retomar; **sin verificar en dos dispositivos reales** (necesita sesión): leer en uno hasta la página N y abrir el libro en otro, ≤ 5 s después.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: no se midió el retraso ≤ 5 s entre dos dispositivos con un cronómetro.

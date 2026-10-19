@@ -7,7 +7,7 @@
 | **Módulo** | M-3 Biblioteca |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-07](RF-07-unirse-a-un-grupo.md) |
 | **Reglas de negocio** | RN-02, RN-10 |
 
@@ -44,3 +44,7 @@ Entrega 2d (2026-10-18, pantalla `UploadBook` + subida TUS; Vitest 353/353, type
 - ✅ (pruebas) Criterio 4: «Espera a que termine tu libro actual» (HTTP 429 de la API o `busy` de `submit_book`); `busy` en la base garantizado por el índice único parcial de `jobs`.
 - ✅ (pruebas, con TUS simulado) Criterio 5: la subida usa `tus-js-client` 4.3.1 con trozos de 6 MiB, reintentos y reanudación (`findPreviousUploads`); el `objectName` se conserva en `localStorage` para reanudar sin crear una segunda solicitud; un 409 de creación cuenta como «ya subido».
 - Sin verificar: criterio 1 y la reanudación de verdad contra Supabase Storage (cortar la conexión en un iPhone real); flujo completo con sesión real (subir → En cola → Listo); el comportamiento real de TUS ante un `HEAD` tras completar y la caducidad de subidas parciales.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: la reanudación de una subida cortando la conexión no se probó en un teléfono real.

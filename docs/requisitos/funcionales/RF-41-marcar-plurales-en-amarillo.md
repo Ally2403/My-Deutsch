@@ -7,7 +7,7 @@
 | **Módulo** | M-5 Lector |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-26](RF-26-colorear-todos-los-sustantivos.md) |
 | **Reglas de negocio** | RN-01 |
 
@@ -37,3 +37,6 @@ Los libros ya procesados deben reprocesarse para que los plurales iguales al sin
 
 Libro real (10 páginas, 2026-10-18): 72 plurales marcados; las 50 formas que Wiktionary da como plural quedaron marcadas (antes 10 se perdían porque spaCy no reconocía el número). El worker acepta ahora la opción de reprocesar un libro desde cero.
 
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: no se midió por separado el tiempo (< 100 ms) de este interruptor.

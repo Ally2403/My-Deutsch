@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-36](../funcionales/RF-36-interfaz-responsive-en-celular-tablet-y-computador.md) |
 | **Reglas de negocio** | — |
 
@@ -25,3 +25,7 @@ En el curso hay iPhones, y Safari tiene diferencias importantes con Chrome (gest
 
 ## Decisión 2026-10-19
 La usuaria decidió que la app sea solo web (sin PWA instalable) para terminar antes. Se mantiene todo lo demás: Safari iOS, WebKit en las pruebas, zonas seguras y ausencia de hover.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Alcance: solo web, sin PWA instalable (decisión de la usuaria). Ingreso con Google por redirección y lector probados por la usuaria en iPhone real.

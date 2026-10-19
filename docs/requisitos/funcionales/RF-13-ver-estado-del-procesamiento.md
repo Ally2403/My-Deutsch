@@ -7,7 +7,7 @@
 | **Módulo** | M-3 Biblioteca |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | — |
 
@@ -29,3 +29,6 @@ Entrega 2d (2026-10-18; Vitest 353/353):
 - ✅ (pruebas) Criterio 3: «Reintentar» solo para quien subió el libro o un administrador de un grupo que lo tiene (`request_retry`, pgTAP 18/18 en el proyecto real); también para un libro atascado en cola más de 5 minutos (disparo perdido); un doble toque hace una sola llamada. Ola final: también para un libro atascado en `processing` más de 6 h (`request_retry`, pgTAP 9/9; el job viejo queda con `error='stalled'`, «El procesamiento se interrumpió»), y una respuesta redirigida o HTML nunca se toma como éxito (mensaje de sesión caducada).
 - ✅ (código) Criterio 2: `/libros/[id]` abre el lector con las páginas ya publicadas mientras el libro se procesa; una página aún no publicada muestra «Esta página aún se está procesando».
 - Sin verificar: todo lo anterior en el navegador con sesión real y con el worker procesando de verdad (Actions); el diseño de `/libros/[id]` a 360/768/1280 px y en WebKit/iPhone (solo se comprobó que `/lector/demo` no cambió: sin scroll de documento a 360 px).
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.

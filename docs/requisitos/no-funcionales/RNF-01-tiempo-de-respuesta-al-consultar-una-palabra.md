@@ -7,7 +7,7 @@
 | **Módulo** | M-6 Léxico |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-21](../funcionales/RF-21-consultar-palabra.md) |
 | **Reglas de negocio** | — |
 
@@ -26,3 +26,7 @@ Verificado el 2026-10-17 con las 3 páginas sintéticas de `public/demo/` (`/lec
 
 1. ⚠ Parcial: p95 de 45–131 ms en 100 toques con CPU ×4 en Chromium (360 px: 83 ms; 768 px: 45 ms; 1280 px: 131 ms). Falta el perfil Moto G4 + 4G y un libro real.
 2. ✅ Las entradas de léxico viajan en el JSON de la página; tocar una palabra no hace peticiones.
+
+## Cierre del MVP (2026-10-19)
+Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
+- Limitación conocida: sin el perfil Moto G4 + 4G; p95 medido 45–131 ms con CPU ×4.
