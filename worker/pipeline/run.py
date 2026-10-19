@@ -193,7 +193,7 @@ def reset_output(out: Path) -> None:
 
 
 def configure_logging() -> None:
-    """Solo el avance del worker (INFO); las bibliotecas de terceros (Argos, stanza) en WARNING."""
+    """Solo el avance del worker (INFO); las bibliotecas de terceros (transformers) en WARNING."""
     logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(message)s")
     logging.getLogger("pipeline").setLevel(logging.INFO)
 

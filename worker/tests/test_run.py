@@ -171,7 +171,7 @@ def test_cli_logging_keeps_pipeline_progress_but_silences_third_party_noise():
 
     configure_logging()
     assert logging.getLogger("pipeline").getEffectiveLevel() == logging.INFO
-    assert logging.getLogger("argostranslate").getEffectiveLevel() >= logging.WARNING
+    assert logging.getLogger("transformers").getEffectiveLevel() >= logging.WARNING
     assert logging.getLogger().getEffectiveLevel() >= logging.WARNING
 
 

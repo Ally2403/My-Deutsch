@@ -63,20 +63,20 @@ jobs:
           uv run python -m lexicon.build .local/de.jsonl.gz .local/lexicon.sqlite
           rm .local/de.jsonl.gz
 
-      - name: Caché del modelo de traducción
+      - name: Caché de los modelos de traducción (ya convertidos)
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: ~/.local/share/argos-translate
-          key: argos-${{ hashFiles('worker/lexicon/translate.py') }}
+          path: ~/.local/share/mydeutsch-models
+          key: opus-${{ hashFiles('worker/lexicon/opus.py') }}
 
       - name: Instalar dependencias
-        run: uv sync --extra argos
+        run: uv sync --extra opus --extra opus-convert
 
-      - name: Instalar el modelo en→es (huella SHA-256 fijada)
-        run: uv run --extra argos python -m lexicon.translate provision
+      - name: Instalar los modelos Opus-MT (revisión y huellas SHA-256 fijadas, ADR-007)
+        run: uv run --extra opus --extra opus-convert python -m lexicon.opus provision
 
       - name: Procesar y publicar
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: uv run --extra argos python -m publish --book-id "$BOOK_ID" --lexicon .local/lexicon.sqlite
+        run: uv run --extra opus python -m publish --book-id "$BOOK_ID" --lexicon .local/lexicon.sqlite
