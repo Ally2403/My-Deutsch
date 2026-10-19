@@ -65,6 +65,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-42 | [Diseño visual y experiencia móvil](funcionales/RF-42-diseno-visual-y-experiencia-movil.md) | M-1    | Alta      | 3    | Hecho       |
 | RF-43 | [Calidad de las traducciones al español](funcionales/RF-43-calidad-de-las-traducciones.md) | M-6    | Alta      | 3    | Hecho       |
 | RF-44 | [Tema claro y oscuro con selector y barra de navegación](funcionales/RF-44-tema-claro-y-oscuro.md) | M-T    | Alta      | 5    | Hecho       |
+| RF-45 | [Verbos separables con punto medio en el panel](funcionales/RF-45-verbo-separable-con-punto-medio.md) | M-5    | Media     | 3    | Hecho       |
 
 ## Requerimientos no funcionales (17)
 

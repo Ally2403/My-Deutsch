@@ -317,6 +317,7 @@ test("RN-07: tocar un verbo separable resalta a su pareja", async ({
   await page.keyboard.press("ArrowRight");
   await page.getByRole("button", { name: "ruft", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("anrufen");
+  await expect(page.getByRole("dialog").getByText("an·rufen")).toBeVisible(); // RF-45
   await expect(
     page.getByRole("button", { name: "an.", exact: true }),
   ).toHaveClass(/reader-word-active/);

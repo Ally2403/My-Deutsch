@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-19, RF-45)
+
+**RF-45 verbos separables con punto medio — Hecho:** al tocar una palabra cuyo lema es un verbo separable el panel muestra `vor·gehen`, `auf·stehen`, `an·rufen` (lector de pantalla: «verbo separable»). Heurística por lista de partículas sin las ambiguas (durch-, über-, um-, unter-, wieder-, zwischen-, hinter-) y una lista de excepciones; `lib/domain/separable.ts`. Solo en el panel de la palabra tocada.
+
 # Retomar aquí (2026-10-19, ilustraciones para RF-18)
 
 **RF-18 c2 en libros reales:** el worker ahora detecta ilustraciones (`worker/pipeline/images.py`: celdas con textura o relleno plano claramente distinto del papel, fuera de lo que cubre el OCR; ignora encabezado, pie y bandas pegadas al borde) y las escribe en `images` de la página. **Medido:** las 10 páginas de texto de la muestra → 0 falsos positivos; la página de ilustración de la demo → detectada casi exacta (ancho 0,766 vs 0,75). **Sin verificar:** fotos o dibujos de un libro real (la muestra no trae ninguno). Reprocesar los libros ya subidos para que aparezcan.

@@ -99,6 +99,18 @@ describe("WordPanel (RF-21, RF-22)", () => {
     expect(dialog.querySelector('[class*="gender-"]')).toBeNull();
   });
 
+  it("RF-45: un verbo separable se muestra con punto medio y se anuncia como tal", () => {
+    open(6);
+    const dialog = screen.getByRole("dialog");
+    expect(screen.getByText("an·rufen")).toBeInTheDocument();
+    expect(dialog).toHaveTextContent("anrufen, verbo separable");
+  });
+
+  it("RF-45: un verbo no separable no lleva punto medio", () => {
+    open(1);
+    expect(screen.getByRole("dialog").querySelector("p.text-xl")).toHaveTextContent(/^gehen$/);
+  });
+
   it("varios géneros: todos los artículos y la etiqueta", () => {
     open(2);
     const dialog = screen.getByRole("dialog");

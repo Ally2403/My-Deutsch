@@ -11,19 +11,21 @@ Producción: https://my-deutsch.vercel.app · Repositorio: `Ally2403/My-Deutsch`
 - **Transversal:** diseño minimalista claro con **modo oscuro** (sol/luna), responsive 360/768/1280 px, iPhone (web) (RF-36, RF-42, RF-44, RNF-07, RNF-09, RNF-15); seguridad y privacidad por RLS (RNF-05, RNF-06); CI con pruebas (RNF-12); despliegue en Vercel (RNF-16).
 
 ## Verificación
-463 pruebas unitarias · 118 e2e (Chromium 360/768/1280 y WebKit iPhone) · 255 pytest del worker · cobertura de `lib/domain` 97,5 % · suite RLS de 22 pruebas contra la base real · CI en cada PR · prueba manual de la usuaria en producción (correo, Google, sesión, libro real, iPhone).
+526 pruebas unitarias · 145 e2e (Chromium 360/768/1280 y WebKit iPhone) · 277 pytest del worker · cobertura de `lib/domain` 97,5 % · suite RLS de 22 pruebas contra la base real · CI en cada PR · prueba manual de la usuaria en producción (correo, Google, sesión, libro real, iPhone).
 
-## Fuera del MVP (siguen «Pendiente»)
-| ID | Tema | Nota |
+## Añadido después del cierre (2026-10-19, todo en `main`)
+RF-33/RNF-14/RF-35 (escribir respuestas sobre la página, guardado fiable offline, reiniciar página) · RF-34 (campos de ejercicio detectados) · RF-32 (exportar diccionario a CSV) · RF-37 (preferencias de lectura en el perfil) · RF-18 (modo lectura, con ilustraciones detectadas por el worker) · RF-45 (verbos separables con punto medio en el panel).
+
+## En progreso (necesitan una acción de la usuaria)
+| ID | Tema | Falta |
 |---|---|---|
-| RF-33, RF-34, RF-35, RNF-14 | Ejercicios: escribir respuestas sobre la página | Avance parcial en `git stash` «WIP RF-33» |
-| RF-18 | Modo lectura adaptado | |
-| RF-32 | Exportar el diccionario personal | |
-| RF-37 | Preferencias de lectura (tamaño de letra, valores por defecto en el perfil) | El tema claro/oscuro ya está (RF-44), guardado en el dispositivo |
-| RNF-08, RNF-10, RNF-13 | Rendimiento web, concurrencia, respaldo/portabilidad | |
+| RNF-08 | Lighthouse móvil en cada despliegue de producción | Ver la primera ejecución del workflow `lighthouse` en Actions (medido a mano: rendimiento 89–98, accesibilidad y buenas prácticas 100) |
+| RNF-10 | Concurrencia: 25 usuarios, p95 < 500 ms | Correr `loadtest/lector.k6.js` 10 min con una cuenta de prueba y un libro real |
+| RNF-13 | Respaldo semanal cifrado | Crear los secretos `SUPABASE_DB_URL` y `BACKUP_PASSPHRASE` y lanzar el workflow `respaldo` una vez (ver `docs/respaldo.md`) |
 
 ## Limitaciones conocidas
 - **RNF-02 criterio 2 (cambio aprobado 2026-10-19):** las páginas son privadas, así que se sirven desde la app con caché privada de 7 días, no desde un CDN con caché inmutable de 1 año.
+- Para que los libros ya subidos muestren campos de ejercicio e ilustraciones hay que reprocesarlos.
 - Un reintento de procesamiento repite el libro desde la primera hoja.
 - Las traducciones son automáticas (Opus-MT) y pueden fallar en frases idiomáticas; el panel lo indica.
 - Alrededor del 1 % de las palabras queda ligeramente desalineado frente a la tinta (≤ 4,7 % del ancho).
