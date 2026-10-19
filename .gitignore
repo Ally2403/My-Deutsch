@@ -59,3 +59,7 @@ public/local-book/
 !worker/tests/fixtures/*.jsonl
 
 .lighthouseci/
+
+# Respaldos de la base de datos (RNF-13): nunca al repositorio
+*.dump
+*.dump.gpg
