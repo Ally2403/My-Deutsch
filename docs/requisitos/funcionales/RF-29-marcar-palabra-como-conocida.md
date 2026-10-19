@@ -7,7 +7,7 @@
 | **Módulo** | M-7 Vocabulario personal |
 | **Prioridad** | Media |
 | **Fase** | 4 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-27](RF-27-guardar-palabras-en-el-diccionario-personal.md) |
 | **Reglas de negocio** | RN-05 |
 
@@ -23,4 +23,5 @@ Permite distinguir lo que ya se domina de lo que solo se consultó.
 
 ## Verificación (2026-10-19)
 - Desde el diccionario: marcar «conocida»/volver a «vista» y eliminar con confirmación (pruebas de componente; el error de red avisa y no cambia el estado).
-- Pendiente: hacerlo también desde el panel del lector y reflejarlo en el texto (criterios 1 y 2 en el lector); depende de RF-28.
+- Desde el panel del lector (RF-28): «Marcar como conocida» / «Volver a «vista»» y «Eliminar de mi diccionario» con confirmación; el texto cambia al instante (e2e). Si el guardado falla, se deshace el cambio local. El estado se guarda con `upsert`, por lo que funciona aunque la consulta aún esté en cola.
+- Sin verificar con sesión real.

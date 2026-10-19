@@ -48,8 +48,8 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-25 | [Palabra no encontrada](funcionales/RF-25-palabra-no-encontrada.md)                                                            | M-6    | Media     | 3    | Pendiente   |
 | RF-26 | [Colorear todos los sustantivos](funcionales/RF-26-colorear-todos-los-sustantivos.md)                                          | M-5    | Alta      | 3    | En progreso |
 | RF-27 | [Guardar palabras en el diccionario personal](funcionales/RF-27-guardar-palabras-en-el-diccionario-personal.md)                | M-7    | Alta      | 4    | En progreso |
-| RF-28 | [Indicar palabras ya vistas en el texto](funcionales/RF-28-indicar-palabras-ya-vistas-en-el-texto.md)                          | M-7    | Alta      | 4    | Pendiente   |
-| RF-29 | [Marcar palabra como conocida](funcionales/RF-29-marcar-palabra-como-conocida.md)                                              | M-7    | Media     | 4    | En progreso |
+| RF-28 | [Indicar palabras ya vistas en el texto](funcionales/RF-28-indicar-palabras-ya-vistas-en-el-texto.md)                          | M-7    | Alta      | 4    | Hecho       |
+| RF-29 | [Marcar palabra como conocida](funcionales/RF-29-marcar-palabra-como-conocida.md)                                              | M-7    | Media     | 4    | Hecho       |
 | RF-30 | [Consultar diccionario personal](funcionales/RF-30-consultar-diccionario-personal.md)                                          | M-7    | Alta      | 4    | En progreso |
 | RF-31 | [Filtrar y ordenar el diccionario personal](funcionales/RF-31-filtrar-y-ordenar-el-diccionario-personal.md)                    | M-7    | Alta      | 4    | En progreso |
 | RF-32 | [Exportar diccionario personal](funcionales/RF-32-exportar-diccionario-personal.md)                                            | M-7    | Baja      | 5    | Pendiente   |

@@ -288,3 +288,25 @@ describe("PageReader: retomar la lectura (RF-20)", () => {
     expect(screen.getByText("página 3 de 3")).toBeInTheDocument();
   });
 });
+
+describe("PageReader: palabras ya vistas (RF-28)", () => {
+  it("marca las vistas y el interruptor las oculta", async () => {
+    loadPage = vi.fn((n: number) =>
+      Promise.resolve({ ...make(n), tokens: [{ ...make(n).tokens[0], l: 5 }] }),
+    );
+    localStorage.removeItem("my-deutsch:hide-seen");
+    render(
+      <PageReader
+        total={2}
+        loadPage={loadPage}
+        imageUrl={(n) => `/p/${n}.webp`}
+        seenWords={new Map([[5, { status: "seen", lookups: 1, bookId: null, page: null }]])}
+      />,
+    );
+    const word = await screen.findByRole("button", { name: "Wort1" });
+    expect(word).toHaveClass("seen-seen");
+    fireEvent.click(screen.getByRole("button", { name: "Marcar palabras vistas" }));
+    expect(screen.getByRole("button", { name: "Wort1" })).not.toHaveClass("seen-seen");
+    localStorage.removeItem("my-deutsch:hide-seen");
+  });
+});

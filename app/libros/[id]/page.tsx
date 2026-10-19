@@ -66,6 +66,31 @@ async function Libro({
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+  // RF-28: diccionario personal (solo lo mínimo para marcar el texto); RLS = solo lo propio.
+  const seenRows: {
+    lexicon_id: number;
+    status: string;
+    lookups: number;
+    first_book_id: string | null;
+    first_page: number | null;
+  }[] = [];
+  if (user) {
+    for (let from = 0; ; from += 1000) {
+      const { data } = await supabase
+        .from("user_words")
+        .select("lexicon_id, status, lookups, first_book_id, first_page")
+        .eq("user_id", user.id)
+        .range(from, from + 999);
+      seenRows.push(...(data ?? []));
+      if ((data?.length ?? 0) < 1000) break;
+    }
+  }
+  const firstBookIds = [
+    ...new Set(seenRows.flatMap((r) => (r.first_book_id ? [r.first_book_id] : []))),
+  ];
+  const { data: firstBooks } = firstBookIds.length
+    ? await supabase.from("books").select("id, title").in("id", firstBookIds)
+    : { data: [] };
   const total = pagesRes.count ?? 0;
   const job = jobRes.data;
   const groupIds = (linksRes.data ?? []).map((l) => l.group_id);
@@ -130,6 +155,18 @@ async function Libro({
             userId={user?.id}
             lastPage={linkedPage ?? progressRes.data?.last_page ?? null}
             pagesRead={progressRes.data?.pages_read ?? []}
+            initialSeen={seenRows.map((r) => [
+              r.lexicon_id,
+              {
+                status: r.status === "known" ? "known" : "seen",
+                lookups: r.lookups,
+                bookId: r.first_book_id,
+                page: r.first_page,
+              },
+            ])}
+            seenBookTitles={Object.fromEntries(
+              (firstBooks ?? []).map((b) => [b.id, b.title]),
+            )}
           />
         </div>
       )}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { PageReader } from "@/components/reader/page-reader";
 import { useLookupSync } from "@/components/reader/use-lookup-sync";
 import { useReadingProgress } from "@/components/reader/use-reading-progress";
 import { parsePage } from "@/lib/domain/page";
 import { resumePage } from "@/lib/domain/progress";
+import { withLookup, type SeenWord } from "@/lib/domain/seen-words";
 import { createClient } from "@/lib/supabase/client";
 
 export const PROCESSING_MESSAGE = "Esta página aún se está procesando";
@@ -41,6 +42,8 @@ export function BookReader({
   userId,
   lastPage = null,
   pagesRead = [],
+  initialSeen = [],
+  seenBookTitles = {},
 }: {
   bookId: string;
   total: number;
@@ -48,7 +51,13 @@ export function BookReader({
   /** RF-20: última página guardada de esta persona en este libro. */
   lastPage?: number | null;
   pagesRead?: number[];
+  /** RF-28: diccionario personal como pares [id de léxico, palabra]. */
+  initialSeen?: [number, SeenWord][];
+  seenBookTitles?: Record<string, string>;
 }) {
+  const [seen, setSeen] = useState<ReadonlyMap<number, SeenWord>>(
+    () => new Map(initialSeen),
+  );
   const { loadPage, imageUrl } = useMemo(() => createLoaders(bookId), [bookId]);
   const save = useCallback(
     async (p: { lastPage: number; pagesRead: number[] }) => {
@@ -71,7 +80,51 @@ export function BookReader({
     },
     [userId, bookId, total],
   );
-  useLookupSync({ bookId, userId });
+  useLookupSync({
+    bookId,
+    userId,
+    onLookup: (l) =>
+      setSeen((m) => withLookup(m, l.lexiconId, { bookId, page: l.page })),
+  });
+
+  // RF-29: cambiar el estado (upsert: crea la fila si la consulta aún está en cola) o eliminar.
+  const onSeenStatus = useCallback(
+    async (lexiconId: number, status: SeenWord["status"]) => {
+      if (!userId) return;
+      const before = seen.get(lexiconId);
+      setSeen((m) => {
+        const old = m.get(lexiconId);
+        return old ? new Map(m).set(lexiconId, { ...old, status }) : m;
+      });
+      const { error } = await createClient()
+        .from("user_words")
+        .upsert(
+          { user_id: userId, lexicon_id: lexiconId, status },
+          { onConflict: "user_id,lexicon_id" },
+        );
+      if (error && before)
+        setSeen((m) => new Map(m).set(lexiconId, before)); // se deshace si falla
+    },
+    [userId, seen],
+  );
+  const onSeenRemove = useCallback(
+    async (lexiconId: number) => {
+      if (!userId) return;
+      const before = seen.get(lexiconId);
+      setSeen((m) => {
+        const next = new Map(m);
+        next.delete(lexiconId);
+        return next;
+      });
+      const { error } = await createClient()
+        .from("user_words")
+        .delete()
+        .eq("user_id", userId)
+        .eq("lexicon_id", lexiconId);
+      if (error && before) setSeen((m) => new Map(m).set(lexiconId, before));
+    },
+    [userId, seen],
+  );
   const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
   return (
     <PageReader
@@ -81,6 +134,10 @@ export function BookReader({
       heightClassName="h-full"
       initialPage={resumePage(lastPage, total)}
       onPageChange={onPageChange}
+      seenWords={userId ? seen : undefined}
+      seenBookTitles={seenBookTitles}
+      onSeenStatus={onSeenStatus}
+      onSeenRemove={onSeenRemove}
     />
   );
 }

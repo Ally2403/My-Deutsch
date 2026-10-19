@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { genderInfo } from "@/lib/domain/gender";
 import { recordLookup } from "@/lib/domain/lookup-log";
 import type { LexEntry, PageData } from "@/lib/domain/page";
 import { MAX_SENSES } from "@/lib/domain/page";
+import { seenSummary, type SeenWord } from "@/lib/domain/seen-words";
 import {
   entryFor,
   formLabel,
@@ -18,6 +19,11 @@ type Props = {
   pageNumber: number;
   onClose: () => void;
   anchor: DOMRect | null;
+  /** RF-28/RF-29: lo que se sabe de esta palabra en el diccionario personal. */
+  seen?: SeenWord;
+  firstBookTitle?: string;
+  onStatus?: (lexiconId: number, status: SeenWord["status"]) => void;
+  onRemove?: (lexiconId: number) => void;
 };
 
 const CLOSE_SWIPE_PX = 60;
@@ -66,7 +72,12 @@ export function WordPanel({
   pageNumber,
   onClose,
   anchor,
+  seen,
+  firstBookTitle,
+  onStatus,
+  onRemove,
 }: Props) {
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const token = page.tokens[tokenIndex];
   const entry = entryFor(page, tokenIndex);
   const ref = useRef<HTMLDivElement>(null);
@@ -201,6 +212,60 @@ export function WordPanel({
                 </li>
               ))}
             </ol>
+            {token.l !== undefined && seen && (
+              <div className="mt-4 border-t border-border pt-3">
+                {seenSummary(seen, firstBookTitle) && (
+                  <p className="text-sm text-muted">
+                    {seenSummary(seen, firstBookTitle)}
+                  </p>
+                )}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm font-medium"
+                    onClick={() =>
+                      onStatus?.(
+                        token.l as number,
+                        seen.status === "known" ? "seen" : "known",
+                      )
+                    }
+                  >
+                    {seen.status === "known"
+                      ? "Volver a «vista»"
+                      : "Marcar como conocida"}
+                  </button>
+                  {confirmRemove ? (
+                    <>
+                      <button
+                        type="button"
+                        className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm font-medium"
+                        onClick={() => {
+                          onRemove?.(token.l as number);
+                          setConfirmRemove(false);
+                        }}
+                      >
+                        Sí, eliminar
+                      </button>
+                      <button
+                        type="button"
+                        className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm"
+                        onClick={() => setConfirmRemove(false)}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className="pressable min-h-11 rounded-control border border-border bg-surface px-4 text-sm"
+                      onClick={() => setConfirmRemove(true)}
+                    >
+                      Eliminar de mi diccionario
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>

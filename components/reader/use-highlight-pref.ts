@@ -50,3 +50,6 @@ function createBooleanPref(key: string) {
 export const useHighlightPref = createBooleanPref("my-deutsch:highlight");
 /** «Marcar plurales» en amarillo (RF-41). */
 export const usePluralPref = createBooleanPref("my-deutsch:plurals");
+
+/** Ocultar las marcas de palabras ya vistas (RF-28: «se puede ocultar»). */
+export const useHideSeenPref = createBooleanPref("my-deutsch:hide-seen");

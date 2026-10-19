@@ -113,3 +113,22 @@ describe("TextLayer: plurales (RF-41)", () => {
     expect(screen.getByRole("button", { name: "sind" })).not.toHaveClass("pl-mark");
   });
 });
+
+describe("TextLayer: palabras ya vistas (RF-28)", () => {
+  it("marca vistas y conocidas sin quitar el resalte de género", () => {
+    render(
+      <TextLayer
+        page={page}
+        onWordClick={() => {}}
+        highlight={new Map([[0, "n"]])}
+        seen={new Map<number, "seen" | "known">([[0, "seen"], [1, "known"]])}
+      />,
+    );
+    const w0 = screen.getByRole("button", { name: "Häuser" });
+    expect(w0).toHaveClass("seen-seen", "hl-n");
+    expect(screen.getByRole("button", { name: "sind" })).toHaveClass("seen-known");
+    expect(screen.getByRole("button", { name: "Normalerweise" })).not.toHaveClass(
+      "seen-seen",
+    );
+  });
+});
