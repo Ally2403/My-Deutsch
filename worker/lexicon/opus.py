@@ -118,15 +118,20 @@ def verify_installed(directory: Path, pin: ModelPin) -> None:
     marker = directory / MARKER
     if not marker.is_file() or directory.is_symlink():
         raise ValueError(f"{bad}: falta su registro de instalación")
-    record = json.loads(marker.read_text(encoding="utf-8"))
-    if record.get("pin") != _fingerprint(pin):
+    try:
+        record = json.loads(marker.read_text(encoding="utf-8"))
+    except ValueError:
+        raise ValueError(f"{bad}: su registro de instalación es ilegible") from None
+    if not isinstance(record, dict) or record.get("pin") != _fingerprint(pin):
         raise ValueError(f"{bad}: no corresponde a la revisión fijada")
     entries = [p for p in directory.iterdir() if p.name != MARKER]
     if any(p.is_symlink() or not p.is_file() for p in entries):
         raise ValueError(f"{bad}: contiene algo que no es un archivo")
+    installed = record.get("installed")
     if (
-        _installed_hashes(directory) != record.get("installed")
-        or "model.bin" not in record["installed"]
+        not isinstance(installed, dict)
+        or "model.bin" not in installed
+        or _installed_hashes(directory) != installed
     ):
         raise ValueError(f"{bad}: sus archivos no coinciden con lo registrado")
 

@@ -215,3 +215,12 @@ def test_engine_tokenizes_with_sentencepiece_limits_threads_and_caches(tmp_path,
     batch, options = seen["batches"][0]
     assert batch == [["▁die", "▁Hilfe", "</s>"]]
     assert options["beam_size"] == 4 and options["max_decoding_length"] == 24
+
+
+@pytest.mark.parametrize("forged", ["[]", '{"pin": "x"}', "no es json", '{"installed": {}}'])
+def test_a_malformed_install_record_is_reported_as_tampered(tmp_path, fake_hub, forged):
+    pin = pin_for(FILES)
+    provision(pins={"de-es": pin}, models_dir=tmp_path)
+    (tmp_path / "de-es" / "pin.json").write_text(forged, encoding="utf-8")
+    with pytest.raises(ValueError, match="alterado"):
+        verify_installed(tmp_path / "de-es", pin)
