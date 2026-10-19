@@ -2,6 +2,10 @@
 
 **RNF-10 concurrencia — En progreso (rama `feat/RNF-10-carga`):** `loadtest/lector.k6.js` (k6 en Docker: 25 VUs × 10 min, p95 < 500 ms, 0 errores 5xx; pasa página y, con cuenta de prueba, llama `record_lookup`) y tabla de consumo frente al 80 % de las cuotas en `docs/03` §5 (c2, estimado: todo ≤ 35 % de su cuota). **Medido hoy:** 25 VUs × 60 s contra lo público (JSON de la demo en producción): p95 144 ms, 0 fallos en 1 362 peticiones. **Falta (c1 completo):** correrlo 10 min con una cuenta de prueba y un libro real (`COOKIE`, `BOOK_ID`, `TOTAL`, y `SUPABASE_URL`/`SUPABASE_KEY`/`ACCESS_TOKEN` para `record_lookup`); las rutas de datos e imagen exigen sesión y no pude probarlas sin credenciales.
 
+# Retomar aquí (2026-10-19, RNF-13)
+
+**RNF-13 respaldo — En progreso (rama `feat/RNF-13-respaldo`):** `.github/workflows/respaldo.yml` (domingos, `pg_dump` 17 del esquema `public`, GPG AES-256, artefacto privado 30 días), `scripts/restaurar-respaldo.sh`, `scripts/probar-respaldo-docker.sh` y `docs/respaldo.md`. **Verificado en Docker (Postgres 17, migraciones reales + 150 filas sintéticas de `user_words`):** volcado → cifrado → restauración recupera 150/150 (c2); falla con conteo erróneo y no abre con frase incorrecta. **Acción tuya:** crear los secretos `SUPABASE_DB_URL` (Session pooler, IPv4) y `BACKUP_PASSPHRASE` y lanzar «respaldo» a mano la primera vez (c1 sin verificar en Actions). RF-32 (exportar CSV) ya cubre la otra mitad del requisito.
+
 # Retomar aquí (2026-10-19, RNF-08)
 
 **RNF-08 Lighthouse — En progreso (rama `feat/RNF-08-lighthouse`):** `lighthouserc.json` (umbrales 85/90/90, mediana de 3 corridas, móvil) y `.github/workflows/lighthouse.yml` (en cada despliegue de producción o a mano). **Medido hoy en producción** (3 corridas): `/` rendimiento 91–93, `/login` 89–97, `/lector/demo` 95–98; accesibilidad y buenas prácticas 100 en todas. **Falta:** ver la primera ejecución del workflow en Actions tras desplegar; las pantallas con sesión (biblioteca, diccionario) no se pueden auditar sin credenciales; el workflow marca el despliegue como no conforme en GitHub, no lo revierte en Vercel.

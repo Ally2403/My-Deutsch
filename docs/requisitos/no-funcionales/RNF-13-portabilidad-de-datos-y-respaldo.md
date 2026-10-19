@@ -7,7 +7,7 @@
 | **Módulo** | M-T Transversal |
 | **Prioridad** | Baja |
 | **Fase** | 5 |
-| **Estado** | Pendiente |
+| **Estado** | En progreso |
 | **Dependencias** | [RF-32](../funcionales/RF-32-exportar-diccionario-personal.md) |
 | **Reglas de negocio** | — |
 
