@@ -272,6 +272,7 @@ export function UploadBook({ groupId }: { groupId: string }) {
           name="file"
           type="file"
           accept="application/pdf"
+          className="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-accent/10 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-accent"
           aria-describedby="upload-help"
           disabled={busy}
         />
