@@ -7,7 +7,7 @@
 | **Módulo** | M-1 Aplicación |
 | **Prioridad** | Alta |
 | **Fase** | 3 |
-| **Estado** | En progreso |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-14](RF-14-ver-biblioteca-del-grupo.md), [RF-17](RF-17-texto-seleccionable-alineado-al-original.md) |
 | **Reglas de negocio** | — |
 
@@ -31,3 +31,6 @@ Hoy las pantallas son funcionales pero sin trabajo de diseño; el curso (~25 est
 - Criterio 4 ✅ en rutas públicas: sin desbordamiento a 360/768/1280 y objetivos ≥ 44 px (auditado en una build); `env(safe-area-inset-*)` en `body`. Rutas con sesión sin auditar.
 - Criterio 5 ✅ claro primero (el oscuro conserva tokens básicos, sin pulir).
 - Suite 377/377, e2e 62 pasadas (Chromium 360/768/1280 y WebKit iPhone). Sin ver: grupos, biblioteca y subida con sesión real.
+
+## Cierre (2026-10-19)
+Segunda entrega: barra común, inicio, ingreso, grupos, grupo, perfil, diccionario y lector rediseñados con los mismos tokens; modo oscuro hecho en RF-44; errores con `text-danger`; objetivos ≥ 44 px y sin desbordes verificados por e2e (RNF-07). Pantallas con sesión y datos reales (biblioteca, subida) sin captura propia: se revisó el marcado y el diccionario/grupos vacíos.

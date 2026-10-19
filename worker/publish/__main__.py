@@ -19,8 +19,8 @@ REQUIRED_ENV = ("SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY")
 
 def _load(lexicon: Path):
     import spacy
-    from lexicon.opus import OpusTranslator
 
+    from lexicon.opus import OpusTranslator
     from lexicon.store import Lexicon
 
     return Lexicon(lexicon), spacy.load("de_core_news_md"), OpusTranslator()

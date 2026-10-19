@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8    | Ejercicios             |
 | M-T    | Transversal            |
 
-## Requerimientos funcionales (43)
+## Requerimientos funcionales (44)
 
 | ID    | Título                                                                                                                         | Módulo | Prioridad | Fase | Estado      |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | ---- | ----------- |
@@ -62,8 +62,9 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-39 | [Unir palabras cortadas con guion](funcionales/RF-39-unir-palabras-cortadas-con-guion.md)                                      | M-6    | Alta      | 2    | En progreso |
 | RF-40 | [Página de inicio pública y política de privacidad](funcionales/RF-40-pagina-de-privacidad-y-de-inicio-publica.md)             | M-1    | Alta      | 3    | En progreso |
 | RF-41 | [Marcar plurales en amarillo](funcionales/RF-41-marcar-plurales-en-amarillo.md)                                                | M-5    | Media     | 3    | En progreso |
-| RF-42 | [Diseño visual y experiencia móvil](funcionales/RF-42-diseno-visual-y-experiencia-movil.md) | M-1    | Alta      | 3    | En progreso |
+| RF-42 | [Diseño visual y experiencia móvil](funcionales/RF-42-diseno-visual-y-experiencia-movil.md) | M-1    | Alta      | 3    | Hecho       |
 | RF-43 | [Calidad de las traducciones al español](funcionales/RF-43-calidad-de-las-traducciones.md) | M-6    | Alta      | 3    | Hecho       |
+| RF-44 | [Tema claro y oscuro con selector y barra de navegación](funcionales/RF-44-tema-claro-y-oscuro.md) | M-T    | Alta      | 5    | Hecho       |
 
 ## Requerimientos no funcionales (17)
 
@@ -75,16 +76,16 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-04 | [Tiempo de procesamiento de un libro](no-funcionales/RNF-04-tiempo-de-procesamiento-de-un-libro.md)                       | M-4    | Media     | 2    | Pendiente   |
 | RNF-05 | [Autenticación segura](no-funcionales/RNF-05-autenticacion-segura.md)                                                     | M-1    | Alta      | 3    | En progreso |
 | RNF-06 | [Aislamiento de datos personales (RLS)](no-funcionales/RNF-06-aislamiento-de-datos-personales-rls.md)                     | M-T    | Alta      | 3    | En progreso |
-| RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md)                                                       | M-T    | Alta      | 3    | En progreso |
+| RNF-07 | [Usabilidad en móvil](no-funcionales/RNF-07-usabilidad-en-movil.md)                                                       | M-T    | Alta      | 3    | Hecho       |
 | RNF-08 | [Rendimiento web](no-funcionales/RNF-08-rendimiento-web.md)                                                               | M-T    | Media     | 5    | Pendiente   |
 | RNF-09 | [Accesibilidad y contraste de colores de género](no-funcionales/RNF-09-accesibilidad-y-contraste-de-colores-de-genero.md) | M-T    | Alta      | 3    | En progreso |
 | RNF-10 | [Concurrencia en el plan gratuito](no-funcionales/RNF-10-concurrencia-en-el-plan-gratuito.md)                             | M-T    | Media     | 5    | Pendiente   |
 | RNF-11 | [Límites de archivo](no-funcionales/RNF-11-limites-de-archivo.md)                                                         | M-3    | Media     | 3    | En progreso |
-| RNF-12 | [Calidad y pruebas](no-funcionales/RNF-12-calidad-y-pruebas.md)                                                           | M-T    | Media     | 3    | Pendiente   |
+| RNF-12 | [Calidad y pruebas](no-funcionales/RNF-12-calidad-y-pruebas.md)                                                           | M-T    | Media     | 3    | En progreso |
 | RNF-13 | [Portabilidad de datos y respaldo](no-funcionales/RNF-13-portabilidad-de-datos-y-respaldo.md)                             | M-T    | Baja      | 5    | Pendiente   |
 | RNF-14 | [Guardado fiable de anotaciones](no-funcionales/RNF-14-guardado-fiable-de-anotaciones.md)                                 | M-8    | Media     | 3    | Pendiente   |
 | RNF-15 | [Compatibilidad con iPhone y PWA](no-funcionales/RNF-15-compatibilidad-con-iphone-y-pwa.md)                               | M-T    | Alta      | 3    | Pendiente   |
-| RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Pendiente   |
+| RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Hecho       |
 | RNF-17 | [Límite de intentos de código de invitación](no-funcionales/RNF-17-limite-de-intentos-de-codigo-de-invitacion.md)         | M-2    | Alta      | 3    | En progreso |
 
 ## Plantilla para un requisito nuevo

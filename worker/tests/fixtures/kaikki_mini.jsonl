@@ -1,0 +1,14 @@
+{"word": "Haus", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["house"], "tags": ["neuter", "strong"]}, {"glosses": ["building"], "tags": ["neuter"]}], "forms": [{"form": "Hauses", "tags": ["genitive"]}, {"form": "Häuser", "tags": ["plural"]}, {"form": "Häuschen", "tags": ["diminutive", "neuter"]}, {"form": "strong", "tags": ["table-tags"]}]}
+{"word": "Haus", "pos": "name", "lang_code": "de", "senses": [{"glosses": ["a village"], "tags": ["neuter", "proper-noun"]}]}
+{"word": "Häuser", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["plural of Haus"], "form_of": [{"word": "Haus"}]}]}
+{"word": "Leute", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["people"], "tags": ["plural", "plural-only"]}], "forms": [{"form": "Leuten", "tags": ["dative", "plural"]}]}
+{"word": "Teil", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["part"], "tags": ["masculine", "strong"]}], "forms": [{"form": "Teile", "tags": ["plural"]}]}
+{"word": "Teil", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["part, piece"], "tags": ["neuter", "strong"]}], "forms": [{"form": "Teile", "tags": ["plural"]}]}
+{"word": "Tisch", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["table"], "tags": ["masculine"]}], "forms": [{"form": "Tische", "tags": ["plural"]}], "translations": [{"lang_code": "es", "word": "mesa"}, {"lang_code": "fr", "word": "table"}]}
+{"word": "Berlin", "pos": "name", "lang_code": "de", "senses": [{"glosses": ["Berlin"], "tags": ["neuter", "proper-noun"]}], "forms": [{"form": "Berlins", "tags": ["genitive"]}]}
+{"word": "gehen", "pos": "verb", "lang_code": "de", "senses": [{"glosses": ["to go"], "tags": ["class-7"]}, {"glosses": ["to walk"]}], "forms": [{"form": "geht", "tags": ["present", "singular", "third-person"]}, {"form": "ging", "tags": ["past"]}, {"form": "gegangen", "tags": ["participle", "past"]}, {"form": "sein", "tags": ["auxiliary"]}]}
+{"word": "ging", "pos": "verb", "lang_code": "de", "senses": [{"glosses": ["past of gehen"], "form_of": [{"word": "gehen"}]}]}
+{"word": "neu", "pos": "adj", "lang_code": "de", "senses": [{"glosses": ["new"], "tags": []}], "forms": [{"form": "neuer", "tags": ["comparative"]}]}
+{"word": "Schloß", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["old spelling of Schloss"], "tags": ["alt-of", "neuter"]}]}
+{"word": "Ding", "pos": "noun", "lang_code": "de", "senses": [{"glosses": ["sense 1"], "tags": ["neuter"]}, {"glosses": ["sense 2"], "tags": ["neuter"]}, {"glosses": ["sense 3"], "tags": ["neuter"]}, {"glosses": ["sense 4"], "tags": ["neuter"]}, {"glosses": ["sense 5"], "tags": ["neuter"]}, {"glosses": ["sense 6"], "tags": ["neuter"]}, {"glosses": ["sense 7"], "tags": ["neuter"]}]}
+{"word": "sagen", "pos": "verb", "lang_code": "de", "senses": [{"glosses": ["to say"], "tags": []}], "forms": [{"form": "sagt", "tags": ["present"]}]}

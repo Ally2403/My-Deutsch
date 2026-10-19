@@ -19,8 +19,8 @@ La usuaria pidió distinguir a simple vista los plurales mientras lee, además d
 
 ## Criterios de aceptación
 1. Al activarlo, todos los sustantivos en plural de la página se marcan en < 100 ms, incluidos los de solo plural y los que tienen la misma forma en singular.
-2. El marcado no depende solo del color (RNF-09): lleva un borde superior sólido y el panel muestra la etiqueta escrita «plural».
-3. Se puede combinar con «Colorear sustantivos»: un plural se ve amarillo del todo (borde superior e inferior) y los singulares conservan el color de su género; el género de un plural sigue en el artículo escrito del panel.
+2. El marcado es solo un fondo amarillo, sin líneas sobre las letras (decisión de la usuaria, 2026-10-19: las líneas dificultaban leer en el celular); el panel muestra la etiqueta escrita «plural», así que no depende solo del color (RNF-09).
+3. Se puede combinar con «Colorear sustantivos»: un plural se ve amarillo y los singulares conservan el color de su género; el género de un plural sigue en el artículo escrito del panel.
 4. El resaltado no impide leer el texto original (opacidad ≤ 35 %).
 5. La preferencia persiste entre páginas, libros y sesiones.
 

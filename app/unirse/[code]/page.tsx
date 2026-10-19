@@ -39,7 +39,7 @@ function Unirse() {
     <Page>
       {error ? (
         <>
-          <h1 className="text-2xl font-bold">{error}</h1>
+          <h1 className="font-display text-3xl font-extrabold">{error}</h1>
           <p className="mt-4">
             <Link href="/grupos" className="underline">
               Ir a mis grupos

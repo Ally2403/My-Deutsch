@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Suspense } from "react";
+import { Page } from "@/components/ui";
 import type { DictWord } from "@/lib/domain/dictionary";
 import { createClient } from "@/lib/supabase/server";
 import { DictionaryView } from "./dictionary-view";
@@ -83,16 +83,11 @@ export default function DiccionarioPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
-      <Link href="/grupos" className="tap-link text-sm text-muted underline">
-        Volver a mis grupos
-      </Link>
-      <h1 className="mt-2 font-display text-3xl font-extrabold">
-        Mi diccionario
-      </h1>
+    <Page>
+      <h1 className="font-display text-3xl font-extrabold">Mi diccionario</h1>
       <Suspense fallback={<p className="mt-4 text-muted">Cargando…</p>}>
         <Diccionario searchParams={searchParams} />
       </Suspense>
-    </main>
+    </Page>
   );
 }

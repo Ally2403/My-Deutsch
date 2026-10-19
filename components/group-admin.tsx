@@ -53,7 +53,7 @@ export function LeaveGroup({
         personal se conserva.
       </p>
       {error && (
-        <p role="alert" className="mt-2 text-gender-f">
+        <p role="alert" className="mt-2 text-danger">
           {error}
         </p>
       )}
@@ -128,7 +128,7 @@ export function GroupAdminPanel({
           />
         </label>
         {rename.error && (
-          <p role="alert" className="text-gender-f">
+          <p role="alert" className="text-danger">
             {rename.error}
           </p>
         )}
@@ -146,7 +146,7 @@ export function GroupAdminPanel({
               nuevo?
             </p>
             {regen.error && (
-              <p role="alert" className="mt-2 text-gender-f">
+              <p role="alert" className="mt-2 text-danger">
                 {regen.error}
               </p>
             )}
@@ -202,7 +202,7 @@ export function GroupAdminPanel({
               onChange={(e) => setTyped(e.target.value)}
             />
             {del.error && (
-              <p role="alert" className="mt-2 text-gender-f">
+              <p role="alert" className="mt-2 text-danger">
                 {del.error}
               </p>
             )}
@@ -311,7 +311,7 @@ export function MemberActions({
         </div>
       )}
       {error && (
-        <p role="alert" className="text-sm text-gender-f">
+        <p role="alert" className="text-sm text-danger">
           {error}
         </p>
       )}

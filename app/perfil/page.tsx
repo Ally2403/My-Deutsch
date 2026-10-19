@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { Suspense } from "react";
-import { Page } from "@/components/ui";
+import { OutlineButton, Page } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteAccount, ProfileForm } from "./profile-form";
 
@@ -25,6 +24,9 @@ async function Perfil() {
         displayName={profile?.display_name ?? ""}
         level={profile?.level ?? null}
       />
+      <form action="/auth/signout" method="post" className="mt-6">
+        <OutlineButton type="submit">Cerrar sesión</OutlineButton>
+      </form>
       <h2 className="mt-10 font-display text-lg font-bold">Eliminar cuenta</h2>
       <div className="mt-3">
         <DeleteAccount />
@@ -36,10 +38,7 @@ async function Perfil() {
 export default function PerfilPage() {
   return (
     <Page>
-      <Link href="/grupos" className="tap-link text-sm text-muted underline">
-        Volver a mis grupos
-      </Link>
-      <h1 className="mt-2 font-display text-3xl font-extrabold">Mi perfil</h1>
+      <h1 className="font-display text-3xl font-extrabold">Mi perfil</h1>
       <Suspense fallback={<p className="mt-4 text-muted">Cargando…</p>}>
         <Perfil />
       </Suspense>

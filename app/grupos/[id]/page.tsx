@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { BookCard } from "@/components/book-card";
 import { percentRead } from "@/lib/domain/progress";
 import { GroupAdminPanel, LeaveGroup, MemberActions } from "@/components/group-admin";
+import { Icon } from "@/components/icons";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
@@ -105,20 +106,20 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <h1 className="text-2xl font-bold">{group.name}</h1>
+      <h1 className="font-display text-3xl font-extrabold">{group.name}</h1>
 
       <div className="mt-6">
         <ShareInvite code={group.invite_code} groupName={group.name} />
       </div>
 
-      <h2 className="mt-8 text-lg font-semibold">Libros</h2>
+      <h2 className="mt-10 font-display text-xl font-bold">Libros</h2>
       <div className="mt-3">
         <UploadBook groupId={group.id} />
       </div>
       {books.length === 0 ? (
-        <p className="mt-4 text-muted">Aún no hay libros en este grupo.</p>
+        <p className="card mt-4 p-5 text-center text-muted">Aún no hay libros en este grupo. Sube el primero con el botón de arriba.</p>
       ) : (
-        <ul className="mt-4 flex flex-col gap-3">
+        <ul className="mt-4 grid gap-3 md:grid-cols-2">
           {books.map((b) => {
             const job = lastJob.get(b.id);
             return (
@@ -168,14 +169,14 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
         </ul>
       )}
 
-      <h2 className="mt-8 text-lg font-semibold">
+      <h2 className="mt-10 font-display text-xl font-bold">
         Miembros ({members?.length ?? 0})
       </h2>
-      <ul className="mt-3 flex flex-col gap-3">
+      <ul className="card mt-3 divide-y divide-border px-4">
         {(members ?? []).map((m) => {
           const p = byId.get(m.user_id);
           return (
-            <li key={m.user_id} className="flex min-h-11 flex-wrap items-center gap-3">
+            <li key={m.user_id} className="flex min-h-14 flex-wrap items-center gap-3 py-2">
               {p?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -189,7 +190,7 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
               ) : (
                 <span
                   aria-hidden
-                  className="flex size-9 items-center justify-center rounded-full border border-border"
+                  className="flex size-9 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent"
                 >
                   {(p?.display_name || "?").charAt(0).toUpperCase()}
                 </span>
@@ -225,12 +226,14 @@ export default function GrupoPage({
   params: Promise<{ id: string }>;
 }) {
   return (
-    <Page>
-      <p className="mb-4 text-sm">
-        <Link href="/grupos" className="underline">
-          ← Mis grupos
-        </Link>
-      </p>
+    <Page width="wide">
+      <Link
+        href="/grupos"
+        className="back-link mb-3"
+      >
+        <Icon name="left" size={18} />
+        Mis grupos
+      </Link>
       <Suspense fallback={<p className="text-muted">Cargando…</p>}>
         <Grupo params={params} />
       </Suspense>
