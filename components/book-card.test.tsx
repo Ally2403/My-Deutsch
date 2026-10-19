@@ -1,8 +1,29 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
-vi.mock("@/lib/supabase/client", () => ({ createClient: () => ({}) }));
+const refresh = vi.fn();
+let deleteResult: { data: unknown[] | null; error: Error | null } = {
+  data: [{ book_id: "b1" }],
+  error: null,
+};
+const filters: [string, string][] = [];
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
+vi.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({
+    from: () => ({
+      delete: () => {
+        const chain = {
+          eq: (c: string, v: string) => {
+            filters.push([c, v]);
+            return chain;
+          },
+          select: async () => deleteResult,
+        };
+        return chain;
+      },
+    }),
+  }),
+}));
 
 import { BookCard } from "./book-card";
 
@@ -113,5 +134,44 @@ describe("BookCard (RF-13, RF-14)", () => {
       screen.getByRole("button", { name: "Reintentar" }),
     ).toBeInTheDocument();
     expect(container.querySelector("a button, a a, button a")).toBeNull();
+  });
+});
+
+describe("BookCard: quitar libro del grupo (RF-15)", () => {
+  const withRemove = { ...base, groupId: "g1", canRemove: true };
+
+  it("sin permiso no ofrece quitar", () => {
+    render(<BookCard {...base} groupId="g1" canRemove={false} />);
+    expect(screen.queryByRole("button", { name: "Quitar del grupo" })).toBeNull();
+  });
+
+  it("pide confirmación, explica los 7 días y borra solo el vínculo con este grupo", async () => {
+    refresh.mockClear();
+    filters.length = 0;
+    deleteResult = { data: [{ book_id: "b1" }], error: null };
+    render(<BookCard {...withRemove} />);
+    fireEvent.click(screen.getByRole("button", { name: "Quitar del grupo" }));
+    expect(screen.getByText(/7 días/)).toBeInTheDocument();
+    expect(screen.getByText(/palabras guardadas se conservan/)).toBeInTheDocument();
+    expect(filters).toEqual([]);
+    fireEvent.click(screen.getByRole("button", { name: "Sí, quitar libro" }));
+    await vi.waitFor(() => expect(refresh).toHaveBeenCalled());
+    expect(filters).toEqual([
+      ["group_id", "g1"],
+      ["book_id", "b1"],
+    ]);
+  });
+
+  it("cancelar no borra; si RLS no borra ninguna fila avisa del error", async () => {
+    refresh.mockClear();
+    deleteResult = { data: [], error: null };
+    render(<BookCard {...withRemove} />);
+    fireEvent.click(screen.getByRole("button", { name: "Quitar del grupo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(screen.getByRole("button", { name: "Quitar del grupo" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Quitar del grupo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sí, quitar libro" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudo quitar el libro");
+    expect(refresh).not.toHaveBeenCalled();
   });
 });
