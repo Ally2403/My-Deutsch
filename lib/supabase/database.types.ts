@@ -480,6 +480,15 @@ export type Database = {
       is_group_member: { Args: { gid: string }; Returns: boolean };
       join_group: { Args: { p_code: string }; Returns: string };
       leave_group: { Args: { p_group: string }; Returns: undefined };
+      record_lookup: {
+        Args: {
+          p_book_id: string;
+          p_lexicon_id: number;
+          p_page: number;
+          p_sentence: string;
+        };
+        Returns: undefined;
+      };
       regenerate_invite: { Args: { p_group: string }; Returns: string };
       reject_submission: {
         Args: { p_reason: string; p_submission: string };
