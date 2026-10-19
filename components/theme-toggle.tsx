@@ -3,70 +3,61 @@
 import { useSyncExternalStore } from "react";
 import {
   THEME_KEY,
-  THEME_LABEL,
-  nextTheme,
+  effectiveTheme,
+  oppositeTheme,
   parseTheme,
   type ThemePref,
 } from "@/lib/domain/theme";
 
-/** RF-44: lee la preferencia guardada; en el servidor es «system». */
-function read(): ThemePref {
+const DARK_QUERY = "(prefers-color-scheme: dark)";
+
+const systemQuery = () =>
+  typeof window.matchMedia === "function" ? window.matchMedia(DARK_QUERY) : null;
+
+/** Tema que se ve ahora: la preferencia guardada o, sin ella, la del sistema. */
+function read(): "light" | "dark" {
+  let pref: ThemePref = "system";
   try {
-    return parseTheme(localStorage.getItem(THEME_KEY));
+    pref = parseTheme(localStorage.getItem(THEME_KEY));
   } catch {
-    return "system";
+    /* sin almacenamiento: se sigue al sistema */
   }
+  return effectiveTheme(pref, (systemQuery()?.matches ?? false));
 }
 
 const listeners = new Set<() => void>();
 function subscribe(cb: () => void) {
   listeners.add(cb);
+  const mq = systemQuery();
+  mq?.addEventListener("change", cb);
   window.addEventListener("storage", cb);
   return () => {
     listeners.delete(cb);
+    mq?.removeEventListener("change", cb);
     window.removeEventListener("storage", cb);
   };
 }
 
-function apply(pref: ThemePref) {
-  const root = document.documentElement;
-  if (pref === "system") delete root.dataset.theme;
-  else root.dataset.theme = pref;
+function apply(theme: "light" | "dark") {
+  document.documentElement.dataset.theme = theme;
   try {
-    if (pref === "system") localStorage.removeItem(THEME_KEY);
-    else localStorage.setItem(THEME_KEY, pref);
+    localStorage.setItem(THEME_KEY, theme);
   } catch {
-    /* sin almacenamiento: el tema vale solo para esta visita */
+    /* el tema vale solo para esta visita */
   }
   listeners.forEach((l) => l());
 }
 
-const ICON: Record<ThemePref, React.ReactNode> = {
-  system: (
-    <>
-      <rect x="3" y="4" width="18" height="12" rx="2" />
-      <path d="M8 20h8M12 16v4" />
-    </>
-  ),
-  light: (
-    <>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-    </>
-  ),
-  dark: <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />,
-};
-
-/** Selector de tema (Sistema · Claro · Oscuro), un solo botón de 44 px. */
+/** Botón de sol/luna: muestra el tema al que se cambiará (RF-44). */
 export function ThemeToggle({ className = "" }: { className?: string }) {
-  const pref = useSyncExternalStore(subscribe, read, () => "system" as ThemePref);
-  const next = nextTheme(pref);
+  const current = useSyncExternalStore(subscribe, read, () => "light" as const);
+  const next = oppositeTheme(current);
   return (
     <button
       type="button"
       onClick={() => apply(next)}
-      aria-label={`Tema: ${THEME_LABEL[pref]}. Cambiar a ${THEME_LABEL[next]}`}
-      title={`Tema: ${THEME_LABEL[pref]}`}
+      aria-label={next === "dark" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
+      title={next === "dark" ? "Modo oscuro" : "Modo claro"}
       className={`pressable inline-flex size-11 items-center justify-center rounded-full text-muted hover:text-foreground ${className}`}
     >
       <svg
@@ -80,7 +71,14 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
         strokeLinejoin="round"
         aria-hidden="true"
       >
-        {ICON[pref]}
+        {next === "dark" ? (
+          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
+        ) : (
+          <>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </>
+        )}
       </svg>
     </button>
   );

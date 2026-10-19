@@ -13,6 +13,16 @@ export function nextTheme(current: ThemePref): ThemePref {
   return ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
 }
 
+/** Tema que se ve de verdad: la preferencia, o el del sistema si es «Sistema». */
+export function effectiveTheme(pref: ThemePref, systemDark: boolean): "light" | "dark" {
+  return pref === "system" ? (systemDark ? "dark" : "light") : pref;
+}
+
+/** El botón de sol/luna alterna entre claro y oscuro (RF-44). */
+export function oppositeTheme(current: "light" | "dark"): "light" | "dark" {
+  return current === "dark" ? "light" : "dark";
+}
+
 export const THEME_LABEL: Record<ThemePref, string> = {
   system: "Sistema",
   light: "Claro",
