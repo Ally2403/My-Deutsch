@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookCard } from "@/components/book-card";
+import { percentRead } from "@/lib/domain/progress";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
@@ -60,7 +61,7 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
     .eq("group_id", id)
     .order("added_at", { ascending: false });
   const bookIds = (links ?? []).map((l) => l.book_id);
-  const [booksRes, jobsRes, coversRes] = bookIds.length
+  const [booksRes, jobsRes, coversRes, progressRes] = bookIds.length
     ? await Promise.all([
         supabase
           .from("books")
@@ -76,8 +77,19 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
           .select("book_id")
           .in("book_id", bookIds)
           .eq("number", 1),
+        // RF-20: progreso propio (RLS) para el «% leído» de cada tarjeta.
+        user
+          ? supabase
+              .from("reading_progress")
+              .select("book_id, pages_read")
+              .eq("user_id", user.id)
+              .in("book_id", bookIds)
+          : Promise.resolve({ data: [] }),
       ])
-    : [null, null, null];
+    : [null, null, null, null];
+  const pagesReadByBook = new Map(
+    (progressRes?.data ?? []).map((r) => [r.book_id, r.pages_read]),
+  );
   const booksById = new Map((booksRes?.data ?? []).map((b) => [b.id, b]));
   // Más reciente primero: el primero de cada libro es su último job.
   const lastJob = new Map<string, JobRow>();
@@ -114,6 +126,10 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
                 title={b.title}
                 pageCount={b.page_count}
                 hasPublishedPages={withPages.has(b.id)}
+                percentRead={percentRead(
+                  pagesReadByBook.get(b.id) ?? [],
+                  b.page_count ?? 0,
+                )}
                 ownerOrAdmin={
                   !!user &&
                   isOwnerOrAdmin({

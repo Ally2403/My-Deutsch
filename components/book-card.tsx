@@ -19,6 +19,7 @@ export function BookCard({
   jobCreatedAt,
   jobStartedAt,
   status,
+  percentRead = 0,
 }: {
   id: string;
   title: string;
@@ -29,6 +30,8 @@ export function BookCard({
   jobCreatedAt?: string | null;
   jobStartedAt?: string | null;
   status: BookStatusInput;
+  /** RF-20, RN-14: porcentaje de páginas leídas por esta persona. */
+  percentRead?: number;
 }) {
   const [coverFailed, setCoverFailed] = useState(false);
   const showImage = hasPublishedPages && !coverFailed;
@@ -64,7 +67,7 @@ export function BookCard({
         {pageCount !== null && (
           <p className="text-sm text-muted">{pageCount} páginas</p>
         )}
-        <p className="text-sm text-muted">0 % leído</p>
+        <p className="text-sm text-muted">{percentRead} % leído</p>
       </div>
     </>
   );

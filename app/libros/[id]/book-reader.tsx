@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { PageReader } from "@/components/reader/page-reader";
+import { useReadingProgress } from "@/components/reader/use-reading-progress";
 import { parsePage } from "@/lib/domain/page";
+import { resumePage } from "@/lib/domain/progress";
+import { createClient } from "@/lib/supabase/client";
 
 export const PROCESSING_MESSAGE = "Esta página aún se está procesando";
 
@@ -34,17 +37,48 @@ export function createLoaders(bookId: string) {
 export function BookReader({
   bookId,
   total,
+  userId,
+  lastPage = null,
+  pagesRead = [],
 }: {
   bookId: string;
   total: number;
+  userId?: string;
+  /** RF-20: última página guardada de esta persona en este libro. */
+  lastPage?: number | null;
+  pagesRead?: number[];
 }) {
   const { loadPage, imageUrl } = useMemo(() => createLoaders(bookId), [bookId]);
+  const save = useCallback(
+    async (p: { lastPage: number; pagesRead: number[] }) => {
+      if (!userId) return;
+      // Solo se guardan valores plausibles; la fila es propia (RLS) y `updated_at` es informativo.
+      const pages = [...new Set(p.pagesRead)].filter((n) => n >= 1 && n <= total);
+      // RLS (RN-04): solo se escribe el progreso propio de un libro visible.
+      await createClient()
+        .from("reading_progress")
+        .upsert(
+          {
+            user_id: userId,
+            book_id: bookId,
+            last_page: Math.min(Math.max(p.lastPage, 1), total),
+            pages_read: pages,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,book_id" },
+        );
+    },
+    [userId, bookId, total],
+  );
+  const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
   return (
     <PageReader
       total={total}
       loadPage={loadPage}
       imageUrl={imageUrl}
       heightClassName="h-full"
+      initialPage={resumePage(lastPage, total)}
+      onPageChange={onPageChange}
     />
   );
 }
