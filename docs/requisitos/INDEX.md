@@ -44,7 +44,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-21 | [Consultar palabra](funcionales/RF-21-consultar-palabra.md)                                                                    | M-6    | Alta      | 3    | En progreso |
 | RF-22 | [Mostrar género y color del sustantivo](funcionales/RF-22-mostrar-genero-y-color-del-sustantivo.md)                            | M-6    | Alta      | 3    | Hecho       |
 | RF-23 | [Resolver formas flexionadas al lema](funcionales/RF-23-resolver-formas-flexionadas-al-lema.md)                                | M-6    | Alta      | 3    | En progreso |
-| RF-24 | [Detectar verbos separables](funcionales/RF-24-detectar-verbos-separables.md)                                                  | M-6    | Media     | 4    | Pendiente   |
+| RF-24 | [Detectar verbos separables](funcionales/RF-24-detectar-verbos-separables.md)                                                  | M-6    | Media     | 4    | Hecho       |
 | RF-25 | [Palabra no encontrada](funcionales/RF-25-palabra-no-encontrada.md)                                                            | M-6    | Media     | 3    | Pendiente   |
 | RF-26 | [Colorear todos los sustantivos](funcionales/RF-26-colorear-todos-los-sustantivos.md)                                          | M-5    | Alta      | 3    | En progreso |
 | RF-27 | [Guardar palabras en el diccionario personal](funcionales/RF-27-guardar-palabras-en-el-diccionario-personal.md)                | M-7    | Alta      | 4    | Pendiente   |
