@@ -22,7 +22,7 @@ export function BookHeader({
       <div className="mx-auto flex w-full max-w-5xl items-center gap-1">
         <Link
           href={backHref}
-          className="back-link"
+          className="back-link min-h-11"
         >
           <Icon name="left" size={18} />
           Biblioteca
