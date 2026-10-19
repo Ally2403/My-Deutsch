@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookCard } from "@/components/book-card";
 import { percentRead } from "@/lib/domain/progress";
+import { GroupAdminPanel, LeaveGroup, MemberActions } from "@/components/group-admin";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
@@ -174,7 +175,7 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
         {(members ?? []).map((m) => {
           const p = byId.get(m.user_id);
           return (
-            <li key={m.user_id} className="flex min-h-11 items-center gap-3">
+            <li key={m.user_id} className="flex min-h-11 flex-wrap items-center gap-3">
               {p?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -197,10 +198,23 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
               <span className="text-sm text-muted">
                 {m.role === "admin" ? "Administrador" : "Miembro"}
               </span>
+              {isAdmin && user && m.user_id !== user.id && (
+                <MemberActions
+                  groupId={group.id}
+                  userId={m.user_id}
+                  name={p?.display_name || "este estudiante"}
+                  role={m.role === "admin" ? "admin" : "member"}
+                />
+              )}
             </li>
           );
         })}
       </ul>
+
+      {isAdmin && <GroupAdminPanel groupId={group.id} name={group.name} />}
+      <div className="mt-8">
+        <LeaveGroup groupId={group.id} groupName={group.name} />
+      </div>
     </>
   );
 }

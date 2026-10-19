@@ -24,6 +24,10 @@ export function groupErrorMessage(error: {
   if (error.message === "group_full") return "El grupo está lleno";
   if (error.message === "too_many_attempts")
     return "Demasiados intentos, inténtalo más tarde";
+  if (error.message === "last_admin")
+    return "El grupo necesita al menos un administrador";
+  if (error.message === "forbidden" || error.code === "42501")
+    return "Solo un administrador puede hacerlo";
   return "No pudimos completar la acción. Inténtalo de nuevo.";
 }
 
