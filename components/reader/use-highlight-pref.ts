@@ -53,3 +53,6 @@ export const usePluralPref = createBooleanPref("my-deutsch:plurals");
 
 /** Ocultar las marcas de palabras ya vistas (RF-28: «se puede ocultar»). */
 export const useHideSeenPref = createBooleanPref("my-deutsch:hide-seen");
+
+/** Ocultar mis respuestas escritas sobre la página (RF-33 c4). */
+export const useHideAnswersPref = createBooleanPref("my-deutsch:hide-answers");

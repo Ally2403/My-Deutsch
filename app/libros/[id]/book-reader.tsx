@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { PageReader } from "@/components/reader/page-reader";
+import { useAnnotationSync } from "@/components/reader/use-annotation-sync";
 import { useLookupSync } from "@/components/reader/use-lookup-sync";
 import { useReadingProgress } from "@/components/reader/use-reading-progress";
 import { candidates, toLexEntry } from "@/lib/domain/lexicon-search";
@@ -143,6 +144,7 @@ export function BookReader({
     }
     return null;
   }, []);
+  const annotations = useAnnotationSync({ bookId, userId });
   const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
   return (
     <PageReader
@@ -157,6 +159,7 @@ export function BookReader({
       onSeenStatus={onSeenStatus}
       onSeenRemove={onSeenRemove}
       searchLexicon={searchLexicon}
+      annotations={annotations}
     />
   );
 }

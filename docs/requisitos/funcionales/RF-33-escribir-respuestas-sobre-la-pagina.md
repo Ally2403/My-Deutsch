@@ -7,7 +7,7 @@
 | **Módulo** | M-8 Ejercicios |
 | **Prioridad** | Media |
 | **Fase** | 3 |
-| **Estado** | Pendiente |
+| **Estado** | Hecho |
 | **Dependencias** | [RF-17](RF-17-texto-seleccionable-alineado-al-original.md) |
 | **Reglas de negocio** | RN-13 |
 

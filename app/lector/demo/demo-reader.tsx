@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createAnnotationSync, type AnnotationSync } from "@/lib/annotations/sync";
+import { createDemoRemote } from "@/lib/annotations/demo-remote";
+import { createIdbStore } from "@/lib/annotations/idb-store";
 import { PageReader } from "@/components/reader/page-reader";
 import { parsePage } from "@/lib/domain/page";
 import type { SeenWord } from "@/lib/domain/seen-words";
@@ -35,8 +38,21 @@ const INITIAL_SEEN: [number, SeenWord][] = [
 
 export function DemoReader() {
   const [seen, setSeen] = useState<ReadonlyMap<number, SeenWord>>(() => new Map(INITIAL_SEEN));
+  // RF-33 / RNF-14 sin sesión: IndexedDB local y un «servidor» simulado.
+  const [annotations, setAnnotations] = useState<AnnotationSync>();
+  useEffect(() => {
+    const sync = createAnnotationSync({
+      store: createIdbStore("md-annotations:demo"),
+      remote: createDemoRemote(),
+    });
+    setAnnotations(sync); // eslint-disable-line react-hooks/set-state-in-effect
+    const flush = () => void sync.flush();
+    window.addEventListener("online", flush);
+    return () => window.removeEventListener("online", flush);
+  }, []);
   return (
     <PageReader
+      annotations={annotations}
       total={TOTAL}
       loadPage={loadPage}
       imageUrl={imageUrl}

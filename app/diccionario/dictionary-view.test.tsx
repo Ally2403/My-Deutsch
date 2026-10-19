@@ -176,4 +176,21 @@ describe("DictionaryView (RF-30, RF-31, RF-29)", () => {
     setup([]);
     expect(screen.getByText("Aún no tienes palabras.")).toBeInTheDocument();
   });
+
+  it("RF-32: «Exportar CSV» descarga solo las palabras filtradas", async () => {
+    let blob: Blob | undefined;
+    URL.createObjectURL = vi.fn((b: Blob | MediaSource) => {
+      blob = b as Blob;
+      return "blob:x";
+    });
+    URL.revokeObjectURL = vi.fn();
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    setup([word(1), word(2, { lemma: "Haus" })], "q=Haus");
+    fireEvent.click(screen.getByRole("button", { name: "Exportar CSV" }));
+    const text = await blob!.text();
+    expect(click).toHaveBeenCalled();
+    expect(text).toContain("Haus");
+    expect(text).not.toContain("Wort1");
+    click.mockRestore();
+  });
 });
