@@ -285,38 +285,31 @@ h3 {
   border-radius: 2px;
 }
 
-/* Resaltado de sustantivos (RF-26, RNF-09): opacidad ≤ 0.35 y un borde inferior distinto por género. */
+/* Resaltado de sustantivos (RF-26, RNF-09): solo fondo con opacidad ≤ 0.35, sin líneas, para no tapar
+   las letras en el celular (decisión de la usuaria, 2026-10-19). El género sigue escrito en el panel. */
 :root {
   --highlight-alpha: 0.3;
 }
 .hl-m,
 .hl-n,
-.hl-f {
-  border-radius: 2px 2px 0 0;
+.hl-f,
+.pl-mark {
+  border-radius: 3px;
 }
 .hl-m {
   background: color-mix(in srgb, var(--gender-m) calc(var(--highlight-alpha) * 100%), transparent);
-  border-bottom: 3px solid var(--gender-m);
 }
 .hl-n {
   background: color-mix(in srgb, var(--gender-n) calc(var(--highlight-alpha) * 100%), transparent);
-  border-bottom: 3px dotted var(--gender-n);
 }
 .hl-f {
   background: color-mix(in srgb, var(--gender-f) calc(var(--highlight-alpha) * 100%), transparent);
-  border-bottom: 4px double var(--gender-f);
 }
 
-/* Plurales (RF-41, RNF-09): fondo amarillo con opacidad ≤ 0.35 y borde superior sólido, para que
-   no dependa solo del color. Va después de .hl-*: si coinciden, gana el amarillo y el género
-   sigue visible en el borde inferior. */
+/* Plurales (RF-41): fondo amarillo con opacidad ≤ 0.35. Va después de .hl-*: si coinciden, gana el
+   amarillo; el género sigue en el artículo escrito del panel. */
 .pl-mark {
   background: color-mix(in srgb, var(--plural) calc(var(--highlight-alpha) * 100%), transparent);
-  border-top: 3px solid var(--plural);
-  /* El amarillo sustituye al subrayado de género: un plural se ve amarillo del todo. El género
-     sigue en el artículo escrito del panel. */
-  border-bottom: 3px solid var(--plural);
-  border-radius: 2px;
 }
 
 /* Etiqueta «plural» del panel: texto oscuro sobre amarillo sólido (≥ 4,5:1 en ambos temas). */

@@ -62,10 +62,9 @@ describe("resaltado de sustantivos (RF-26 c2)", () => {
     expect(alpha).toBeGreaterThan(0);
     expect(alpha).toBeLessThanOrEqual(0.35);
   });
-  it("cada género tiene un borde inferior distinto", () => {
-    expect(css).toMatch(/\.hl-m[^}]*border-bottom:[^;]*solid/);
-    expect(css).toMatch(/\.hl-n[^}]*border-bottom:[^;]*dotted/);
-    expect(css).toMatch(/\.hl-f[^}]*border-bottom:[^;]*double/);
+  it("el resaltado no dibuja líneas sobre las palabras (solo fondo)", () => {
+    expect(css).not.toMatch(/.hl-[mnf][^}]*border(:|-(top|bottom|left|right))/);
+    expect(css).not.toMatch(/.pl-mark[^}]*border(:|-(top|bottom|left|right))/);
   });
 });
 
@@ -73,15 +72,6 @@ describe("marcado de plurales (RF-41, RNF-09)", () => {
   it("el texto oscuro de la etiqueta «plural» cumple 4,5:1 sobre el amarillo en ambos temas", () => {
     expect(contrastRatio("#171717", light.plural)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio("#171717", dark.plural)).toBeGreaterThanOrEqual(4.5);
-  });
-  it("el marcado lleva un borde superior sólido, no solo color", () => {
-    expect(css).toMatch(/\.pl-mark[^}]*border-top:[^;]*solid/);
-  });
-});
-
-describe("plurales dominantes (RF-41 c3)", () => {
-  it("el borde inferior de un plural es amarillo, no el del género", () => {
-    expect(css).toMatch(/\.pl-mark[^}]*border-bottom:[^;]*solid[^;]*var\(--plural\)/);
   });
 });
 

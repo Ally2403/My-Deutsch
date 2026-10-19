@@ -405,7 +405,7 @@ test("Panel: hoja inferior en móvil y tarjeta junto a la palabra en PC", async 
   });
 });
 
-test("RF-41: «Marcar plurales» marca los plurales en amarillo con borde superior y se recuerda", async ({
+test("RF-41: «Marcar plurales» marca los plurales en amarillo, sin líneas, y se recuerda", async ({
   page,
 }) => {
   await ready(page);
@@ -416,13 +416,15 @@ test("RF-41: «Marcar plurales» marca los plurales en amarillo con borde superi
   await toggle.click();
   await expect(plural).toHaveClass(/pl-mark/);
   await expect(singular).not.toHaveClass(/pl-mark/);
-  const border = await plural.evaluate((el) => {
+  const look = await plural.evaluate((el) => {
     const s = getComputedStyle(el);
-    return { width: s.borderTopWidth, style: s.borderTopStyle, color: s.borderTopColor };
+    return { top: s.borderTopWidth, bottom: s.borderBottomWidth, bg: s.backgroundColor };
   });
-  expect(border).toEqual({ width: "3px", style: "solid", color: "rgb(234, 179, 8)" });
+  expect(look.top).toBe("0px");
+  expect(look.bottom).toBe("0px");
+  expect(look.bg).not.toBe("rgba(0, 0, 0, 0)");
 
-  // Convive con «Colorear sustantivos»: el género sigue en el borde inferior.
+  // Convive con «Colorear sustantivos»: el amarillo gana y el género sigue en el panel.
   await page.getByRole("button", { name: "Colorear sustantivos" }).click();
   await expect(plural).toHaveClass(/pl-mark/);
   await expect(plural).toHaveClass(/hl-n/);
