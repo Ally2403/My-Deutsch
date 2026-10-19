@@ -57,3 +57,5 @@ playwright-report/
 worker/.local/
 public/local-book/
 !worker/tests/fixtures/*.jsonl
+
+.lighthouseci/
