@@ -10,8 +10,9 @@ from lexicon.probes import clean_output, english_probe, german_probe
 from lexicon.store import Entry
 
 MAX_SENSES = 5
-# Una palabra funcional suelta no tiene contexto («ich» sale «na»): solo se usan sus definiciones.
-NO_DIRECT_TRANSLATION = {"pron", "det", "part", "intj"}
+# Partículas e interjecciones sueltas no tienen contexto («ei» sale «huevo»): solo se usan sus
+# definiciones.
+NO_DIRECT_TRANSLATION = {"part", "intj"}
 log = logging.getLogger(__name__)
 
 

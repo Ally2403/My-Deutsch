@@ -18,7 +18,9 @@ FORMULA = re.compile(
 
 
 def _is_formula(fragment: str) -> bool:
-    return bool(FORMULA.match(fragment) or re.search(r"\bthe act of\b", fragment, re.IGNORECASE))
+    return bool(
+        FORMULA.match(fragment) or re.search(r"\b(?:the )?act of\b", fragment, re.IGNORECASE)
+    )
 
 
 def _without_brackets(text: str) -> str:

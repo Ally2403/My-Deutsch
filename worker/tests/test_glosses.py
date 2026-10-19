@@ -52,5 +52,9 @@ def test_stray_brackets_and_quotes_never_survive():
     assert not any(c in fragment for fragment in out for c in '()[]“”"')
 
 
+def test_experience_or_act_of_is_dropped_too():
+    assert clean_glosses(["gameplay, the experience or act of playing"]) == ["gameplay"]
+
+
 def test_a_formula_in_the_middle_of_a_fragment_is_dropped_too():
     assert clean_glosses(["experience or the act of playing", "game"]) == ["game"]

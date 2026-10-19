@@ -12,6 +12,8 @@ from lexicon.probes import clean_output, english_probe, german_probe
         ("Leute", "noun", [], "Leute"),
         ("aufstehen", "verb", [], "Ich möchte aufstehen."),
         ("schön", "adj", [], "schön"),
+        ("ich", "pron", [], "Ich"),  # en minúscula el modelo devuelve «na»
+        ("mein", "det", [], "Mein"),
     ],
 )
 def test_german_probe_gives_grammatical_context(lemma, pos, genders, expected):

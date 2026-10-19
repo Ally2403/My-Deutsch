@@ -24,6 +24,8 @@ def german_probe(lemma: str, pos: str, genders: list[str]) -> str:
         return f"{ARTICLE[genders[0]]} {lemma}"
     if pos == "verb":
         return f"Ich möchte {lemma}."
+    if pos in ("pron", "det"):
+        return lemma[:1].upper() + lemma[1:]  # como al empezar una oración: «Ich» → «yo»
     return lemma
 
 

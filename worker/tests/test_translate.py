@@ -126,14 +126,22 @@ def test_null_translator_leaves_only_wiktionary_spanish():
     assert out == [{"es": "socorro", "m": False}]
 
 
-def test_closed_class_words_skip_the_bare_german_translation():
-    # «ich» suelto sale como «na»: pronombres, determinantes, partículas e interjecciones
-    # se quedan con sus definiciones
-    for pos in ("pron", "det", "part", "intj"):
-        t = Fake(german={"ich": "na"}, english={"I": "yo"})
-        out = senses_for(entry("ich", pos, (), en=["I"]), t)
+def test_particles_and_interjections_skip_the_bare_german_translation():
+    # «ei» suelto sale «huevo»: solo se usan sus definiciones
+    for pos in ("part", "intj"):
+        t = Fake(german={"ei": "huevo"}, english={"hey": "oye"})
+        out = senses_for(entry("ei", pos, (), en=["hey"]), t)
+        assert spanish(out) == ["oye"], pos
+        assert "ei" not in t.calls
+
+
+def test_pronouns_and_determiners_are_translated_capitalized_like_a_sentence_start():
+    # en minúscula «ich» sale «na»; como inicio de oración sale «yo»
+    for pos in ("pron", "det"):
+        out = senses_for(
+            entry("ich", pos, (), en=["I"]), Fake(german={"Ich": "Yo"}, english={"I": "I"})
+        )
         assert spanish(out) == ["yo"], pos
-        assert "ich" not in t.calls
 
 
 def test_prepositions_and_conjunctions_still_get_the_main_sense():
