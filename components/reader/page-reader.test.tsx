@@ -255,3 +255,36 @@ describe("PageReader: error obsoleto al volver", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });
+
+describe("PageReader: retomar la lectura (RF-20)", () => {
+  it("abre en la página inicial indicada y avisa de cada cambio", async () => {
+    const onPageChange = vi.fn();
+    render(
+      <PageReader
+        total={5}
+        loadPage={loadPage}
+        imageUrl={(n) => `/p/${n}.webp`}
+        initialPage={4}
+        onPageChange={onPageChange}
+      />,
+    );
+    expect(screen.getByText("página 4 de 5")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Wort4" })).toBeInTheDocument();
+    expect(onPageChange).toHaveBeenLastCalledWith(4);
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    await screen.findByRole("button", { name: "Wort5" });
+    expect(onPageChange).toHaveBeenLastCalledWith(5);
+  });
+
+  it("una página inicial fuera de rango se ajusta al libro", () => {
+    render(
+      <PageReader
+        total={3}
+        loadPage={loadPage}
+        imageUrl={(n) => `/p/${n}.webp`}
+        initialPage={99}
+      />,
+    );
+    expect(screen.getByText("página 3 de 3")).toBeInTheDocument();
+  });
+});

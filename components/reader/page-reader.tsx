@@ -22,6 +22,10 @@ type Props = {
   imageUrl: (n: number) => string;
   /** Clase de alto del contenedor; por omisión ocupa toda la pantalla. */
   heightClassName?: string;
+  /** Página en la que se abre (RF-20); 1 por omisión. */
+  initialPage?: number;
+  /** Se llama al abrir y en cada cambio de página (RF-20). */
+  onPageChange?: (page: number) => void;
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
@@ -31,8 +35,10 @@ export function PageReader({
   loadPage,
   imageUrl,
   heightClassName = "h-dvh",
+  initialPage = 1,
+  onPageChange,
 }: Props) {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => clampPage(initialPage, total));
   const [loaded, setLoaded] = useState<{ n: number; data: PageData } | null>(
     null,
   );
@@ -93,6 +99,10 @@ export function PageReader({
       cancelled = true;
     };
   }, [page, attempt, total, getPage, imageUrl]);
+
+  useEffect(() => {
+    onPageChange?.(page);
+  }, [page, onPageChange]);
 
   // Flechas y AvPág/RePág (RF-16 c2).
   useEffect(() => {

@@ -40,6 +40,11 @@ describe("BookCard (RF-13, RF-14)", () => {
     expect(screen.getByText("M")).toBeInTheDocument();
   });
 
+  it("muestra el porcentaje leído real (RF-20)", () => {
+    render(<BookCard {...base} percentRead={35} />);
+    expect(screen.getByText("35 % leído")).toBeInTheDocument();
+  });
+
   it("sin páginas publicadas no pide imagen y muestra la inicial", () => {
     const { container } = render(
       <BookCard {...base} hasPublishedPages={false} />,
@@ -48,7 +53,7 @@ describe("BookCard (RF-13, RF-14)", () => {
     expect(screen.getByText("M")).toBeInTheDocument();
   });
 
-  it("«N páginas» solo si page_count existe; siempre 0 % leído", () => {
+  it("«N páginas» solo si page_count existe; 0 % leído por omisión", () => {
     const { unmount } = render(<BookCard {...base} />);
     expect(screen.getByText("120 páginas")).toBeInTheDocument();
     expect(screen.getByText("0 % leído")).toBeInTheDocument();

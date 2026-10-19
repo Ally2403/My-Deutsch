@@ -30,7 +30,7 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [pagesRes, jobRes, linksRes] = await Promise.all([
+  const [pagesRes, jobRes, linksRes, progressRes] = await Promise.all([
     supabase
       .from("pages")
       .select("number", { count: "exact", head: true })
@@ -47,6 +47,15 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
       .select("group_id, added_at")
       .eq("book_id", id)
       .order("added_at", { ascending: true }),
+    // RF-20: última página guardada (RLS: solo el progreso propio).
+    user
+      ? supabase
+          .from("reading_progress")
+          .select("last_page, pages_read")
+          .eq("book_id", id)
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   const total = pagesRes.count ?? 0;
   const job = jobRes.data;
@@ -105,7 +114,13 @@ async function Libro({ params }: { params: Promise<{ id: string }> }) {
       </BookHeader>
       {chooseView(total) === "reader" && (
         <div className="min-h-0 flex-1">
-          <BookReader bookId={book.id} total={total} />
+          <BookReader
+            bookId={book.id}
+            total={total}
+            userId={user?.id}
+            lastPage={progressRes.data?.last_page ?? null}
+            pagesRead={progressRes.data?.pages_read ?? []}
+          />
         </div>
       )}
     </>
