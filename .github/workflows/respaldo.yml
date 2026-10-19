@@ -1,0 +1,55 @@
+# RNF-13 c1: respaldo semanal de la base de datos fuera de Supabase (el plan gratuito no trae
+# respaldos con restauración). pg_dump del esquema `public` (datos de la app) cifrado con
+# GPG simétrico (AES-256) y guardado como artefacto privado de Actions durante 30 días.
+# Secretos (los crea la usuaria, nunca el repositorio):
+#   SUPABASE_DB_URL   cadena de conexión del «Session pooler» (IPv4; los runners no tienen IPv6)
+#   BACKUP_PASSPHRASE frase para cifrar; sin ella el respaldo no se puede abrir (guárdala aparte)
+# Restauración: docs/respaldo.md y scripts/restaurar-respaldo.sh
+name: respaldo
+
+on:
+  schedule:
+    - cron: "17 6 * * 0" # domingos 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: respaldo
+  cancel-in-progress: false
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Instalar pg_dump 17 (misma versión mayor que Supabase)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
+      - name: pg_dump cifrado
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL" && test -n "$BACKUP_PASSPHRASE"
+          stamp="$(date -u +%Y%m%d)"
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" \
+            --schema=public --format=custom --no-owner --no-privileges --file=respaldo.dump
+          # El volcado debe ser legible y traer user_words antes de cifrarlo.
+          /usr/lib/postgresql/17/bin/pg_restore --list respaldo.dump | grep -q "TABLE DATA public user_words"
+          gpg --batch --yes --pinentry-mode loopback --passphrase-fd 3 \
+            --symmetric --cipher-algo AES256 --output "respaldo-$stamp.dump.gpg" respaldo.dump 3<<<"$BACKUP_PASSPHRASE"
+          rm respaldo.dump
+          echo "STAMP=$stamp" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: respaldo-${{ env.STAMP }}
+          path: respaldo-*.dump.gpg
+          retention-days: 30
+          if-no-files-found: error
