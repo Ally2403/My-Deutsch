@@ -35,7 +35,7 @@ async function MisGrupos() {
             <li key={g.id}>
               <Link
                 href={`/grupos/${g.id}`}
-                className="flex min-h-11 items-center justify-between rounded-lg border border-border px-4 py-3"
+                className="card pressable flex min-h-12 items-center justify-between px-4 py-3"
               >
                 <span className="font-medium">{g.name}</span>
                 {roles.get(g.id) === "admin" && (

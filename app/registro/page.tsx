@@ -48,7 +48,7 @@ export default function RegistroPage() {
           sesión.
         </p>
         <p className="mt-6">
-          <Link href="/login" className="underline">
+          <Link href="/login" className="tap-link underline">
             Ir a iniciar sesión
           </Link>
         </p>
@@ -80,7 +80,7 @@ export default function RegistroPage() {
           <p role="alert" className="text-gender-f">
             {error}{" "}
             {error.startsWith("Este correo") && (
-              <Link href="/login" className="underline">
+              <Link href="/login" className="tap-link underline">
                 Iniciar sesión
               </Link>
             )}
@@ -94,7 +94,7 @@ export default function RegistroPage() {
       <GoogleButton next="/grupos" />
       <p className="mt-6 text-sm">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="underline">
+        <Link href="/login" className="tap-link underline">
           Iniciar sesión
         </Link>
       </p>

@@ -143,7 +143,7 @@ export function WordPanel({
         tabIndex={-1}
         style={cardStyle}
         className={
-          "fixed z-50 border border-border bg-background p-4 shadow-xl outline-none " +
+          "fixed z-50 border border-border bg-surface p-4 shadow-xl outline-none " +
           (cardStyle
             ? "rounded-xl"
             : "inset-x-0 bottom-0 max-h-[70dvh] overflow-auto rounded-t-2xl pb-[max(1rem,env(safe-area-inset-bottom))]")

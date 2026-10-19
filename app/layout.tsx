@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
+const heading = Bricolage_Grotesque({ variable: "--font-heading", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "My-Deutsch",
@@ -14,11 +15,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#5b2a86",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${geistSans.variable} h-full antialiased`}>
+    <html lang="es" className={`${body.variable} ${heading.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

@@ -38,7 +38,7 @@ export function BookCard({
   const head = (
     <>
       <div
-        className="relative w-20 shrink-0 overflow-hidden rounded border border-border bg-border/30"
+        className="relative w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-accent-soft"
         style={{ aspectRatio: COVER_RATIO }}
       >
         {showImage ? (
@@ -70,7 +70,7 @@ export function BookCard({
   );
 
   return (
-    <li className="flex flex-col gap-3 rounded-lg border border-border p-3">
+    <li className="card flex flex-col gap-3 p-3">
       {openable ? (
         <Link
           href={`/libros/${id}`}
