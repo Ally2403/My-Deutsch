@@ -220,11 +220,11 @@
 - Modo «Frase» (celular/tableta/teclado): chip conmutable; 1.er toque fija el inicio, 2.º toque fija el final y abre el panel; tocar de nuevo cancela. Teclado: sobre una palabra enfocada, tecla `T` abre la oración completa.
 - `<PhrasePanel page range onClose />`: texto original, traducción de cada oración cubierta («Traducción automática; puede fallar en frases idiomáticas», igual que RF-43), lista de glosas con género en color **y** artículo (RNF-09), botón «Copiar». Libro antiguo sin `sents`: solo glosas y el aviso «Sube de nuevo el libro para traducir oraciones completas.» Sin peticiones de red (prueba con `page.route` que falla ante cualquier petición).
 
-- [ ] Paso 1: extraer `Sheet` con las pruebas existentes de `word-panel.test.tsx` en verde (refactor sin cambios).
-- [ ] Paso 2 (pruebas, fallan): `use-phrase-selection` — arrastre de la palabra 3 a la 8 → rango `[3,8]`; clic simple no abre panel de frase; con `enabled=false` no hace nada. `phrase-panel` — muestra 2 oraciones; muestra aviso sin `sents`; `role="dialog"` con nombre accesible; Esc cierra.
-- [ ] Paso 3: implementar; que la selección nativa del navegador desaparezca al abrir el panel (para no quedar atrapada tras cerrar).
-- [ ] Paso 4 (e2e): Chromium a 1280 — arrastrar sobre dos líneas de la demo abre el panel con la traducción; 360 y WebKit iPhone — modo «Frase» con dos toques; modo «Escribir» activo no abre el panel; sin desborde horizontal; axe sin violaciones.
-- [ ] Paso 5: PR, CI, fusión; actualizar RF-47. Anotar en `ESTADO.md`: «los libros ya subidos necesitan subirse de nuevo (el PDF se borra al terminar)». Commit `RF-47: panel de frase y selección con mouse`.
+- [x] Paso 1: extraer `Sheet` con las pruebas existentes de `word-panel.test.tsx` en verde (refactor sin cambios).
+- [x] Paso 2 (pruebas, fallan): `use-phrase-selection` — arrastre de la palabra 3 a la 8 → rango `[3,8]`; clic simple no abre panel de frase; con `enabled=false` no hace nada. `phrase-panel` — muestra 2 oraciones; muestra aviso sin `sents`; `role="dialog"` con nombre accesible; Esc cierra.
+- [x] Paso 3: implementar; que la selección nativa del navegador desaparezca al abrir el panel (para no quedar atrapada tras cerrar).
+- [x] Paso 4 (e2e; el modo «Escribir» solo con prueba unitaria, la demo no tiene capa de respuestas): Chromium a 1280 — arrastrar sobre dos líneas de la demo abre el panel con la traducción; 360 y WebKit iPhone — modo «Frase» con dos toques; modo «Escribir» activo no abre el panel; sin desborde horizontal; axe sin violaciones.
+- [ ] Paso 5 (PR/CI/fusión en curso): PR, CI, fusión; actualizar RF-47. Anotar en `ESTADO.md`: «los libros ya subidos necesitan subirse de nuevo (el PDF se borra al terminar)». Commit `RF-47: panel de frase y selección con mouse`.
 
 ---
 
