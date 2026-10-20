@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-20, Fase 1 del plan: carga fiel)
+
+**RF-46 y RNF-18 — En progreso (rama `feat/RF-46-carga-fiel`):** `pages_done` cuenta hojas del PDF (`on_sheet`, `summary["sheets"]`), texto «Procesando hoja X de Y», sondeo cada 4 s. El worker procesa en dos etapas (`worker/pipeline/prepare.py`: Tesseract/WebP en hilos; análisis, traducción por lote y publicación en orden), con `workers` por `os.cpu_count()` (tope 4) y banco `worker/tools/bench.py`. **Medido (Docker, 4 núcleos, muestra de 10 páginas):** 5,3 -> 9,3 pág/min (1,75x), salida idéntica entre 1 y 3 hilos. **Sin verificar:** criterio >= 2x y <= 7 min con un libro de 167 páginas. **Pendiente de la usuaria:** subir un libro real y cronometrar; ver que la barra llega a 100 % justo al final. Locales: `test_opus` (modelo sin instalar) y `test_garbage_pdf_is_invalid_pdf` (bloqueo de archivo en Windows) fallan fuera de CI. **Siguiente:** Fase 2 (RF-49) y Fase 4 (RF-48).
+
 # Retomar aquí (2026-10-20, plan de mejoras — autónomo)
 
 **Plan en curso:** `docs/superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md` (modo autónomo; las casillas del plan son el estado durable). **Hecho:** Tarea 0.1 (RF-46 a RF-50, RNF-18, RNF-19 y ADR-008 redactados, estado Pendiente). **Tarea 0.2:** skills `modo-autonomo` y `nuevo-requisito` creadas; **Pendiente de la usuaria:** añadir la lista de permisos del paso 2 de la Tarea 0.2 a `.claude/settings.local.json` (el arnés me lo bloqueó). **Siguiente:** fases 1, 2 y 4.

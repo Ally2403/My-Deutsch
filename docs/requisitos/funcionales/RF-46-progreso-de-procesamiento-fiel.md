@@ -7,7 +7,7 @@
 | **Módulo**            | M-4 Procesamiento (worker)                        |
 | **Prioridad**         | Alta                                              |
 | **Fase**              | 6                                                 |
-| **Estado**            | Pendiente                                         |
+| **Estado**            | En progreso                                       |
 | **Dependencias**      | [RF-12](RF-12-procesar-libro-en-segundo-plano.md) |
 | **Reglas de negocio** | —                                                 |
 
@@ -33,4 +33,4 @@ Aprobado por pedido explícito de la usuaria, 2026-10-20. Plan: [`superpowers/pl
 
 ## Verificación
 
-Pendiente.
+c1, c2, c3 y c5 verificados con pruebas (pytest, Vitest; 400 hojas dobles, una sola hoja, barra 50 % a media carrera, «Listo» en el sondeo siguiente). c4 verificado en el componente (sondeo de 4 s). **Sin verificar:** e2e en navegador de la tarjeta (sin sesión simulada con trabajo en curso) y un libro real en producción; pasa a Hecho al subir uno y ver la barra.

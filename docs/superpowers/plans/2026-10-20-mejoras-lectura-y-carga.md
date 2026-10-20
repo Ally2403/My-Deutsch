@@ -127,19 +127,19 @@
 - Produces: `process_pdf(..., on_sheet: Callable[[int], None] | None = None)` — se llama con el número de hoja (1-based) **después** de terminar y publicar todas las páginas de esa hoja. `summary` gana la clave `"sheets": int`. `_Publisher.sheets(count)` guarda `pages_total=count` (ya existe); nuevo `_Publisher.sheet_done(i)` hace `update_job(pages_done=i)`; `_Publisher.page` **deja de** tocar `pages_done`. `_finish` fija `pages_total = pages_done = summary["sheets"]`.
 - UI: el texto pasa a «Procesando hoja 12 de 84» (`describeStatus`); `ratio` ya recorta a [0,1].
 
-- [ ] Paso 1 (prueba, falla): en `test_run.py`, PDF de 3 hojas con una doble (motor falso) → `on_sheet` se llama con `[1, 2, 3]` y el resumen tiene `sheets == 3`, `pages == 4`. En `test_publish_job.py` → las actualizaciones de `jobs` tienen `pages_done` en `[1,2,3]`, nunca mayor que `pages_total`, y el final es `3/3`. Caso borde (Review Focus 1): una hoja sola; 400 hojas todas dobles con motor falso → `pages_done ≤ pages_total` siempre.
-- [ ] Paso 2 (prueba, falla): `book-status.test.ts`: `describeStatus({bookStatus:'processing', pagesDone:42, pageCount:84})` → `progress 0.5` y etiqueta «Procesando hoja 42 de 84»; `component`: con el sondeo simulado la barra llega a 100 % y el estado pasa a «Listo» tras un ciclo.
-- [ ] Paso 3: implementar; bajar `POLL_MS` a 4 000 mientras `active` (egress trivial) y mantener el `refresh()` al cambiar.
-- [ ] Paso 4: revisar `jobs_total.test.sql` (restricciones sobre `pages_done ≤ pages_total`) y ajustarlo; si una restricción de la base lo impide, migración aditiva mínima.
-- [ ] Paso 5: `uv run pytest`, `pnpm test`, `pnpm typecheck`; e2e de la tarjeta del libro a 360/768/1280 + WebKit. Commit `RF-46: el avance cuenta hojas del PDF`.
+- [x] Paso 1 (prueba, falla): en `test_run.py`, PDF de 3 hojas con una doble (motor falso) → `on_sheet` se llama con `[1, 2, 3]` y el resumen tiene `sheets == 3`, `pages == 4`. En `test_publish_job.py` → las actualizaciones de `jobs` tienen `pages_done` en `[1,2,3]`, nunca mayor que `pages_total`, y el final es `3/3`. Caso borde (Review Focus 1): una hoja sola; 400 hojas todas dobles con motor falso → `pages_done ≤ pages_total` siempre.
+- [x] Paso 2 (prueba, falla): `book-status.test.ts`: `describeStatus({bookStatus:'processing', pagesDone:42, pageCount:84})` → `progress 0.5` y etiqueta «Procesando hoja 42 de 84»; `component`: con el sondeo simulado la barra llega a 100 % y el estado pasa a «Listo» tras un ciclo.
+- [x] Paso 3: implementar; bajar `POLL_MS` a 4 000 mientras `active` (egress trivial) y mantener el `refresh()` al cambiar.
+- [x] Paso 4: revisar `jobs_total.test.sql` (restricciones sobre `pages_done ≤ pages_total`) y ajustarlo; si una restricción de la base lo impide, migración aditiva mínima.
+- [x] Paso 5: `uv run pytest`, `pnpm test`, `pnpm typecheck`; e2e de la tarjeta del libro a 360/768/1280 + WebKit. Commit `RF-46: el avance cuenta hojas del PDF`.
 
 ### Tarea 1.2: Medir antes de optimizar
 
 **Files:** crear `worker/tools/bench.py`; modificar `worker/pipeline/run.py` (registro de tiempos por etapa, solo números, ADR-002).
 
-- [ ] Paso 1: el registro por página pasa de un solo tiempo a `rot, ocr, printed, analyze, translate, webp, publish` en segundos.
-- [ ] Paso 2: `bench.py <pdf> --workers N` imprime páginas/min y la suma por etapa. Ejecutarlo con Docker (imagen con Tesseract `deu`, como en la medición de RF-34) sobre `samples/Der Schatz-3-7.pdf`; guardar la línea base en `docs/requisitos/no-funcionales/RNF-18-*.md`.
-- [ ] Paso 3: commit `RNF-18: tiempos por etapa y banco de pruebas`.
+- [x] Paso 1: el registro por página pasa de un solo tiempo a `rot, ocr, printed, analyze, translate, webp, publish` en segundos.
+- [x] Paso 2: `bench.py <pdf> --workers N` imprime páginas/min y la suma por etapa. Ejecutarlo con Docker (imagen con Tesseract `deu`, como en la medición de RF-34) sobre `samples/Der Schatz-3-7.pdf`; guardar la línea base en `docs/requisitos/no-funcionales/RNF-18-*.md`.
+- [x] Paso 3: commit `RNF-18: tiempos por etapa y banco de pruebas`.
 
 ### Tarea 1.3: Pipeline en dos etapas
 
@@ -150,18 +150,18 @@
 - Produces: `prepare.prepare_sheet(doc_path, index, dpi, engine) -> PreparedSheet` con `pages: list[PreparedPage]`; `PreparedPage` = imagen de la página + `rows` (OCR), `candidates` (número impreso), `webp: bytes`, `fields`, `images` (todo lo que solo usa Tesseract/numpy/PIL). `process_pdf(..., workers: int = 3)` mantiene exactamente la firma anterior más ese argumento.
 - Etapa A (hilos, `ThreadPoolExecutor(max_workers=workers)`, ventana de adelanto ≤ 4 hojas para acotar memoria): ejecuta `prepare_sheet`; los subprocesos de Tesseract liberan el GIL. Etapa B (hilo principal, **en orden**): numeración `n`, `build_tokens`, `analyze` (spaCy), `build_page` (traducción, registro de léxico), escritura de archivos, `on_page`, `on_sheet`. Cada documento se abre por hilo (PyMuPDF no es seguro entre hilos).
 
-- [ ] Paso 1 (prueba, falla): con el `Engine` falso, la salida (JSON, `manifest.json`, `lexicon.json`) con `workers=1` y `workers=3` es **idéntica byte a byte**.
-- [ ] Paso 2 (prueba, falla): el orden de `on_page` es 1..N aunque las hojas terminen desordenadas (motor falso con retrasos aleatorios sembrados).
-- [ ] Paso 3 (prueba, falla): reanudación — con las páginas 1–3 ya hechas, el motor falso **no** recibe llamadas de OCR para esas páginas (contador) y el resultado final es igual.
-- [ ] Paso 4 (prueba, falla): si el motor lanza `TimeoutError` en la hoja 2, `process_pdf` lanza, deja `progress.json` en `error` y cancela las hojas pendientes (Review Focus 5); en `run_job` el libro queda `error`/`processing_failed`, no `processing`.
-- [ ] Paso 5: implementar; deshabilitar la etapa A con `workers=1` (modo secuencial de referencia).
-- [ ] Paso 6: medir con `bench.py --workers 1` y `--workers 3`. **Criterio:** ≥ 2× páginas/min en 4 CPU, con salida idéntica. Si no se alcanza, perfilar y aplicar (en este orden): reducir las 6 llamadas de `printed_candidates` a las que den consenso; `method=6` → `method=4` en WebP si cabe en 250 KB; traducción por lote (`Translator.from_german_many`, ya prevista en T3.1).
-- [ ] Paso 7: fijar `workers` por `os.cpu_count()` (tope 4) en `publish/__main__.py`. Commit `RNF-18: OCR en paralelo con salida idéntica`.
+- [x] Paso 1 (prueba, falla): con el `Engine` falso, la salida (JSON, `manifest.json`, `lexicon.json`) con `workers=1` y `workers=3` es **idéntica byte a byte**.
+- [x] Paso 2 (prueba, falla): el orden de `on_page` es 1..N aunque las hojas terminen desordenadas (motor falso con retrasos aleatorios sembrados).
+- [x] Paso 3 (prueba, falla): reanudación — con las páginas 1–3 ya hechas, el motor falso **no** recibe llamadas de OCR para esas páginas (contador) y el resultado final es igual.
+- [x] Paso 4 (prueba, falla): si el motor lanza `TimeoutError` en la hoja 2, `process_pdf` lanza, deja `progress.json` en `error` y cancela las hojas pendientes (Review Focus 5); en `run_job` el libro queda `error`/`processing_failed`, no `processing`.
+- [x] Paso 5: implementar; deshabilitar la etapa A con `workers=1` (modo secuencial de referencia).
+- [ ] Paso 6 (1,75x en la muestra de 10 páginas, criterio 2x sin cumplir; ver RNF-18): medir con `bench.py --workers 1` y `--workers 3`. **Criterio:** ≥ 2× páginas/min en 4 CPU, con salida idéntica. Si no se alcanza, perfilar y aplicar (en este orden): reducir las 6 llamadas de `printed_candidates` a las que den consenso; `method=6` → `method=4` en WebP si cabe en 250 KB; traducción por lote (`Translator.from_german_many`, ya prevista en T3.1).
+- [x] Paso 7: fijar `workers` por `os.cpu_count()` (tope 4) en `publish/__main__.py`. Commit `RNF-18: OCR en paralelo con salida idéntica`.
 
 ### Tarea 1.4: Verificación de extremo a extremo y cierre de fase
 
-- [ ] Paso 1: subir una vez el PDF de muestra a producción **con una cuenta de prueba propia de Claude solo si ya existe**; si no, ejecutar `run_job` local contra el cliente falso y comprobar que el libro pasa a `ready` justo cuando `pages_done == pages_total`. Medir en el runner: dispatch manual de `process-book` con la muestra solo si hay un libro en cola de prueba; si no, anotar en `ESTADO.md` «pendiente de la usuaria: subir un libro y cronometrar» (objetivo RNF-18 ≤ 7 min por 167 páginas).
-- [ ] Paso 2: PR, CI, fusión. Marcar RF-46/RNF-18 con el estado real (verificado local / sin verificar en Actions). Actualizar `ESTADO.md`.
+- [ ] Paso 1 (cubierto por pruebas con cliente falso; cronometraje real pendiente de la usuaria): subir una vez el PDF de muestra a producción **con una cuenta de prueba propia de Claude solo si ya existe**; si no, ejecutar `run_job` local contra el cliente falso y comprobar que el libro pasa a `ready` justo cuando `pages_done == pages_total`. Medir en el runner: dispatch manual de `process-book` con la muestra solo si hay un libro en cola de prueba; si no, anotar en `ESTADO.md` «pendiente de la usuaria: subir un libro y cronometrar» (objetivo RNF-18 ≤ 7 min por 167 páginas).
+- [ ] Paso 2 (PR y fusión en curso): PR, CI, fusión. Marcar RF-46/RNF-18 con el estado real (verificado local / sin verificar en Actions). Actualizar `ESTADO.md`.
 
 ---
 
