@@ -57,7 +57,7 @@ type Props = {
   books: Record<string, string>;
   /** Reseñas de las últimas 36 h: el «día» (04:00) se calcula con la hora local del dispositivo. */
   recentLogs: { reviewedAt: string; stateBefore: number }[];
-  initialQuery: string;
+  initialQuery?: string;
   /** Demostración sin sesión (pruebas e2e): nada se guarda en la base de datos. */
   demo?: boolean;
   sync?: ReviewSyncLike;
@@ -159,7 +159,7 @@ function SessionInner({
   undoWindowMs = 6000,
 }: Props) {
   const [filters, setFilters] = useState<ReviewFilters>(() =>
-    filtersFromParams(new URLSearchParams(initialQuery)),
+    filtersFromParams(new URLSearchParams(initialQuery ?? window.location.search)),
   );
   const [cardMap, setCardMap] = useState<Map<number, CardState>>(
     () =>

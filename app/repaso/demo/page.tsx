@@ -64,15 +64,7 @@ const WORDS: DictWord[] = [
   },
 ];
 
-export default async function RepasoDemoPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  const params = new URLSearchParams();
-  for (const [k, v] of Object.entries(sp))
-    if (typeof v === "string") params.set(k, v);
+export default function RepasoDemoPage() {
   return (
     <Page>
       <h1 className="font-display text-3xl font-extrabold">Repaso</h1>
@@ -83,7 +75,6 @@ export default async function RepasoDemoPage({
         cards={{}}
         books={{ demo: "Libro de ejemplo" }}
         recentLogs={[]}
-        initialQuery={params.toString()}
       />
     </Page>
   );
