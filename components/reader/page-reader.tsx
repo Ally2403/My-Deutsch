@@ -38,6 +38,7 @@ import {
 import { Icon } from "@/components/icons";
 import type { AnnotationSync, SyncStatus } from "@/lib/annotations/sync";
 import { AnnotationLayer } from "./annotation-layer";
+import { ReadingProgress } from "./reading-progress";
 import { ReadingView } from "./reading-view";
 import { TextLayer } from "./text-layer";
 import {
@@ -60,6 +61,8 @@ type Props = {
   initialPage?: number;
   /** Se llama al abrir y en cada cambio de página (RF-20). */
   onPageChange?: (page: number) => void;
+  /** RF-49: páginas ya leídas, para la capa «leído» del indicador de avance. */
+  pagesRead?: number[];
   /** RF-28: palabras del diccionario personal (por id de léxico) y títulos de sus primeros libros. */
   seenWords?: SeenMap;
   seenBookTitles?: Record<string, string>;
@@ -75,6 +78,7 @@ type Props = {
 };
 
 const DEFAULT_ASPECT = 1600 / 2263;
+const NO_PAGES_READ: number[] = [];
 
 export function PageReader({
   total,
@@ -83,6 +87,7 @@ export function PageReader({
   heightClassName = "h-dvh",
   initialPage = 1,
   onPageChange,
+  pagesRead = NO_PAGES_READ,
   seenWords,
   seenBookTitles,
   onSeenStatus,
@@ -356,58 +361,62 @@ export function PageReader({
           )}
         </div>
         {!readingMode && (
-        <div
-          className="flex shrink-0 items-center gap-2 md:mr-auto"
-          role="group"
-          aria-label="Zoom"
-        >
-          <button
-            type="button"
-            aria-pressed={fit === "width" && zoom === 1}
-            onClick={() => {
-              setFit("width");
-              setZoom(1);
-            }}
-            className="chip"
+          <div
+            className="flex shrink-0 items-center gap-2 md:mr-auto"
+            role="group"
+            aria-label="Zoom"
           >
-            Ajustar al ancho
-          </button>
-          <button
-            type="button"
-            aria-pressed={fit === "height" && zoom === 1}
-            onClick={() => {
-              setFit("height");
-              setZoom(1);
-            }}
-            className="chip"
-          >
-            Ajustar al alto
-          </button>
-          <button
-            type="button"
-            aria-label="Alejar"
-            disabled={zoom <= 1}
-            onClick={() => setZoom(zoom / 1.25)}
-            className="chip chip-icon"
-          >
-            <Icon name="minus" />
-          </button>
-          <span aria-live="polite" className="min-w-12 text-center text-sm">
-            {Math.round(zoom * 100)} %
-          </span>
-          <button
-            type="button"
-            aria-label="Acercar"
-            disabled={zoom >= 4}
-            onClick={() => setZoom(zoom * 1.25)}
-            className="chip chip-icon"
-          >
-            <Icon name="plus" />
-          </button>
-        </div>
+            <button
+              type="button"
+              aria-pressed={fit === "width" && zoom === 1}
+              onClick={() => {
+                setFit("width");
+                setZoom(1);
+              }}
+              className="chip"
+            >
+              Ajustar al ancho
+            </button>
+            <button
+              type="button"
+              aria-pressed={fit === "height" && zoom === 1}
+              onClick={() => {
+                setFit("height");
+                setZoom(1);
+              }}
+              className="chip"
+            >
+              Ajustar al alto
+            </button>
+            <button
+              type="button"
+              aria-label="Alejar"
+              disabled={zoom <= 1}
+              onClick={() => setZoom(zoom / 1.25)}
+              className="chip chip-icon"
+            >
+              <Icon name="minus" />
+            </button>
+            <span aria-live="polite" className="min-w-12 text-center text-sm">
+              {Math.round(zoom * 100)} %
+            </span>
+            <button
+              type="button"
+              aria-label="Acercar"
+              disabled={zoom >= 4}
+              onClick={() => setZoom(zoom * 1.25)}
+              className="chip chip-icon"
+            >
+              <Icon name="plus" />
+            </button>
+          </div>
         )}
         {annotations && !readingMode && (
-          <div className="flex shrink-0 items-center gap-2" role="group" aria-label="Respuestas">
+          <div
+            className="flex shrink-0 items-center gap-2"
+            role="group"
+            aria-label="Respuestas"
+          >
             <button
               type="button"
               aria-pressed={writeMode}
@@ -435,7 +444,9 @@ export function PageReader({
                     "¿Borrar todas tus respuestas de esta página? Las de otras personas no cambian.",
                   )
                 )
-                  void annotations.clearPage(page).then(() => setAnswersVersion((v) => v + 1));
+                  void annotations
+                    .clearPage(page)
+                    .then(() => setAnswersVersion((v) => v + 1));
               }}
               className="chip"
             >
@@ -518,7 +529,8 @@ export function PageReader({
             lastTap.current = { t: now, x: e.clientX, y: e.clientY };
           }
           if (!swipeChangesPage(zoom)) return; // con zoom, deslizar desplaza (RF-19 c1)
-          if (writeMode || (e.target as Element).closest("[data-annotation]")) return; // escribir no cambia de página
+          if (writeMode || (e.target as Element).closest("[data-annotation]"))
+            return; // escribir no cambia de página
           const dir = swipeDirection({
             startX: s.x,
             dx: e.clientX - s.x,
@@ -541,8 +553,13 @@ export function PageReader({
               onWordClick={(token, rect) => setSelected({ page, token, rect })}
             />
           ) : (
-            <p role={error ? "alert" : "status"} className="p-4 text-center text-sm text-muted">
-              {error ? (errorMessage ?? "No se pudo cargar la página.") : "Cargando…"}{" "}
+            <p
+              role={error ? "alert" : "status"}
+              className="p-4 text-center text-sm text-muted"
+            >
+              {error
+                ? (errorMessage ?? "No se pudo cargar la página.")
+                : "Cargando…"}{" "}
               {error && (
                 <button
                   type="button"
@@ -559,91 +576,93 @@ export function PageReader({
             </p>
           )
         ) : (
-        <div
-          data-testid="page-surface"
-          className={
-            "relative mx-auto rounded-sm bg-white shadow-card " +
-            (viewport ? "" : "w-full max-w-[900px]")
-          }
-          style={{
-            aspectRatio: aspect,
-            containerType: "inline-size",
-            ...(viewport
-              ? { width: baseWidth({ fit, viewport, aspect }) * zoom }
-              : {}),
-          }}
-        >
-          {!error && (
-            // eslint-disable-next-line @next/next/no-img-element -- WebP estático con tamaño propio
-            <img
-              src={imageUrl(page)}
-              alt={`Imagen de la página ${page}`}
-              className="absolute inset-0 h-full w-full select-none"
-              draggable={false}
-            />
-          )}
-          {/* Zonas laterales antes de la capa de texto: quedan debajo y no tapan palabras. */}
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-hidden="true"
+          <div
+            data-testid="page-surface"
             className={
-              "absolute inset-y-0 left-0 w-[8%]" +
-              (zoom > 1 ? " pointer-events-none" : "")
+              "relative mx-auto rounded-sm bg-white shadow-card " +
+              (viewport ? "" : "w-full max-w-[900px]")
             }
-            onClick={() => go("prev")}
-          />
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-hidden="true"
-            className={
-              "absolute inset-y-0 right-0 w-[8%]" +
-              (zoom > 1 ? " pointer-events-none" : "")
-            }
-            onClick={() => go("next")}
-          />
-          {data && (
-            <TextLayer
-              page={data}
-              active={active}
-              highlight={highlight}
-              plurals={plurals}
-              seen={seenMarks}
-              onWordClick={(token, rect) => setSelected({ page, token, rect })}
+            style={{
+              aspectRatio: aspect,
+              containerType: "inline-size",
+              ...(viewport
+                ? { width: baseWidth({ fit, viewport, aspect }) * zoom }
+                : {}),
+            }}
+          >
+            {!error && (
+              // eslint-disable-next-line @next/next/no-img-element -- WebP estático con tamaño propio
+              <img
+                src={imageUrl(page)}
+                alt={`Imagen de la página ${page}`}
+                className="absolute inset-0 h-full w-full select-none"
+                draggable={false}
+              />
+            )}
+            {/* Zonas laterales antes de la capa de texto: quedan debajo y no tapan palabras. */}
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              className={
+                "absolute inset-y-0 left-0 w-[8%]" +
+                (zoom > 1 ? " pointer-events-none" : "")
+              }
+              onClick={() => go("prev")}
             />
-          )}
-          {annotations && (
-            <AnnotationLayer
-              sync={annotations}
-              page={page}
-              writeMode={writeMode}
-              visible={!hideAnswers}
-              version={answersVersion}
-              fields={data?.fields}
-              hiddenKey={`${bookKey}:${page}`}
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              className={
+                "absolute inset-y-0 right-0 w-[8%]" +
+                (zoom > 1 ? " pointer-events-none" : "")
+              }
+              onClick={() => go("next")}
             />
-          )}
-          {error && (
-            <div
-              role="alert"
-              className="absolute inset-x-4 top-4 card bg-surface p-3 text-sm"
-            >
-              {errorMessage ?? "No se pudo cargar la página."}{" "}
-              <button
-                type="button"
-                className="min-h-11 font-medium underline"
-                onClick={() => {
-                  cache.current.delete(page);
-                  setFailed(null);
-                  setAttempt((a) => a + 1);
-                }}
+            {data && (
+              <TextLayer
+                page={data}
+                active={active}
+                highlight={highlight}
+                plurals={plurals}
+                seen={seenMarks}
+                onWordClick={(token, rect) =>
+                  setSelected({ page, token, rect })
+                }
+              />
+            )}
+            {annotations && (
+              <AnnotationLayer
+                sync={annotations}
+                page={page}
+                writeMode={writeMode}
+                visible={!hideAnswers}
+                version={answersVersion}
+                fields={data?.fields}
+                hiddenKey={`${bookKey}:${page}`}
+              />
+            )}
+            {error && (
+              <div
+                role="alert"
+                className="absolute inset-x-4 top-4 card bg-surface p-3 text-sm"
               >
-                Reintentar
-              </button>
-            </div>
-          )}
-        </div>
+                {errorMessage ?? "No se pudo cargar la página."}{" "}
+                <button
+                  type="button"
+                  className="min-h-11 font-medium underline"
+                  onClick={() => {
+                    cache.current.delete(page);
+                    setFailed(null);
+                    setAttempt((a) => a + 1);
+                  }}
+                >
+                  Reintentar
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -671,6 +690,9 @@ export function PageReader({
         />
       )}
 
+      <div className="border-t border-border bg-surface px-4 pt-2">
+        <ReadingProgress page={page} total={total} pagesRead={pagesRead} />
+      </div>
       <nav
         aria-label="Páginas"
         className="flex items-center justify-center gap-2 border-t border-border bg-surface px-3 py-2"
