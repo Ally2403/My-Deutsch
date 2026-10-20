@@ -207,8 +207,8 @@
 - `glossesFor(page, [a, b]): { token: number; form: string; lemma: string; es: string }[]` (primer sentido; solo palabras con entrada).
 - `canTranslatePhrase([a, b]): boolean` → solo si cubre ≥ 2 palabras.
 
-- [ ] Paso 1 (pruebas, fallan): selección invertida; de una sola palabra → `canTranslatePhrase` falso; cruza dos oraciones → 2 resultados; cruza salto de línea y palabra con `b2`; página sin `sents` → `es: null`; extremos fuera de rango se recortan (Review Focus 2).
-- [ ] Paso 2: implementar y verificar. Commit `RF-47: dominio de selección de frases`.
+- [x] Paso 1 (pruebas, fallan): selección invertida; de una sola palabra → `canTranslatePhrase` falso; cruza dos oraciones → 2 resultados; cruza salto de línea y palabra con `b2`; página sin `sents` → `es: null`; extremos fuera de rango se recortan (Review Focus 2).
+- [x] Paso 2: implementar y verificar. Commit `RF-47: dominio de selección de frases`.
 
 ### Tarea 3.3: Interfaz de selección y panel de frase
 
