@@ -19,7 +19,7 @@ En el curso hay iPhones, y Safari tiene diferencias importantes con Chrome (gest
 
 ## Criterios de aceptación
 1. La suite E2E se ejecuta también en WebKit (Playwright, perfil iPhone 13) sin fallos.
-2. ~~PWA instalable (manifest, íconos, service worker).~~ **Descartado por la usuaria (2026-10-19): solo web.** En su lugar: el inicio de sesión con Google en Safari vuelve a la app (redirección, sin ventana emergente).
+2. ~~PWA instalable (manifest, íconos, service worker).~~ **Descartado por la usuaria (2026-10-19): solo web.** *Reactivado por [RF-50](../funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md) (2026-10-20, [ADR-008](../../decisiones/ADR-008-pwa-con-service-worker-propio.md)).* En su lugar: el inicio de sesión con Google en Safari vuelve a la app (redirección, sin ventana emergente).
 3. Ningún control queda bajo el notch ni bajo la barra de inicio (usa env(safe-area-inset-*)).
 4. Ninguna función depende de hover; el gesto de deslizar para pasar página no interfiere con el gesto "atrás" de Safari.
 
