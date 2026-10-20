@@ -7,6 +7,7 @@ import {
   dueSummary,
   filtersFromParams,
   filtersToParams,
+  skipKnown,
   studyDayStart,
 } from "./review-queue";
 import { newCard, type CardState } from "./review";
@@ -191,6 +192,15 @@ describe("RF-48 filtros en la URL", () => {
       filtersFromParams(new URLSearchParams("genero=x&tipo=y&estado=z")),
     ).toEqual({});
     expect(filtersToParams({}).toString()).toBe("");
+  });
+});
+
+describe("RF-48 skipKnown", () => {
+  it("una palabra marcada «conocida» a mitad de sesión se salta", () => {
+    const q = buildQueue([word(1), word(2)], new Map(), {}, NOW, LIMITS, NONE);
+    expect(skipKnown(q, new Set([1])).map((i) => i.word.lexiconId)).toEqual([
+      2,
+    ]);
   });
 });
 

@@ -130,6 +130,14 @@ export function dueSummary(
   return { due: q.length - n, new: n };
 }
 
+/** Quita de lo que falta las palabras marcadas «conocidas» a mitad de la sesión (RF-48 c4). */
+export function skipKnown(
+  items: QueueItem[],
+  knownIds: ReadonlySet<number>,
+): QueueItem[] {
+  return items.filter((i) => !knownIds.has(i.word.lexiconId));
+}
+
 const POS: readonly PosFilter[] = ["noun", "verb", "adj", "adv", "other"];
 const GENDERS: readonly GenderFilter[] = ["m", "f", "n"];
 const STATES: readonly ReviewState[] = ["due", "new", "hard"];

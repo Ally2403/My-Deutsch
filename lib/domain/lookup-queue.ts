@@ -11,23 +11,23 @@ const MAX_PENDING = 200;
  * RF-27 c3: cola de consultas pendientes. Se persiste en el almacenamiento del navegador y se
  * vacía en orden; si un envío falla (sin red) la consulta se conserva para el siguiente intento.
  */
-export function createLookupQueue({
+export function createLookupQueue<T = Lookup>({
   send,
   storage,
   key,
 }: {
-  send: (lookup: Lookup) => Promise<void>;
+  send: (lookup: T) => Promise<void>;
   storage: QueueStorage;
   key: string;
 }) {
-  let items: Lookup[] | null = null;
+  let items: T[] | null = null;
   let flushing: Promise<void> | null = null;
 
-  function load(): Lookup[] {
+  function load(): T[] {
     if (items) return items;
     try {
       const parsed: unknown = JSON.parse(storage.getItem(key) ?? "[]");
-      items = Array.isArray(parsed) ? (parsed as Lookup[]).slice(-MAX_PENDING) : [];
+      items = Array.isArray(parsed) ? (parsed as T[]).slice(-MAX_PENDING) : [];
     } catch {
       items = [];
     }
@@ -44,7 +44,7 @@ export function createLookupQueue({
 
   return {
     size: () => load().length,
-    enqueue(lookup: Lookup) {
+    enqueue(lookup: T) {
       const list = load();
       list.push(lookup);
       if (list.length > MAX_PENDING) list.splice(0, list.length - MAX_PENDING);
