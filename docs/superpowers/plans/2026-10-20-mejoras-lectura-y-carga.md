@@ -109,10 +109,10 @@
 
 **Files:** `.claude/skills/modo-autonomo/SKILL.md`, `.claude/skills/nuevo-requisito/SKILL.md`, `.claude/settings.local.json`.
 
-- [ ] Paso 1: con `superpowers:writing-skills`/`skill-creator`, crear `modo-autonomo` (copia fiel de la sección «Modo autónomo» + «cómo retomar tras /clear») y `nuevo-requisito` (plantilla de RF, siguiente ID, fila de INDEX, RN afectadas, línea en ESTADO). Frontmatter con `description` que dispare al retomar este plan.
-- [ ] Paso 2: con la skill `update-config`, añadir a `permissions.allow` de `.claude/settings.local.json`: `Bash(git add:*)`, `git commit`, `git checkout`, `git switch`, `git branch`, `git worktree`, `git fetch`, `git pull`, `git merge`, `git stash`, `Bash(gh pr:*)`, `Bash(gh run:*)`, `Bash(gh api:*)`, `Bash(pnpm:*)`, `Bash(pnpm exec playwright:*)`, `Bash(uv run:*)`, `Bash(uv sync:*)`, `Bash(docker:*)`, `Bash(node scripts/:*)`, y las herramientas MCP de Playwright, Context7 y Supabase (`apply_migration`, `execute_sql`, `generate_typescript_types`, `get_advisors`, `list_tables`). **No** añadir `git push --force`, `vercel`, `supabase db push` ni lectura de `.env`.
+- [x] Paso 1: con `superpowers:writing-skills`/`skill-creator`, crear `modo-autonomo` (copia fiel de la sección «Modo autónomo» + «cómo retomar tras /clear») y `nuevo-requisito` (plantilla de RF, siguiente ID, fila de INDEX, RN afectadas, línea en ESTADO). Frontmatter con `description` que dispare al retomar este plan.
+- [ ] Paso 2 (BLOQUEADO: el clasificador de permisos del arnés denegó editar `.claude/settings.local.json` por automodificación; pendiente de la usuaria): con la skill `update-config`, añadir a `permissions.allow` de `.claude/settings.local.json`: `Bash(git add:*)`, `git commit`, `git checkout`, `git switch`, `git branch`, `git worktree`, `git fetch`, `git pull`, `git merge`, `git stash`, `Bash(gh pr:*)`, `Bash(gh run:*)`, `Bash(gh api:*)`, `Bash(pnpm:*)`, `Bash(pnpm exec playwright:*)`, `Bash(uv run:*)`, `Bash(uv sync:*)`, `Bash(docker:*)`, `Bash(node scripts/:*)`, y las herramientas MCP de Playwright, Context7 y Supabase (`apply_migration`, `execute_sql`, `generate_typescript_types`, `get_advisors`, `list_tables`). **No** añadir `git push --force`, `vercel`, `supabase db push` ni lectura de `.env`.
 - [ ] Paso 3: instalar dependencias nuevas en su fase (no ahora): `ts-fsrs` (T4.2), `sharp` como devDependency (T5.1). Para cada una, consultar Context7 y revisar el permiso de scripts de compilación en `pnpm-workspace.yaml` (`onlyBuiltDependencies`).
-- [ ] Paso 4: limpiar ramas fusionadas con `/clean_gone`. Commit `chore: skills de proyecto y permisos para trabajo autónomo`.
+- [x] Paso 4: limpiar ramas fusionadas con `/clean_gone`. Commit `chore: skills de proyecto y permisos para trabajo autónomo`.
 
 ---
 

@@ -1,6 +1,6 @@
 # Retomar aquí (2026-10-20, plan de mejoras — autónomo)
 
-**Plan en curso:** `docs/superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md` (modo autónomo; las casillas del plan son el estado durable). **Hecho:** Tarea 0.1 (RF-46 a RF-50, RNF-18, RNF-19 y ADR-008 redactados, estado Pendiente). **Siguiente:** Tarea 0.2 (skills y permisos), luego fases 1, 2 y 4 en paralelo.
+**Plan en curso:** `docs/superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md` (modo autónomo; las casillas del plan son el estado durable). **Hecho:** Tarea 0.1 (RF-46 a RF-50, RNF-18, RNF-19 y ADR-008 redactados, estado Pendiente). **Tarea 0.2:** skills `modo-autonomo` y `nuevo-requisito` creadas; **Pendiente de la usuaria:** añadir la lista de permisos del paso 2 de la Tarea 0.2 a `.claude/settings.local.json` (el arnés me lo bloqueó). **Siguiente:** fases 1, 2 y 4.
 
 # Retomar aquí (2026-10-19, RNF-13 verificado)
 
