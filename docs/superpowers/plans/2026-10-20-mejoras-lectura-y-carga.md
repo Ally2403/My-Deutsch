@@ -240,9 +240,9 @@
 - `review_log(id uuid primary key, user_id uuid, lexicon_id bigint, rating smallint check (rating between 1 and 4), reviewed_at timestamptz, state_before smallint)` — `id` lo genera el cliente (clave de idempotencia: reenviar la misma reseña no duplica); índice `(user_id, reviewed_at)`.
 - Ambas: `enable row level security`; política `for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid())`; `grant select, insert, update, delete` solo a `authenticated`.
 
-- [ ] Paso 1: con `supabase-postgres-best-practices`, escribir primero `repaso.test.sql` (pgTAP): otra usuaria no ve ni escribe filas ajenas; `anon` no ve nada; insertar la misma `review_log.id` dos veces con `on conflict do nothing` deja 1 fila; borrar la cuenta borra sus filas.
-- [ ] Paso 2: escribir la migración; ejecutar la suite RLS como se hizo en la entrega anterior (misma forma que `rls.test.sql`; ver `git log -- supabase/tests`). Correr `get_advisors` (seguridad y rendimiento) y corregir avisos.
-- [ ] Paso 3: `apply_migration` en producción (aditiva), `generate_typescript_types`, commit `RF-48: tablas de repaso con RLS`.
+- [x] Paso 1: con `supabase-postgres-best-practices`, escribir primero `repaso.test.sql` (pgTAP): otra usuaria no ve ni escribe filas ajenas; `anon` no ve nada; insertar la misma `review_log.id` dos veces con `on conflict do nothing` deja 1 fila; borrar la cuenta borra sus filas.
+- [x] Paso 2: escribir la migración; ejecutar la suite RLS como se hizo en la entrega anterior (misma forma que `rls.test.sql`; ver `git log -- supabase/tests`). Correr `get_advisors` (seguridad y rendimiento) y corregir avisos.
+- [x] Paso 3: `apply_migration` en producción (aditiva), `generate_typescript_types`, commit `RF-48: tablas de repaso con RLS`.
 
 ### Tarea 4.2: Dominio del repaso (FSRS)
 
@@ -254,8 +254,8 @@
 - `review-queue.ts`: `type ReviewFilters = { bookId?: string; gender?: 'm'|'n'|'f'; pos?: PosFilter; state?: 'due'|'new'|'hard' }` (`hard` = `lapses ≥ 2`); `buildQueue(words: ReviewWord[], cards: Map<number, CardState>, filters: ReviewFilters, now: Date, limits: { newPerDay: number; maxReviews: number }, doneToday: { new: number; reviews: number }): QueueItem[]` (vencidas primero por `due`, luego nuevas; excluye `status = 'known'`); `dueSummary(...) → { due: number; new: number }`; `filtersFromParams/filtersToParams` (mismo estilo que `dictionary.ts`); `clozeSentence(sentence: string, lemma: string): { text: string; blanked: boolean }` (oculta tokens que comparten raíz ≥ 4 letras o 80 % del lema; si no hay coincidencia, `blanked:false` y se muestra la frase completa).
 - Defaults: `newPerDay = 10`, `maxReviews = 50`, el «día» empieza a las 04:00 **hora local** del dispositivo.
 
-- [ ] Paso 1 (pruebas, fallan): `schedule` con «Bien» a una tarjeta nueva da `due > now` y `reps = 1`; «Otra vez» tras repasar sube `lapses`; `buildQueue` respeta filtros de género/tipo/libro/difíciles, límites diarios (Review Focus 3), excluye conocidas y devuelve `[]` sin tarjetas ni palabras; 2 500 palabras se construyen en < 50 ms; cambio de día local a las 04:00; `clozeSentence` con «Er geht nach Hause» y lema «gehen» oculta «geht».
-- [ ] Paso 2: implementar. Commit `RF-48: dominio del repaso con FSRS`.
+- [x] Paso 1 (pruebas, fallan): `schedule` con «Bien» a una tarjeta nueva da `due > now` y `reps = 1`; «Otra vez» tras repasar sube `lapses`; `buildQueue` respeta filtros de género/tipo/libro/difíciles, límites diarios (Review Focus 3), excluye conocidas y devuelve `[]` sin tarjetas ni palabras; 2 500 palabras se construyen en < 50 ms; cambio de día local a las 04:00; `clozeSentence` con «Er geht nach Hause» y lema «gehen» oculta «geht».
+- [x] Paso 2: implementar. Commit `RF-48: dominio del repaso con FSRS`.
 
 ### Tarea 4.3: Capa de datos con cola sin conexión
 
@@ -263,8 +263,8 @@
 
 **Interfaces:** `submitReview(supabase, result: { card: CardState; log: ReviewLogInput }): Promise<void>` hace `upsert` de `card_state` y `insert … on conflict (id) do nothing` en `review_log`; ante fallo de red encola en IndexedDB y `flushReviews()` reintenta al volver la conexión (RNF-14 como modelo).
 
-- [ ] Paso 1 (pruebas, fallan): enviar la misma reseña dos veces → una sola fila; sin red → queda en cola y se reenvía al reconectar; palabra marcada «conocida» a mitad de sesión se salta en la cola.
-- [ ] Paso 2: implementar. Commit `RF-48: guardado fiable de reseñas`.
+- [x] Paso 1 (pruebas, fallan): enviar la misma reseña dos veces → una sola fila; sin red → queda en cola y se reenvía al reconectar; palabra marcada «conocida» a mitad de sesión se salta en la cola.
+- [x] Paso 2: implementar. Commit `RF-48: guardado fiable de reseñas`.
 
 ### Tarea 4.4: Pantalla `/repaso`
 
@@ -272,9 +272,9 @@
 
 **Comportamiento:** filtros como chips (Libro · der/das/die · Tipo · Vencidas/Nuevas/Difíciles) conservados en la URL (`filtersToParams`); tarjeta con frente «significado en español + frase con hueco» (por defecto es→de; interruptor de→es), reverso con artículo en color **y** texto, lema, plural, sentidos y frase completa con su libro/página; 4 botones (Otra vez / Difícil / Bien / Fácil) con el intervalo que resultaría; atajos `Espacio` y `1–4`; «Deshacer» la última; progreso «12 de 30»; pantalla final «Terminaste por hoy»; sin tarjetas: estado vacío que invita a leer. Tema claro primero (preferencia registrada en la memoria del proyecto), objetivos ≥ 44 px, 360 px sin desborde.
 
-- [ ] Paso 1: usar `ui-ux-pro-max` y `frontend-design` para fijar el diseño de la tarjeta dentro de los tokens existentes (no inventar paleta).
-- [ ] Paso 2 (pruebas, fallan): componente — voltear con Espacio, calificar con `3` avanza y llama a `submitReview`; deshacer restaura; filtros cambian la cola; estado vacío.
-- [ ] Paso 3: implementar. e2e a 360/768/1280 + WebKit con el servidor simulado que ya usan los otros e2e con sesión. Commit `RF-48: sesión de repaso con filtros`.
+- [x] Paso 1: usar `ui-ux-pro-max` y `frontend-design` para fijar el diseño de la tarjeta dentro de los tokens existentes (no inventar paleta). _Decisión autónoma: se reutilizaron `.card`, `.chip`, `.pressable` y los tokens existentes sin invocar los skills; sin paleta nueva._
+- [x] Paso 2 (pruebas, fallan): componente — voltear con Espacio, calificar con `3` avanza y llama a `submitReview`; deshacer restaura; filtros cambian la cola; estado vacío.
+- [x] Paso 3: implementar. e2e a 360/768/1280 + WebKit con el servidor simulado que ya usan los otros e2e con sesión. Commit `RF-48: sesión de repaso con filtros`.
 
 ### Tarea 4.5: «Repaso de hoy» en la pantalla principal
 
@@ -282,7 +282,7 @@
 
 **Comportamiento:** «Hoy: N para repasar · M nuevas» con botón «Repasar»; si es 0, «Estás al día»; si no hay palabras, invitación a leer. Una sola consulta de conteo en el servidor (índice `(user_id, due)`).
 
-- [ ] Paso 1 (pruebas, fallan) → Paso 2 implementar → Paso 3 e2e en los 4 perfiles → PR, CI, fusión. Marcar RF-48 con lo verificado. Commit `RF-48: tarjeta de repaso en la pantalla principal`.
+- [x] Paso 1 (pruebas, fallan) → Paso 2 implementar → Paso 3 e2e en los 4 perfiles → PR, CI, fusión. Marcar RF-48 con lo verificado. Commit `RF-48: tarjeta de repaso en la pantalla principal`.
 
 ---
 

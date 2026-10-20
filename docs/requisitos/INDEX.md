@@ -68,7 +68,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-45 | [Verbos separables con punto medio en el panel](funcionales/RF-45-verbo-separable-con-punto-medio.md) | M-5    | Media     | 3    | Hecho       |
 | RF-46 | [Progreso de procesamiento fiel](funcionales/RF-46-progreso-de-procesamiento-fiel.md) | M-4 | Alta | 6 | Pendiente |
 | RF-47 | [Traducir frases seleccionadas](funcionales/RF-47-traducir-frases-seleccionadas.md) | M-5 | Alta | 6 | Pendiente |
-| RF-48 | [Repaso con tarjetas (FSRS)](funcionales/RF-48-repaso-con-tarjetas.md) | M-7 | Alta | 6 | Pendiente |
+| RF-48 | [Repaso con tarjetas (FSRS)](funcionales/RF-48-repaso-con-tarjetas.md) | M-7 | Alta | 6 | En progreso |
 | RF-49 | [Indicador de avance de lectura](funcionales/RF-49-indicador-de-avance-de-lectura.md) | M-5 | Media | 6 | En curso |
 | RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md) | M-T | Alta | 6 | Pendiente |
 

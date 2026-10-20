@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { CreateGroupForm, JoinGroupForm } from "@/components/group-forms";
+import { ReviewTodayCard } from "@/components/review-today-card";
 import { OutlineButton, Page } from "@/components/ui";
+import {
+  loadCardDues,
+  loadRecentLogs,
+  loadWordFlags,
+} from "@/lib/supabase/review-data";
 import { createClient } from "@/lib/supabase/server";
 
 async function MisGrupos() {
@@ -44,7 +50,9 @@ async function MisGrupos() {
                 >
                   {g.name.trim().charAt(0).toUpperCase() || "G"}
                 </span>
-                <span className="min-w-0 flex-1 break-words font-semibold">{g.name}</span>
+                <span className="min-w-0 flex-1 break-words font-semibold">
+                  {g.name}
+                </span>
                 {roles.get(g.id) === "admin" && (
                   <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
                     Admin
@@ -63,20 +71,49 @@ async function MisGrupos() {
   );
 }
 
+async function RepasoDeHoy() {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const me = claims?.claims.sub;
+  if (!me) return null;
+  const [words, cards, recentLogs] = await Promise.all([
+    loadWordFlags(supabase, me),
+    loadCardDues(supabase, me),
+    loadRecentLogs(supabase, me),
+  ]);
+  return (
+    <ReviewTodayCard words={words} cards={cards} recentLogs={recentLogs} />
+  );
+}
+
 export default function GruposPage() {
   return (
     <Page width="wide">
-      <Suspense fallback={<h1 className="font-display text-3xl font-extrabold">Hola</h1>}>
+      <Suspense
+        fallback={
+          <h1 className="font-display text-3xl font-extrabold">Hola</h1>
+        }
+      >
         <MisGrupos />
+      </Suspense>
+
+      <Suspense
+        fallback={<div className="card mt-6 min-h-24" aria-hidden="true" />}
+      >
+        <RepasoDeHoy />
       </Suspense>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         <section className="card p-5">
-          <h2 className="mb-3 font-display text-lg font-bold">Crear un grupo</h2>
+          <h2 className="mb-3 font-display text-lg font-bold">
+            Crear un grupo
+          </h2>
           <CreateGroupForm />
         </section>
         <section className="card p-5">
-          <h2 className="mb-3 font-display text-lg font-bold">Unirme a un grupo</h2>
+          <h2 className="mb-3 font-display text-lg font-bold">
+            Unirme a un grupo
+          </h2>
           <JoinGroupForm />
         </section>
       </div>

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { nextStudyDayStart } from "@/lib/domain/review-queue";
 import { syncPrefsOnce } from "@/lib/prefs/client";
 import { createClient } from "@/lib/supabase/client";
 
 const LINKS = [
   { href: "/grupos", label: "Grupos" },
   { href: "/diccionario", label: "Diccionario" },
+  { href: "/repaso", label: "Repaso" },
   { href: "/perfil", label: "Perfil" },
 ] as const;
 
@@ -29,11 +31,35 @@ function useSignedIn() {
   return signedIn;
 }
 
+/** RF-48 c2: tarjetas vencidas (hasta el próximo día de estudio, hora local). Solo con sesión. */
+function useDueCount(signedIn: boolean) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!signedIn) return;
+    let cancelled = false;
+    void createClient()
+      .from("card_state")
+      .select("lexicon_id", { count: "exact", head: true })
+      .lt("due", nextStudyDayStart(new Date()).toISOString())
+      .then(({ count: n, error }) => {
+        if (!cancelled && !error) setCount(n ?? 0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn]);
+  return count;
+}
+
 function Nav() {
   const signedIn = useSignedIn();
+  const due = useDueCount(signedIn);
   if (!signedIn) return null;
   return (
-    <nav aria-label="Principal" className="flex items-center">
+    <nav
+      aria-label="Principal"
+      className="order-3 flex w-full items-center justify-between border-t border-border sm:order-none sm:ml-auto sm:w-auto sm:justify-end sm:border-t-0"
+    >
       {LINKS.map((l) => (
         <Link
           key={l.href}
@@ -42,6 +68,15 @@ function Nav() {
           className="pressable inline-flex min-h-11 items-center rounded-full px-2.5 text-sm font-medium text-muted hover:text-foreground sm:px-3.5 sm:text-base"
         >
           {l.label}
+          {l.href === "/repaso" && due > 0 && (
+            <span
+              data-testid="due-badge"
+              className="ml-1.5 rounded-full bg-accent px-1.5 text-xs font-semibold text-on-accent"
+            >
+              {due > 99 ? "99+" : due}
+              <span className="sr-only"> vencidas</span>
+            </span>
+          )}
         </Link>
       ))}
     </nav>
@@ -52,7 +87,7 @@ function Nav() {
 export function AppBar() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface/85 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-3 sm:px-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-2 px-3 sm:px-6">
         <Link
           href="/"
           className="pressable inline-flex min-h-11 min-w-11 items-center justify-center gap-2 font-display text-lg font-extrabold tracking-tight"
@@ -65,10 +100,8 @@ export function AppBar() {
           </span>
           <span className="max-[479px]:sr-only">My-Deutsch</span>
         </Link>
-        <div className="flex items-center">
-          <Nav />
-          <ThemeToggle />
-        </div>
+        <Nav />
+        <ThemeToggle />
       </div>
     </header>
   );
