@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookCard } from "@/components/book-card";
-import { percentRead } from "@/lib/domain/progress";
 import { GroupAdminPanel, LeaveGroup, MemberActions } from "@/components/group-admin";
 import { Icon } from "@/components/icons";
 import { ShareInvite } from "@/components/share-invite";
@@ -84,7 +83,7 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
         user
           ? supabase
               .from("reading_progress")
-              .select("book_id, pages_read")
+              .select("book_id, pages_read, last_page")
               .eq("user_id", user.id)
               .in("book_id", bookIds)
           : Promise.resolve({ data: [] }),
@@ -92,6 +91,9 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
     : [null, null, null, null];
   const pagesReadByBook = new Map(
     (progressRes?.data ?? []).map((r) => [r.book_id, r.pages_read]),
+  );
+  const lastPageByBook = new Map(
+    (progressRes?.data ?? []).map((r) => [r.book_id, r.last_page]),
   );
   const booksById = new Map((booksRes?.data ?? []).map((b) => [b.id, b]));
   // Más reciente primero: el primero de cada libro es su último job.
@@ -131,10 +133,8 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
                 groupId={group.id}
                 canRemove={isAdmin || (!!user && addedBy.get(b.id) === user.id)}
                 hasPublishedPages={withPages.has(b.id)}
-                percentRead={percentRead(
-                  pagesReadByBook.get(b.id) ?? [],
-                  b.page_count ?? 0,
-                )}
+                pagesRead={pagesReadByBook.get(b.id) ?? []}
+                lastPage={lastPageByBook.get(b.id) ?? null}
                 ownerOrAdmin={
                   !!user &&
                   isOwnerOrAdmin({

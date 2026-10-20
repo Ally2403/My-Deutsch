@@ -35,6 +35,11 @@ describe("isPublicPath", () => {
     expect(isPublicPath("/lector/demoX")).toBe(false);
   });
 
+  it("el repaso de ejemplo es público, el repaso real no (RF-48)", () => {
+    expect(isPublicPath("/repaso/demo")).toBe(true);
+    expect(isPublicPath("/repaso")).toBe(false);
+  });
+
   it("las rutas de grupos siguen siendo privadas (RN-03)", () => {
     expect(isPublicPath("/grupos")).toBe(false);
     expect(isPublicPath("/grupos/abc")).toBe(false);

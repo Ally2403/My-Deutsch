@@ -15,6 +15,21 @@ export function addPageRead(pagesRead: number[], page: number): number[] {
   return [...new Set([...pagesRead, page])].sort((a, b) => a - b);
 }
 
+/** RF-49: posición actual como porcentaje entero 0–100 (página 1 de 167 → 1). */
+export function positionPercent(page: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((page / total) * 100)));
+}
+
+/** RF-49: texto común del lector, la página del libro y la tarjeta. */
+export function progressLabel(
+  page: number,
+  total: number,
+  pagesRead: number[],
+): string {
+  return `Pág. ${page} de ${total} · ${percentRead(pagesRead, total)} % leído`;
+}
+
 /** Porcentaje entero de páginas leídas (únicas y dentro del libro). */
 export function percentRead(pagesRead: number[], total: number): number {
   if (total <= 0) return 0;

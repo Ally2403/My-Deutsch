@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "./database.types";
 
 /** Rutas que no exigen sesión (RF-40: inicio y privacidad; /lector/demo es sintético; /lector/local da 404 en producción). */
-const PUBLIC_PATHS = ["/", "/privacidad", "/login", "/registro", "/recuperar", "/auth", "/lector/demo", "/lector/local"];
+const PUBLIC_PATHS = ["/", "/privacidad", "/login", "/registro", "/recuperar", "/auth", "/lector/demo", "/lector/local", "/repaso/demo"];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || (p !== "/" && pathname.startsWith(`${p}/`)));

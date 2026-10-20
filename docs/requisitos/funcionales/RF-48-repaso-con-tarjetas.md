@@ -7,7 +7,7 @@
 | **Módulo**            | M-7 Vocabulario personal                                      |
 | **Prioridad**         | Alta                                                          |
 | **Fase**              | 6                                                             |
-| **Estado**            | Pendiente                                                     |
+| **Estado**            | En progreso                                                   |
 | **Dependencias**      | [RF-27](RF-27-guardar-palabras-en-el-diccionario-personal.md) |
 | **Reglas de negocio** | RN-04                                                         |
 
@@ -32,6 +32,16 @@ La usuaria quiere repasar su vocabulario con tarjetas, no solo consultarlo.
 
 Aprobado por pedido explícito de la usuaria, 2026-10-20. Plan: [`superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md`](../../superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md).
 
-## Verificación
+## Verificación (2026-10-20)
 
-Pendiente.
+Estado: **En progreso** (falta la prueba con sesión real).
+
+- c1 ✅ migración `20261020100000_repaso.sql` aplicada en producción (aditiva). `supabase/tests/repaso.test.sql` 9/9 contra la base real en una transacción con rollback: aislamiento entre usuarias (lectura, escritura y actualización), `anon` sin acceso, idempotencia por `id` (`on conflict do nothing`), `rating` de 1 a 4 y borrado en cascada al borrar la cuenta. `get_advisors` sin avisos nuevos (solo la FK `card_state.lexicon_id` sin índice, igual que `user_words`).
+- c2 ✅ por prueba de componente (`components/review-today-card.test.tsx`: «Hoy: N para repasar · M nuevas», «Estás al día», invitación a leer, conocidas excluidas, límites). Sin verificar con datos reales en `/grupos`.
+- c3 ✅ pruebas de componente y e2e sobre `/repaso/demo` (360/768/1280 y WebKit iPhone): voltear con Espacio, teclas 1–4, intervalo en cada botón, deshacer, progreso «N de M», pantalla final, estado vacío.
+- c4 ✅ filtros en la URL (e2e con recarga) y «Ya la sé» saca la palabra de la cola a mitad de sesión (prueba de componente; escribe `user_words.status = 'known'`).
+- c5 ✅ pruebas unitarias de `review-sync` (doble envío = una fila, cola persistente, reenvío al reconectar). Sin verificar cortando la red en un teléfono real.
+- c6 ✅ artículo en color y en texto (`data-testid="card-article"`), sin desborde y todos los controles ≥ 44 px en los 4 perfiles; 2 500 palabras arman la cola en < 50 ms (prueba unitaria).
+- Suite: 562 pruebas unitarias; e2e completo 157/157; `tsc` y `eslint` limpios.
+- **Sin verificar:** flujo con sesión real (guardado en `card_state`/`review_log` desde el navegador, insignia de la barra y segunda fila de navegación en móvil con sesión), iPhone real, RLS desde el cliente de la app.
+- Decisión autónoma: sin pasos de aprendizaje de minutos (`card_state` no guarda `learning_steps`); «Otra vez» reinserta la tarjeta al final de la sesión. La reseña se guarda tras 6 s (ventana de «Deshacer») o al calificar otra / salir. «Difíciles» (lapses ≥ 2) no consume los límites diarios. En el anverso es→de solo se muestra la frase si el hueco oculta la palabra (para no revelar la respuesta).

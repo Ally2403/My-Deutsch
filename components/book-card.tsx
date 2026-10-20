@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BookStatus } from "@/components/book-status";
+import { ReadingProgress } from "@/components/reader/reading-progress";
 import { Button, OutlineButton } from "@/components/ui";
 import type { BookStatusInput } from "@/lib/domain/book-status";
+import { resumePage } from "@/lib/domain/progress";
 import { createClient } from "@/lib/supabase/client";
 
 /** RF-13, RF-14: tarjeta de libro de la biblioteca. */
@@ -22,7 +24,8 @@ export function BookCard({
   jobCreatedAt,
   jobStartedAt,
   status,
-  percentRead = 0,
+  pagesRead = [],
+  lastPage = null,
   groupId,
   canRemove = false,
 }: {
@@ -35,8 +38,9 @@ export function BookCard({
   jobCreatedAt?: string | null;
   jobStartedAt?: string | null;
   status: BookStatusInput;
-  /** RF-20, RN-14: porcentaje de páginas leídas por esta persona. */
-  percentRead?: number;
+  /** RF-20, RN-14, RF-49: páginas leídas por esta persona y su última página. */
+  pagesRead?: number[];
+  lastPage?: number | null;
   /** RF-15: grupo desde el que se quita el libro y si esta persona puede hacerlo (RN-08). */
   groupId?: string;
   canRemove?: boolean;
@@ -98,7 +102,16 @@ export function BookCard({
         {pageCount !== null && (
           <p className="text-sm text-muted">{pageCount} páginas</p>
         )}
-        <p className="text-sm text-muted">{percentRead} % leído</p>
+        {pageCount ? (
+          <ReadingProgress
+            className="mt-1"
+            page={resumePage(lastPage, pageCount)}
+            total={pageCount}
+            pagesRead={pagesRead}
+          />
+        ) : (
+          <p className="text-sm text-muted">0 % leído</p>
+        )}
       </div>
     </>
   );
