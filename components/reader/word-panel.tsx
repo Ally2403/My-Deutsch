@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { splitSeparable } from "@/lib/domain/separable";
 import { genderInfo } from "@/lib/domain/gender";
 import { recordLookup } from "@/lib/domain/lookup-log";
@@ -13,6 +13,7 @@ import {
   posLabel,
   sentenceOf,
 } from "@/lib/domain/page-lookup";
+import { Sheet } from "./sheet";
 
 type Props = {
   page: PageData;
@@ -27,10 +28,9 @@ type Props = {
   onRemove?: (lexiconId: number) => void;
   /** RF-25: busca de nuevo una forma corregida (una petición; solo para palabras sin entrada). */
   searchLexicon?: (word: string) => Promise<LexEntry | null>;
+  /** RF-47: abre el panel de frase con la oración de esta palabra. */
+  onTranslateSentence?: () => void;
 };
-
-const CLOSE_SWIPE_PX = 60;
-const CARD_WIDTH = 384;
 
 /** Quita la puntuación pegada al token (p. ej. «Berlin.» → «Berlin»). */
 const bare = (t: string) => t.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
@@ -77,7 +77,6 @@ function Heading({ entry }: { entry: LexEntry }) {
   return <p className="text-xl font-semibold">{entry.lemma}</p>;
 }
 
-
 /** Palabra sin entrada (RF-25): dice «no sé», ofrece Wiktionary y DWDS y permite corregir la forma. */
 function UnknownWord({
   form,
@@ -95,8 +94,7 @@ function UnknownWord({
     | { kind: "found"; entry: LexEntry }
   >({ kind: "idle" });
   const word = query.trim();
-  const link =
-    "inline-flex min-h-11 items-center text-accent underline";
+  const link = "inline-flex min-h-11 items-center text-accent underline";
 
   async function search(e: React.FormEvent) {
     e.preventDefault();
@@ -203,16 +201,11 @@ export function WordPanel({
   onStatus,
   onRemove,
   searchLexicon,
+  onTranslateSentence,
 }: Props) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const token = page.tokens[tokenIndex];
   const entry = entryFor(page, tokenIndex);
-  const ref = useRef<HTMLDivElement>(null);
-  const dragStart = useRef<number | null>(null);
-  const closeRef = useRef(onClose);
-  useEffect(() => {
-    closeRef.current = onClose;
-  }, [onClose]);
 
   // RN-05: registrar la consulta al abrir el panel.
   useEffect(() => {
@@ -228,176 +221,108 @@ export function WordPanel({
     });
   }, [page, tokenIndex, pageNumber]);
 
-  // Esc cierra; el foco entra al panel y vuelve a la palabra al cerrar.
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    ref.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeRef.current();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      previous?.focus?.();
-    };
-  }, []);
-
   if (!token) return null;
-
-  const wide =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(min-width: 768px)").matches;
-  let cardStyle: React.CSSProperties | undefined;
-  if (wide && anchor) {
-    const left = Math.min(
-      Math.max(anchor.left, 8),
-      window.innerWidth - CARD_WIDTH - 8,
-    );
-    const below = anchor.bottom + 8 + 240 < window.innerHeight;
-    cardStyle = below
-      ? { left, top: anchor.bottom + 8, width: CARD_WIDTH }
-      : {
-          left,
-          bottom: window.innerHeight - anchor.top + 8,
-          width: CARD_WIDTH,
-        };
-  }
 
   const form = bare(token.t);
   const formNote = entry && formLabel(token.f);
   const senses = entry?.senses.slice(0, MAX_SENSES) ?? [];
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-40"
-        aria-hidden="true"
-        onPointerDown={onClose}
-      />
-      <div
-        ref={ref}
-        role="dialog"
-        aria-label={`Palabra: ${form}`}
-        tabIndex={-1}
-        style={cardStyle}
-        className={
-          "fixed z-50 border border-border bg-surface p-4 shadow-xl outline-none " +
-          (cardStyle
-            ? "rounded-xl"
-            : "inset-x-0 bottom-0 max-h-[70dvh] overflow-auto rounded-t-2xl pb-[max(1rem,env(safe-area-inset-bottom))]")
-        }
-      >
-        <div
-          data-testid="panel-handle"
-          className="mx-auto mb-3 flex h-6 w-full touch-none justify-center md:hidden"
-          onPointerDown={(e) => {
-            dragStart.current = e.clientY;
-          }}
-          onPointerUp={(e) => {
-            const start = dragStart.current;
-            dragStart.current = null;
-            if (start !== null && e.clientY - start >= CLOSE_SWIPE_PX)
-              onClose();
-          }}
-        >
-          <span className="mt-1 h-1.5 w-10 rounded-full bg-border" />
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-2 top-2 min-h-11 min-w-11 rounded text-lg"
-        >
-          <span aria-hidden="true">×</span>
-          <span className="sr-only">Cerrar</span>
-        </button>
-
-        {entry ? (
-          <>
-            <Heading entry={entry} />
-            <p className="mt-1 text-sm text-muted">
-              {posLabel(entry.pos)}
-              {formNote && ` · ${form} → ${entry.lemma}, ${formNote}`}
-              {entry.pos === "noun" && token.f === "pl" && (
-                <span className="plural-badge ml-2">plural</span>
-              )}
-            </p>
-            {senses.length === 0 && (
-              <p className="mt-3 text-sm text-muted">
-                Todavía no hay significados para esta palabra.
-              </p>
+    <Sheet label={`Palabra: ${form}`} anchor={anchor} onClose={onClose}>
+      {entry ? (
+        <>
+          <Heading entry={entry} />
+          <p className="mt-1 text-sm text-muted">
+            {posLabel(entry.pos)}
+            {formNote && ` · ${form} → ${entry.lemma}, ${formNote}`}
+            {entry.pos === "noun" && token.f === "pl" && (
+              <span className="plural-badge ml-2">plural</span>
             )}
-            <ol className="mt-3 list-decimal space-y-1 pl-5">
-              {senses.map((s, i) => (
-                <li key={i}>
-                  {s.es}
-                  {s.m && (
-                    <span className="ml-2 rounded border border-border px-1 text-xs text-muted">
-                      traducción automática
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ol>
-            {token.l !== undefined && seen && (
-              <div className="mt-4 border-t border-border pt-3">
-                {seenSummary(seen, firstBookTitle) && (
-                  <p className="text-sm text-muted">
-                    {seenSummary(seen, firstBookTitle)}
-                  </p>
+          </p>
+          {senses.length === 0 && (
+            <p className="mt-3 text-sm text-muted">
+              Todavía no hay significados para esta palabra.
+            </p>
+          )}
+          <ol className="mt-3 list-decimal space-y-1 pl-5">
+            {senses.map((s, i) => (
+              <li key={i}>
+                {s.es}
+                {s.m && (
+                  <span className="ml-2 rounded border border-border px-1 text-xs text-muted">
+                    traducción automática
+                  </span>
                 )}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className="chip"
-                    onClick={() =>
-                      onStatus?.(
-                        token.l as number,
-                        seen.status === "known" ? "seen" : "known",
-                      )
-                    }
-                  >
-                    {seen.status === "known"
-                      ? "Volver a «vista»"
-                      : "Marcar como conocida"}
-                  </button>
-                  {confirmRemove ? (
-                    <>
-                      <button
-                        type="button"
-                        className="chip"
-                        onClick={() => {
-                          onRemove?.(token.l as number);
-                          setConfirmRemove(false);
-                        }}
-                      >
-                        Sí, eliminar
-                      </button>
-                      <button
-                        type="button"
-                        className="chip"
-                        onClick={() => setConfirmRemove(false)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
+              </li>
+            ))}
+          </ol>
+          {token.l !== undefined && seen && (
+            <div className="mt-4 border-t border-border pt-3">
+              {seenSummary(seen, firstBookTitle) && (
+                <p className="text-sm text-muted">
+                  {seenSummary(seen, firstBookTitle)}
+                </p>
+              )}
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="chip"
+                  onClick={() =>
+                    onStatus?.(
+                      token.l as number,
+                      seen.status === "known" ? "seen" : "known",
+                    )
+                  }
+                >
+                  {seen.status === "known"
+                    ? "Volver a «vista»"
+                    : "Marcar como conocida"}
+                </button>
+                {confirmRemove ? (
+                  <>
                     <button
                       type="button"
                       className="chip"
-                      onClick={() => setConfirmRemove(true)}
+                      onClick={() => {
+                        onRemove?.(token.l as number);
+                        setConfirmRemove(false);
+                      }}
                     >
-                      Eliminar de mi diccionario
+                      Sí, eliminar
                     </button>
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      className="chip"
+                      onClick={() => setConfirmRemove(false)}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="chip"
+                    onClick={() => setConfirmRemove(true)}
+                  >
+                    Eliminar de mi diccionario
+                  </button>
+                )}
               </div>
-            )}
-          </>
-        ) : (
-          <UnknownWord form={form} searchLexicon={searchLexicon} />
-        )}
-      </div>
-    </>
+            </div>
+          )}
+        </>
+      ) : (
+        <UnknownWord form={form} searchLexicon={searchLexicon} />
+      )}
+      {onTranslateSentence && (
+        <button
+          type="button"
+          className="chip mt-4"
+          onClick={onTranslateSentence}
+        >
+          Traducir la oración
+        </button>
+      )}
+    </Sheet>
   );
 }

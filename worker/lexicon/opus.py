@@ -182,6 +182,9 @@ def provision(
     return reported
 
 
+SENTENCE_MAX_TOKENS = 256
+
+
 class _Engine:
     """Un modelo CTranslate2 con sus tokenizadores SentencePiece (receta de Opus-MT/Marian)."""
 
@@ -207,7 +210,7 @@ class _Engine:
             self.translate_many([text])
         return self._cache[text]
 
-    def translate_many(self, texts: list[str]) -> None:
+    def translate_many(self, texts: list[str], max_len: int = 24) -> None:
         """Traduce por lote (RNF-18) lo que aún no está en la caché; una sola llamada al modelo."""
         todo = list(dict.fromkeys(t for t in texts if t not in self._cache))
         if not todo:
@@ -215,7 +218,7 @@ class _Engine:
         if len(self._cache) > 20_000:
             self._cache.clear()
         batch = [[*self._source.encode(t, out_type=str), "</s>"] for t in todo]
-        results = self._translator.translate_batch(batch, beam_size=4, max_decoding_length=24)
+        results = self._translator.translate_batch(batch, beam_size=4, max_decoding_length=max_len)
         for text, res in zip(todo, results, strict=True):
             self._cache[text] = self._target.decode([t for t in res.hypotheses[0] if t != "</s>"])
 
@@ -245,6 +248,11 @@ class OpusTranslator:
 
     def from_english(self, text: str) -> str:
         return self._en_es.translate(text)
+
+    def from_german_many(self, texts: list[str]) -> list[str]:
+        """Oraciones enteras (RF-47), por lote; más largas que las sondas de palabra."""
+        self._de_es.translate_many(texts, max_len=SENTENCE_MAX_TOKENS)
+        return [self._de_es.translate(t) for t in texts]
 
     def warm(self, german: list[str], english: list[str]) -> None:
         """Precalcula por lote las traducciones que `senses_for` pedirá una a una."""

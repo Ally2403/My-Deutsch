@@ -209,3 +209,10 @@ def test_separable_detection_rate_on_the_sentence_set():
     rate = hits / len(rows)
     print(f"RF-24: {hits}/{len(rows)} = {rate:.0%}", misses)
     assert rate >= 0.8, f"{rate:.0%}: {misses}"
+
+
+@pytest.mark.slow
+def test_sent_start_marks_the_first_token_of_each_sentence(nlp, lex):
+    out = analyze(tokens("Das", "Haus", "ist", "alt.", "Die", "Lampe", "ist", "neu."), nlp, lex)
+    assert [a.sent_start for a in out].count(True) == 2
+    assert out[0].sent_start and out[4].sent_start

@@ -18,6 +18,9 @@ class FakeTranslator:
 
     from_english = from_german
 
+    def from_german_many(self, texts: list[str]) -> list[str]:
+        return [f"es:{t}" for t in texts]
+
 
 def _e(word, pos, forms=(), senses=None, translations=None):
     e = {
@@ -325,3 +328,124 @@ def test_detected_images_are_serialized_and_valid(lex):
     )
     assert p["images"] == [[0.1, 0.3, 0.8, 0.2]]
     validate_page(p)
+
+
+# --- RF-47: traducción por oración (`sents`) ---
+
+
+def _sent_analyzed(starts: list[bool]) -> list[Analyzed]:
+    return [Analyzed(None, None, None, None, s) for s in starts]
+
+
+def test_sents_two_sentences_get_ranges_and_translation(lex):
+    tokens = [tok("Der"), tok("Tisch."), tok("Es"), tok("regnet.")]
+    p = page(tokens, _sent_analyzed([True, False, True, False]), lex)
+    assert p["sents"] == [
+        {"r": [0, 1], "es": "es:Der Tisch."},
+        {"r": [2, 3], "es": "es:Es regnet."},
+    ]
+    validate_page(p)
+
+
+def test_sents_hyphenated_word_stays_in_one_range(lex):
+    # el guion de fin de línea ya está unido en un token con `b2`: no parte la oración
+    tokens = [tok("Es"), tok("Normalerweise", box2=(0.1, 0.12, 0.05, 0.01)), tok("regnet.", line=1)]
+    p = page(tokens, _sent_analyzed([True, False, False]), lex)
+    assert [s["r"] for s in p["sents"]] == [[0, 2]]
+
+
+def test_sents_cut_at_paragraph_boundary(lex):
+    tokens = [tok("Es"), tok("regnet", par=0), tok("und", par=1), tok("schneit.", par=1)]
+    p = page(tokens, _sent_analyzed([True, False, False, False]), lex)
+    assert [s["r"] for s in p["sents"]] == [[0, 1], [2, 3]]
+
+
+def test_sents_omitted_without_translation(lex):
+    class Null:
+        def from_german(self, text):
+            return ""
+
+        from_english = from_german
+
+        def from_german_many(self, texts):
+            return [""] * len(texts)
+
+    p = build_page(
+        (1600, 2263),
+        [tok("Es"), tok("regnet.")],
+        _sent_analyzed([True, False]),
+        lex,
+        Null(),
+        LexRegistry(),
+    )
+    assert "sents" not in p
+
+
+def test_sents_omitted_when_translator_has_no_batch(lex):
+    class Old:
+        def from_german(self, text):
+            return "x"
+
+        from_english = from_german
+
+    p = build_page((1600, 2263), [tok("Es")], _sent_analyzed([True]), lex, Old(), LexRegistry())
+    assert "sents" not in p
+
+
+def test_sents_skip_sentences_without_letters_and_cap_length(lex):
+    class Long(FakeTranslator):
+        def from_german_many(self, texts):
+            return ["x" * 900 for _ in texts]
+
+    tokens = [tok("123"), tok("Es"), tok("regnet.")]
+    p = build_page(
+        (1600, 2263),
+        tokens,
+        _sent_analyzed([True, True, False]),
+        lex,
+        Long(),
+        LexRegistry(),
+    )
+    assert [s["r"] for s in p["sents"]] == [[1, 2]]
+    assert len(p["sents"][0]["es"]) <= 600
+    validate_page(p)
+
+
+def test_sents_page_size_increase_is_small(lex):
+    words = ["Der", "Mann", "geht", "heute", "nach", "Hause", "und", "kauft", "Brot."] * 40
+    tokens = [tok(w, line=i // 10) for i, w in enumerate(words)]  # 360 tokens, 40 oraciones
+    starts = [i % 9 == 0 for i in range(len(words))]
+
+    class Realistic(FakeTranslator):
+        def from_german_many(self, texts):
+            return ["El hombre va hoy a casa y compra pan, dice la frase número uno."] * len(texts)
+
+    base = build_page(
+        (1600, 2263),
+        tokens,
+        _sent_analyzed([False] * len(words)),
+        lex,
+        Realistic(),
+        LexRegistry(),
+    )
+    full = build_page((1600, 2263), tokens, _sent_analyzed(starts), lex, Realistic(), LexRegistry())
+    extra = len(json.dumps(full, ensure_ascii=False).encode()) - len(
+        json.dumps(base, ensure_ascii=False).encode()
+    )
+    assert 0 < extra <= 3072
+
+
+def test_validate_rejects_bad_sents(lex):
+    good = page([tok("Es"), tok("regnet.")], _sent_analyzed([True, False]), lex)
+    for bad in (
+        [{"r": [0, 1], "es": "a"}, {"r": [1, 1], "es": "b"}],  # solapados
+        [{"r": [1, 1], "es": "a"}, {"r": [0, 0], "es": "b"}],  # desordenados
+        [{"r": [0, 2], "es": "a"}],  # fuera de los tokens
+        [{"r": [0, 1], "es": "x" * 601}],
+        [{"r": [0, 1], "es": 3}],
+        [{"r": [0, 1], "es": "a"}] * 81,
+        "no",
+    ):
+        with pytest.raises(ValueError):
+            validate_page({**good, "sents": bad})
+    validate_page({**good, "sents": []})

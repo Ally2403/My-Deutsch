@@ -358,6 +358,12 @@ h3 {
   color: var(--gender-f);
 }
 
+/* RF-47: rango de frase seleccionado. */
+.reader-word-phrase {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 2px 0 var(--accent);
+}
+
 .reader-word-active {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
   border-radius: 2px;

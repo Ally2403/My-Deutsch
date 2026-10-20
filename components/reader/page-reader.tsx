@@ -20,6 +20,7 @@ import {
   type Direction,
 } from "@/lib/domain/paging";
 import { pairOf } from "@/lib/domain/page-lookup";
+import { sentenceRangeOf, type TokenRange } from "@/lib/domain/phrase";
 import {
   seenMarksFor,
   type SeenMap,
@@ -40,7 +41,9 @@ import type { AnnotationSync, SyncStatus } from "@/lib/annotations/sync";
 import { AnnotationLayer } from "./annotation-layer";
 import { ReadingProgress } from "./reading-progress";
 import { ReadingView } from "./reading-view";
+import { PhrasePanel } from "./phrase-panel";
 import { TextLayer } from "./text-layer";
+import { usePhraseSelection } from "./use-phrase-selection";
 import {
   useHideAnswersPref,
   useReadingModePref,
@@ -115,6 +118,18 @@ export function PageReader({
   const [readingMode, setReadingMode] = useReadingModePref();
   const [fontSize, stepFont] = useFontSizePref();
   const [writeMode, setWriteMode] = useState(false);
+  // RF-47: modo «Frase» (dos toques), frase abierta y selección con el mouse.
+  const [phraseMode, setPhraseMode] = useState(false);
+  const [phraseStart, setPhraseStart] = useState<{
+    page: number;
+    token: number;
+  } | null>(null);
+  const [phrase, setPhrase] = useState<{
+    page: number;
+    range: TokenRange;
+    rect: DOMRect | null;
+  } | null>(null);
+  const textLayerRef = useRef<HTMLElement | null>(null);
   const [answersVersion, setAnswersVersion] = useState(0);
   const syncStatus: SyncStatus = useSyncExternalStore(
     (cb) => annotations?.onStatus(cb) ?? (() => {}),
@@ -272,6 +287,11 @@ export function PageReader({
     }
   }
 
+  usePhraseSelection(textLayerRef, {
+    enabled: !writeMode && !readingMode,
+    onSelect: (range, rect) => showPhrase(range, rect),
+  });
+
   const data = loaded?.n === page ? loaded.data : null;
   const error = !data && failed?.n === page && failed.attempt === attempt;
   const errorMessage = error ? failed.message : null;
@@ -296,6 +316,37 @@ export function PageReader({
     [data, seenWords, hideSeen],
   );
   const aspect = data ? data.size[0] / data.size[1] : DEFAULT_ASPECT;
+  const openPhrase = phrase?.page === page ? phrase : null;
+  const startToken = phraseStart?.page === page ? phraseStart.token : null;
+  // Resaltado: frase abierta, o primer toque del modo «Frase» a la espera del segundo.
+  const phraseHighlight: TokenRange | null = openPhrase
+    ? openPhrase.range
+    : startToken !== null
+      ? [startToken, startToken]
+      : null;
+
+  function showPhrase(range: TokenRange, rect: DOMRect | null) {
+    setSelected(null);
+    setPhraseStart(null);
+    setPhrase({ page, range, rect });
+  }
+
+  function onWord(token: number, rect: DOMRect) {
+    if (!phraseMode) {
+      setSelected({ page, token, rect });
+      return;
+    }
+    if (startToken === null) {
+      setPhraseStart({ page, token });
+    } else if (startToken === token) {
+      setPhraseStart(null); // tocar de nuevo la misma palabra cancela
+    } else {
+      showPhrase(
+        startToken < token ? [startToken, token] : [token, startToken],
+        rect,
+      );
+    }
+  }
 
   return (
     <div className={`flex ${heightClassName} min-h-0 flex-col`}>
@@ -361,6 +412,19 @@ export function PageReader({
           )}
         </div>
         {!readingMode && (
+          <button
+            type="button"
+            aria-pressed={phraseMode}
+            onClick={() => {
+              setPhraseMode(!phraseMode);
+              setPhraseStart(null);
+            }}
+            className="chip shrink-0"
+          >
+            Frase
+          </button>
+        )}
+        {!readingMode && (
           <div
             className="flex shrink-0 items-center gap-2 md:mr-auto"
             role="group"
@@ -422,6 +486,10 @@ export function PageReader({
               aria-pressed={writeMode}
               onClick={() => {
                 if (!writeMode && hideAnswers) setHideAnswers(false);
+                if (!writeMode) {
+                  setPhraseMode(false);
+                  setPhraseStart(null);
+                }
                 setWriteMode(!writeMode);
               }}
               className="chip"
@@ -550,7 +618,7 @@ export function PageReader({
               highlight={highlight}
               plurals={plurals}
               seen={seenMarks}
-              onWordClick={(token, rect) => setSelected({ page, token, rect })}
+              onWordClick={onWord}
             />
           ) : (
             <p
@@ -623,13 +691,16 @@ export function PageReader({
             {data && (
               <TextLayer
                 page={data}
+                layerRef={textLayerRef}
                 active={active}
                 highlight={highlight}
                 plurals={plurals}
                 seen={seenMarks}
-                onWordClick={(token, rect) =>
-                  setSelected({ page, token, rect })
+                phrase={phraseHighlight}
+                onTranslateSentence={(token) =>
+                  showPhrase(sentenceRangeOf(data, token), null)
                 }
+                onWordClick={onWord}
               />
             )}
             {annotations && (
@@ -686,7 +757,20 @@ export function PageReader({
           onStatus={onSeenStatus}
           onRemove={onSeenRemove}
           searchLexicon={searchLexicon}
+          onTranslateSentence={() =>
+            showPhrase(sentenceRangeOf(data, open.token), open.rect)
+          }
           onClose={() => setSelected(null)}
+        />
+      )}
+
+      {data && openPhrase && (
+        <PhrasePanel
+          key={`${page}-${openPhrase.range[0]}-${openPhrase.range[1]}`}
+          page={data}
+          range={openPhrase.range}
+          anchor={openPhrase.rect}
+          onClose={() => setPhrase(null)}
         />
       )}
 

@@ -7,7 +7,7 @@
 | **Módulo**            | M-5 Lector                                                                         |
 | **Prioridad**         | Alta                                                                               |
 | **Fase**              | 6                                                                                  |
-| **Estado**            | Pendiente                                                                          |
+| **Estado**            | En curso                                                                           |
 | **Dependencias**      | [RF-21](RF-21-consultar-palabra.md), [RF-43](RF-43-calidad-de-las-traducciones.md) |
 | **Reglas de negocio** | —                                                                                  |
 
@@ -33,4 +33,13 @@ Aprobado por pedido explícito de la usuaria, 2026-10-20. Plan: [`superpowers/pl
 
 ## Verificación
 
-Pendiente.
+2026-10-20 (rama `feat/RF-47-traducir-frases`):
+
+- Criterio 1: cumplido en pruebas (`worker/tests/test_page_json.py`, `lib/domain/page.test.ts`: rangos solapados, desordenados o fuera de los tokens, `es` > 600, > 80 oraciones; página sin `sents` válida; una página sintética de 360 tokens suma <= 3 KB). El worker lo escribe en un solo lote por página (`from_german_many`, tope 3 000 bytes de `sents`). Fixtures `public/demo/page-1.json` y `page-2.json` con `sents` escritos a mano.
+- Criterio 2: cumplido. Mouse a 1280 (arrastre sobre dos líneas de la demo), modo «Frase» con dos toques en 360, 768, 1280 y WebKit iPhone, «Traducir la oración» desde el panel de palabra y tecla T (`e2e/frases.spec.ts`). Una sola palabra no abre el panel (`lib/domain/phrase.test.ts`, `use-phrase-selection.test.tsx`). **No se pudo verificar en el navegador** que el modo «Escribir» no abre el panel (la demo no tiene capa de respuestas); solo hay prueba unitaria de `enabled=false` y `PageReader` pasa `!writeMode`.
+- Criterio 3: cumplido (`phrase-panel.test.tsx` y e2e: texto, traducción por oración con el aviso de traducción automática, artículo der/die en color y escrito, botón «Copiar»).
+- Criterio 4: cumplido en pruebas (`phrase-panel.test.tsx`: sin `sents` solo glosas y el aviso).
+- Criterio 5: cumplido con la demo: cero peticiones al abrir el panel (e2e), `role="dialog"`, Esc cierra, axe sin violaciones serias y sin desborde horizontal en 360, 768, 1280 y WebKit iPhone. **No se pudo verificar:** el arrastre con mouse en WebKit de escritorio, y en un iPhone físico el modo «Frase».
+- **No se pudo verificar:** la traducción real de oraciones con Opus-MT en un libro (el modelo no está instalado en este equipo; `pytest` de `test_opus` falla localmente por eso) ni el costo de tiempo por página (objetivo <= +20 %, `worker/tools/bench.py`). Es una sola llamada por lote por página, con `max_decoding_length` 256.
+- **Los libros ya subidos deben subirse de nuevo** para tener `sents` (el PDF se borra al terminar el procesamiento); mientras tanto el panel muestra las glosas y el aviso «Sube de nuevo el libro para traducir oraciones completas.».
+- Decisiones autónomas: la traducción es de la oración que contiene la selección (no del fragmento exacto); `sents` omite oraciones sin letras y se corta al llegar a 3 000 bytes; el arrastre con mouse solo se detecta sobre la capa de texto de la página (no en el modo lectura).

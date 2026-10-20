@@ -18,6 +18,11 @@ export type Token = {
   sep?: number;
   f?: string;
 };
+/** RF-47: traducción de una oración; `r` son índices de tokens (inclusivos) dentro de un párrafo. */
+export type Sentence = {
+  r: readonly [first: number, last: number];
+  es: string;
+};
 export type PageData = {
   v: 1;
   size: readonly [number, number];
@@ -27,10 +32,13 @@ export type PageData = {
   fields: Box[];
   tokens: Token[];
   lex: Record<string, LexEntry>;
+  sents?: Sentence[];
 };
 
 export const FORM_TAGS = ["pret", "part", "pres", "pl", "comp", "sup"] as const;
 export const MAX_SENSES = 5;
+export const MAX_SENTS = 80;
+export const MAX_SENTENCE_CHARS = 600;
 
 type Obj = Record<string, unknown>;
 
@@ -145,6 +153,25 @@ export function parsePage(raw: unknown): PageData {
     return tk as unknown as Token;
   });
 
+  let sents: Sentence[] | undefined;
+  if (raw.sents !== undefined) {
+    const list = arr(raw.sents, "sents");
+    if (list.length > MAX_SENTS) fail(`más de ${MAX_SENTS} oraciones en sents`);
+    let previousEnd = -1;
+    sents = list.map((s) => {
+      if (!isObj(s)) fail("oración inválida en sents");
+      const r = range(s.r, tokens.length, "sents");
+      if (r[0] <= previousEnd)
+        fail("oraciones solapadas o desordenadas en sents");
+      if (typeof s.es !== "string" || s.es.length > MAX_SENTENCE_CHARS)
+        fail(
+          `es de una oración debe ser texto de ${MAX_SENTENCE_CHARS} caracteres como máximo`,
+        );
+      previousEnd = r[1];
+      return { r, es: s.es };
+    });
+  }
+
   return {
     v: 1,
     size: size as unknown as readonly [number, number],
@@ -156,5 +183,6 @@ export function parsePage(raw: unknown): PageData {
     fields: arr(raw.fields ?? [], "fields").map((b) => box(b, "fields")),
     tokens,
     lex,
+    ...(sents ? { sents } : {}),
   };
 }

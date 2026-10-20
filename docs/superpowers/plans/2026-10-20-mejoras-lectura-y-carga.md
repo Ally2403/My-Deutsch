@@ -191,9 +191,9 @@
 
 **Interfaces:** el JSON v1 gana `sents?: { r: [first: number, last: number]; es: string }[]` — rangos de tokens dentro de un párrafo, sin solaparse, ordenados, `es` ≤ 600 caracteres, ≤ 80 oraciones por página. Compatible hacia atrás (`v` sigue en 1; el campo es opcional). `NullTranslator.from_german_many` devuelve cadenas vacías (y entonces no se escribe `sents`).
 
-- [ ] Paso 1 (pruebas, fallan): `test_page_json.py` — `build_page` con 2 oraciones produce `sents` con rangos correctos; oración partida por guion de fin de línea queda en un solo rango; oración que cruza párrafo se corta en el límite; `validate_page` rechaza rangos solapados/fuera de los tokens y `es` > 600; el aumento de tamaño de una página de 350 tokens es ≤ 3 KB. `page.test.ts` acepta y rechaza lo mismo en TypeScript.
-- [ ] Paso 2: implementar; usar la segmentación de spaCy ya calculada (`starts` en `analyze`). Traducir todas las oraciones de la página en una sola llamada por lote.
-- [ ] Paso 3: regenerar las fixtures de `demo` y `local-book` con `sents` (escritas a mano en la demo; el libro local con el worker). Medir el efecto en el tiempo por página con `bench.py` (objetivo: ≤ +20 %). Commit `RF-47: el worker traduce cada oración`.
+- [x] Paso 1 (pruebas, fallan): `test_page_json.py` — `build_page` con 2 oraciones produce `sents` con rangos correctos; oración partida por guion de fin de línea queda en un solo rango; oración que cruza párrafo se corta en el límite; `validate_page` rechaza rangos solapados/fuera de los tokens y `es` > 600; el aumento de tamaño de una página de 350 tokens es ≤ 3 KB. `page.test.ts` acepta y rechaza lo mismo en TypeScript.
+- [x] Paso 2: implementar; usar la segmentación de spaCy ya calculada (`starts` en `analyze`). Traducir todas las oraciones de la página en una sola llamada por lote.
+- [x] Paso 3 (parcial: la demo se escribió a mano; `local-book` no está en el repositorio; la medición con `bench.py` no se pudo hacer sin los modelos Opus-MT instalados): regenerar las fixtures de `demo` y `local-book` con `sents` (escritas a mano en la demo; el libro local con el worker). Medir el efecto en el tiempo por página con `bench.py` (objetivo: ≤ +20 %). Commit `RF-47: el worker traduce cada oración`.
 
 ### Tarea 3.2: Dominio de selección de frases
 
@@ -207,8 +207,8 @@
 - `glossesFor(page, [a, b]): { token: number; form: string; lemma: string; es: string }[]` (primer sentido; solo palabras con entrada).
 - `canTranslatePhrase([a, b]): boolean` → solo si cubre ≥ 2 palabras.
 
-- [ ] Paso 1 (pruebas, fallan): selección invertida; de una sola palabra → `canTranslatePhrase` falso; cruza dos oraciones → 2 resultados; cruza salto de línea y palabra con `b2`; página sin `sents` → `es: null`; extremos fuera de rango se recortan (Review Focus 2).
-- [ ] Paso 2: implementar y verificar. Commit `RF-47: dominio de selección de frases`.
+- [x] Paso 1 (pruebas, fallan): selección invertida; de una sola palabra → `canTranslatePhrase` falso; cruza dos oraciones → 2 resultados; cruza salto de línea y palabra con `b2`; página sin `sents` → `es: null`; extremos fuera de rango se recortan (Review Focus 2).
+- [x] Paso 2: implementar y verificar. Commit `RF-47: dominio de selección de frases`.
 
 ### Tarea 3.3: Interfaz de selección y panel de frase
 
@@ -220,11 +220,11 @@
 - Modo «Frase» (celular/tableta/teclado): chip conmutable; 1.er toque fija el inicio, 2.º toque fija el final y abre el panel; tocar de nuevo cancela. Teclado: sobre una palabra enfocada, tecla `T` abre la oración completa.
 - `<PhrasePanel page range onClose />`: texto original, traducción de cada oración cubierta («Traducción automática; puede fallar en frases idiomáticas», igual que RF-43), lista de glosas con género en color **y** artículo (RNF-09), botón «Copiar». Libro antiguo sin `sents`: solo glosas y el aviso «Sube de nuevo el libro para traducir oraciones completas.» Sin peticiones de red (prueba con `page.route` que falla ante cualquier petición).
 
-- [ ] Paso 1: extraer `Sheet` con las pruebas existentes de `word-panel.test.tsx` en verde (refactor sin cambios).
-- [ ] Paso 2 (pruebas, fallan): `use-phrase-selection` — arrastre de la palabra 3 a la 8 → rango `[3,8]`; clic simple no abre panel de frase; con `enabled=false` no hace nada. `phrase-panel` — muestra 2 oraciones; muestra aviso sin `sents`; `role="dialog"` con nombre accesible; Esc cierra.
-- [ ] Paso 3: implementar; que la selección nativa del navegador desaparezca al abrir el panel (para no quedar atrapada tras cerrar).
-- [ ] Paso 4 (e2e): Chromium a 1280 — arrastrar sobre dos líneas de la demo abre el panel con la traducción; 360 y WebKit iPhone — modo «Frase» con dos toques; modo «Escribir» activo no abre el panel; sin desborde horizontal; axe sin violaciones.
-- [ ] Paso 5: PR, CI, fusión; actualizar RF-47. Anotar en `ESTADO.md`: «los libros ya subidos necesitan subirse de nuevo (el PDF se borra al terminar)». Commit `RF-47: panel de frase y selección con mouse`.
+- [x] Paso 1: extraer `Sheet` con las pruebas existentes de `word-panel.test.tsx` en verde (refactor sin cambios).
+- [x] Paso 2 (pruebas, fallan): `use-phrase-selection` — arrastre de la palabra 3 a la 8 → rango `[3,8]`; clic simple no abre panel de frase; con `enabled=false` no hace nada. `phrase-panel` — muestra 2 oraciones; muestra aviso sin `sents`; `role="dialog"` con nombre accesible; Esc cierra.
+- [x] Paso 3: implementar; que la selección nativa del navegador desaparezca al abrir el panel (para no quedar atrapada tras cerrar).
+- [x] Paso 4 (e2e; el modo «Escribir» solo con prueba unitaria, la demo no tiene capa de respuestas): Chromium a 1280 — arrastrar sobre dos líneas de la demo abre el panel con la traducción; 360 y WebKit iPhone — modo «Frase» con dos toques; modo «Escribir» activo no abre el panel; sin desborde horizontal; axe sin violaciones.
+- [ ] Paso 5 (PR/CI/fusión en curso): PR, CI, fusión; actualizar RF-47. Anotar en `ESTADO.md`: «los libros ya subidos necesitan subirse de nuevo (el PDF se borra al terminar)». Commit `RF-47: panel de frase y selección con mouse`.
 
 ---
 
