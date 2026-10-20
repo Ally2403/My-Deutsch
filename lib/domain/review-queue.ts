@@ -43,7 +43,7 @@ export function studyDayStart(now: Date): Date {
   return d;
 }
 
-function nextStudyDayStart(now: Date): Date {
+export function nextStudyDayStart(now: Date): Date {
   const d = studyDayStart(now);
   d.setDate(d.getDate() + 1);
   return d;
@@ -117,17 +117,27 @@ export function buildQueue(
   return out;
 }
 
+/** Resumen para «Repaso de hoy»: solo necesita ids, estado y vencimiento (payload mínimo). */
 export function dueSummary(
-  words: ReviewWord[],
-  cards: Map<number, CardState>,
+  words: readonly Pick<ReviewWord, "lexiconId" | "status">[],
+  cards: ReadonlyMap<number, { due: Date }>,
   now: Date,
   limits: Limits,
   doneToday: DoneToday,
 ): { due: number; new: number } {
-  const q = buildQueue(words, cards, {}, now, limits, doneToday);
-  let n = 0;
-  for (const i of q) if (i.isNew) n++;
-  return { due: q.length - n, new: n };
+  const horizon = nextStudyDayStart(now).getTime();
+  let due = 0;
+  let fresh = 0;
+  for (const w of words) {
+    if (w.status === "known") continue;
+    const c = cards.get(w.lexiconId);
+    if (!c) fresh++;
+    else if (c.due.getTime() < horizon) due++;
+  }
+  return {
+    due: Math.min(due, Math.max(0, limits.maxReviews - doneToday.reviews)),
+    new: Math.min(fresh, Math.max(0, limits.newPerDay - doneToday.new)),
+  };
 }
 
 /** Quita de lo que falta las palabras marcadas «conocidas» a mitad de la sesión (RF-48 c4). */
