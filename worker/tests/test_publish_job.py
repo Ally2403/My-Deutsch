@@ -257,6 +257,35 @@ def test_progress_counts_pdf_sheets_never_exceeding_the_total(pdf, lex, tmp_path
     assert updates[-1] == {"pages_total": 3, "pages_done": 3}
 
 
+def test_a_tesseract_timeout_in_a_parallel_book_ends_in_error_not_processing(
+    pdf, lex, tmp_path, monkeypatch
+):
+    """RNF-18 (Review Focus 5): un hilo que falla no deja el libro «procesando» para siempre."""
+    from test_prepare import TimeoutOnSecondSheet
+
+    c = FakeClient(pdf)
+    with pytest.raises(JobError) as err:
+        go(c, tmp_path, lex, monkeypatch, engine=TimeoutOnSecondSheet(), workers=3)
+    assert err.value.code == "processing_failed"
+    assert ("fail_book", "processing_failed") in c.calls
+    assert "finish_book" not in c.names() and "delete_upload" not in c.names()
+
+
+def test_parallel_job_publishes_the_same_pages_and_progress(pdf, lex, tmp_path, monkeypatch):
+    from test_prepare import ContentEngine
+
+    c = FakeClient(pdf)
+    assert go(c, tmp_path, lex, monkeypatch, engine=ContentEngine(), workers=3) == "done"
+    assert sorted({n for n, _ in c.files}) == [1, 2, 3, 4]
+    done = [
+        u["pages_done"]
+        for u in (x[1] for x in c.calls if x[0] == "update_job")
+        if "pages_done" in u
+    ]
+    assert done == sorted(done) and done[-1] == 3
+    assert next(x for x in c.calls if x[0] == "finish_book")[1] == 4
+
+
 def test_progress_of_400_double_sheets_stays_within_total(tmp_path):
     """Review Focus 1: 400 hojas todas dobles (800 páginas) → la barra no pasa de 100 %."""
 

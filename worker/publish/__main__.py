@@ -10,7 +10,7 @@ import tempfile
 from collections.abc import Mapping
 from pathlib import Path
 
-from pipeline.run import configure_logging
+from pipeline.run import configure_logging, default_workers
 from publish.client import Supabase
 from publish.job import UUID_RE, JobError, run_job
 
@@ -52,6 +52,7 @@ def main(argv: list[str], env: Mapping[str, str]) -> int:
                 lex=lex,
                 nlp=nlp,
                 translator=translator,
+                workers=default_workers(),  # RNF-18: hojas en paralelo, tope 4
             )
         except JobError as err:
             print(f"Error: {err.code}", file=sys.stderr)

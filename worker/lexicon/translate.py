@@ -28,8 +28,21 @@ class NullTranslator:
     def from_german(self, text: str) -> str:
         return ""
 
+    def warm(self, german: list[str], english: list[str]) -> None:
+        return None
+
     def from_english(self, text: str) -> str:
         return ""
+
+
+def probes_for(entry: Entry) -> tuple[list[str], list[str]]:
+    """Textos que `senses_for` enviará al traductor (alemán, inglés), para traducirlos por lote."""
+    german: list[str] = []
+    english: list[str] = []
+    if entry.pos not in NO_DIRECT_TRANSLATION:
+        german.append(german_probe(entry.lemma, entry.pos, entry.genders))
+    english += [english_probe(g, entry.pos) for g in clean_glosses(entry.glosses_en)[:MAX_SENSES]]
+    return german, english
 
 
 def senses_for(entry: Entry, translator: Translator) -> list[dict]:

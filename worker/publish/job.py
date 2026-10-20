@@ -129,6 +129,7 @@ def run_job(
     engine=None,
     dpi: int = DPI,
     log: logging.Logger | None = None,
+    workers: int = 1,
 ) -> str:
     """Devuelve "done" o "skipped"; ante un fallo deja el libro en `error` y lanza `JobError`."""
     log = log or logging.getLogger("pipeline")
@@ -164,6 +165,7 @@ def run_job(
                 on_start=publisher.sheets,
                 on_page=publisher.page,
                 on_sheet=publisher.sheet_done,
+                workers=workers,
             )
             _finish(client, book_id, out, summary)
         except _PublishError:

@@ -68,7 +68,7 @@ class CountingEngine(Engine):
         return [4 + self.printed_calls]
 
 
-def run(pdf, out, lex, engine, monkeypatch, log=None, **hooks):
+def run(pdf, out, lex, engine, monkeypatch, log=None, workers=1, **hooks):
     monkeypatch.setattr("pipeline.run.analyze", fake_analyze)
     return process_pdf(
         pdf,
@@ -79,6 +79,7 @@ def run(pdf, out, lex, engine, monkeypatch, log=None, **hooks):
         engine=engine,
         dpi=72,
         log=log or logging.getLogger("pipeline.test"),
+        workers=workers,
         **hooks,
     )
 
