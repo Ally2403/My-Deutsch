@@ -23,17 +23,29 @@ describe("describeStatus (RF-13)", () => {
   });
   it("procesando con total", () => {
     expect(describeStatus({ ...base, pagesDone: 12, pageCount: 200 })).toEqual({
-      label: "Procesando 12/200 páginas",
+      label: "Procesando hoja 12 de 200",
       tone: "working",
       progress: 0.06,
     });
   });
+  it("RF-46: a la mitad de las hojas la barra marca 50 %, no 100 %", () => {
+    expect(describeStatus({ ...base, pagesDone: 42, pageCount: 84 })).toEqual({
+      label: "Procesando hoja 42 de 84",
+      tone: "working",
+      progress: 0.5,
+    });
+  });
   it("procesando sin total", () => {
     expect(describeStatus({ ...base, pagesDone: 12 })).toEqual({
-      label: "Procesando 12 páginas…",
+      label: "Procesando hoja 12…",
       tone: "working",
       progress: null,
     });
+  });
+  it("RF-46: una sola hoja", () => {
+    expect(
+      describeStatus({ ...base, pagesDone: 1, pageCount: 1 }).progress,
+    ).toBe(1);
   });
   it("el progreso queda en 0–1", () => {
     expect(
@@ -147,8 +159,12 @@ describe("canRetry con libro atascado en procesamiento (RF-13)", () => {
     expect(canRetry({ ...processing, userId: "u2", isAdmin: true })).toBe(true);
   });
   it("niega con 6 horas justas o menos, sin inicio o con fecha inválida", () => {
-    expect(canRetry({ ...processing, jobStartedAt: "2026-10-18T06:00:00Z" })).toBe(false);
-    expect(canRetry({ ...processing, jobStartedAt: "2026-10-18T11:00:00Z" })).toBe(false);
+    expect(
+      canRetry({ ...processing, jobStartedAt: "2026-10-18T06:00:00Z" }),
+    ).toBe(false);
+    expect(
+      canRetry({ ...processing, jobStartedAt: "2026-10-18T11:00:00Z" }),
+    ).toBe(false);
     expect(canRetry({ ...processing, jobStartedAt: null })).toBe(false);
     expect(canRetry({ ...processing, jobStartedAt: "basura" })).toBe(false);
   });
@@ -197,10 +213,18 @@ describe("summarizeError", () => {
 
 describe("isOwnerOrAdmin (RF-13)", () => {
   it("dueño o administrador", () => {
-    expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u1", isAdmin: false })).toBe(true);
-    expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: true })).toBe(true);
-    expect(isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: false })).toBe(false);
-    expect(isOwnerOrAdmin({ uploadedBy: null, userId: "u2", isAdmin: false })).toBe(false);
+    expect(
+      isOwnerOrAdmin({ uploadedBy: "u1", userId: "u1", isAdmin: false }),
+    ).toBe(true);
+    expect(
+      isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: true }),
+    ).toBe(true);
+    expect(
+      isOwnerOrAdmin({ uploadedBy: "u1", userId: "u2", isAdmin: false }),
+    ).toBe(false);
+    expect(
+      isOwnerOrAdmin({ uploadedBy: null, userId: "u2", isAdmin: false }),
+    ).toBe(false);
   });
 });
 

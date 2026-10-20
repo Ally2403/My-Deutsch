@@ -105,7 +105,7 @@ def test_success_publishes_all_pages_and_marks_ready(pdf, lex, tmp_path, monkeyp
     assert sorted({n for n, _ in c.files}) == [1, 2, 3, 4]
     updates = [x[1] for x in c.calls if x[0] == "update_job"]
     assert {"pages_total": 3} in updates
-    assert updates[-1] == {"pages_total": 4, "pages_done": 4}
+    assert updates[-1] == {"pages_total": 3, "pages_done": 3}  # RF-46: hojas del PDF
     finish = next(x for x in c.calls if x[0] == "finish_book")
     assert finish[1] == 4 and finish[2] == 91.0
     assert ("delete_upload", "u1/a.pdf") in c.calls
@@ -243,3 +243,63 @@ def test_failing_to_delete_the_upload_does_not_fail_the_book(pdf, lex, tmp_path,
     c.fail_delete = True
     assert go(c, tmp_path, lex, monkeypatch) == "done"
     assert "fail_book" not in c.names()
+
+
+def test_progress_counts_pdf_sheets_never_exceeding_the_total(pdf, lex, tmp_path, monkeypatch):
+    """RF-46: con una doble página pages_done sigue las hojas (1..3) y nunca supera pages_total."""
+    c = FakeClient(pdf)
+    go(c, tmp_path, lex, monkeypatch)
+    updates = [x[1] for x in c.calls if x[0] == "update_job"]
+    done = [u["pages_done"] for u in updates if "pages_done" in u]
+    assert done[:3] == [1, 2, 3]
+    total = next(u["pages_total"] for u in updates if "pages_total" in u)
+    assert total == 3 and max(done) <= total and done == sorted(done)
+    assert updates[-1] == {"pages_total": 3, "pages_done": 3}
+
+
+def test_a_tesseract_timeout_in_a_parallel_book_ends_in_error_not_processing(
+    pdf, lex, tmp_path, monkeypatch
+):
+    """RNF-18 (Review Focus 5): un hilo que falla no deja el libro «procesando» para siempre."""
+    from test_prepare import TimeoutOnSecondSheet
+
+    c = FakeClient(pdf)
+    with pytest.raises(JobError) as err:
+        go(c, tmp_path, lex, monkeypatch, engine=TimeoutOnSecondSheet(), workers=3)
+    assert err.value.code == "processing_failed"
+    assert ("fail_book", "processing_failed") in c.calls
+    assert "finish_book" not in c.names() and "delete_upload" not in c.names()
+
+
+def test_parallel_job_publishes_the_same_pages_and_progress(pdf, lex, tmp_path, monkeypatch):
+    from test_prepare import ContentEngine
+
+    c = FakeClient(pdf)
+    assert go(c, tmp_path, lex, monkeypatch, engine=ContentEngine(), workers=3) == "done"
+    assert sorted({n for n, _ in c.files}) == [1, 2, 3, 4]
+    done = [
+        u["pages_done"]
+        for u in (x[1] for x in c.calls if x[0] == "update_job")
+        if "pages_done" in u
+    ]
+    assert done == sorted(done) and done[-1] == 3
+    assert next(x for x in c.calls if x[0] == "finish_book")[1] == 4
+
+
+def test_progress_of_400_double_sheets_stays_within_total(tmp_path):
+    """Review Focus 1: 400 hojas todas dobles (800 páginas) → la barra no pasa de 100 %."""
+
+    class Recorder:
+        def __init__(self):
+            self.updates = []
+
+        def update_job(self, book_id, **fields):
+            self.updates.append(fields)
+
+    rec = Recorder()
+    pub = job._Publisher(rec, BOOK, tmp_path)
+    pub.sheets(400)
+    for i in range(1, 401):
+        pub.sheet_done(i)
+    done = [u["pages_done"] for u in rec.updates if "pages_done" in u]
+    assert len(done) == 400 and max(done) == 400 and done == sorted(done)

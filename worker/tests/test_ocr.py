@@ -27,8 +27,21 @@ def test_a_hung_tesseract_becomes_a_clear_timeout_error(monkeypatch):
 
 
 def test_a_timeout_in_orientation_detection_degrades_to_no_rotation(monkeypatch):
-    def hang(png, *args):
+    def hang(png, *args, **kwargs):
         raise TimeoutError("Tesseract")
 
     monkeypatch.setattr(ocr, "tesseract", hang)
     assert ocr.osd_rotation(b"png") == 0
+
+
+def test_parallel_tesseract_runs_with_one_openmp_thread_each(monkeypatch):
+    """RNF-18: N Tesseract a la vez no deben competir por los mismos núcleos."""
+    seen = {}
+
+    def fake_run(cmd, **kwargs):
+        seen.update(kwargs)
+        return subprocess.CompletedProcess(cmd, 0, stdout=b"ok")
+
+    monkeypatch.setattr(ocr.subprocess, "run", fake_run)
+    ocr.tesseract(b"png", env=ocr.single_thread_env())
+    assert seen["env"]["OMP_THREAD_LIMIT"] == "1"

@@ -4,7 +4,7 @@ from collections.abc import Iterable
 
 from lexicon.resolve import compound_entry
 from lexicon.store import Lexicon
-from lexicon.translate import MAX_SENSES, Translator, senses_for
+from lexicon.translate import MAX_SENSES, Translator, probes_for, senses_for
 from pipeline.analyze import Analyzed
 from pipeline.geometry import Box, RawToken
 
@@ -23,9 +23,7 @@ class LexRegistry:
         key = f"{lemma}|{pos}"
         if key in self._ids:
             return self._ids[key]
-        entry = lex.entry(lemma, pos)
-        if entry is None and pos == "noun":
-            entry = compound_entry(lemma, lex)  # género y plural de su última palabra
+        entry = self._entry_for(lemma, pos, lex)
         if entry is None:
             return None
         data: dict = {"lemma": lemma, "pos": pos}
@@ -38,6 +36,36 @@ class LexRegistry:
         self._ids[key] = new_id
         self._entries[new_id] = data
         return new_id
+
+    @staticmethod
+    def _entry_for(lemma: str, pos: str, lex: Lexicon):
+        entry = lex.entry(lemma, pos)
+        if entry is None and pos == "noun":
+            entry = compound_entry(lemma, lex)  # género y plural de su última palabra
+        return entry
+
+    def warm(self, analyzed: Iterable[Analyzed], lex: Lexicon, translator: Translator) -> None:
+        """RNF-18: traduce por lote las acepciones de los lemas nuevos de la página antes de
+        resolverlos; el resultado es el mismo, con una sola llamada al modelo."""
+        warm = getattr(translator, "warm", None)
+        if warm is None:
+            return
+        german: list[str] = []
+        english: list[str] = []
+        seen: set[str] = set()
+        for an in analyzed:
+            if not (an.lemma and an.pos):
+                continue
+            key = f"{an.lemma}|{an.pos}"
+            if key in self._ids or key in seen:
+                continue
+            seen.add(key)
+            entry = self._entry_for(an.lemma, an.pos, lex)
+            if entry is not None:
+                de, en = probes_for(entry)
+                german += de
+                english += en
+        warm(german, english)
 
     def entry(self, entry_id: int) -> dict:
         return self._entries[entry_id]

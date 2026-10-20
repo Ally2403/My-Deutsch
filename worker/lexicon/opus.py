@@ -11,7 +11,6 @@ import shutil
 import sys
 import tempfile
 from dataclasses import dataclass
-from functools import lru_cache
 from pathlib import Path
 
 MODELS_DIR = Path(
@@ -201,12 +200,24 @@ class _Engine:
         self._target = sentencepiece.SentencePieceProcessor(
             model_file=str(directory / "target.spm")
         )
-        self.translate = lru_cache(maxsize=20_000)(self._translate)
+        self._cache: dict[str, str] = {}
 
-    def _translate(self, text: str) -> str:
-        tokens = [*self._source.encode(text, out_type=str), "</s>"]
-        result = self._translator.translate_batch([tokens], beam_size=4, max_decoding_length=24)
-        return self._target.decode([t for t in result[0].hypotheses[0] if t != "</s>"])
+    def translate(self, text: str) -> str:
+        if text not in self._cache:
+            self.translate_many([text])
+        return self._cache[text]
+
+    def translate_many(self, texts: list[str]) -> None:
+        """Traduce por lote (RNF-18) lo que aún no está en la caché; una sola llamada al modelo."""
+        todo = list(dict.fromkeys(t for t in texts if t not in self._cache))
+        if not todo:
+            return
+        if len(self._cache) > 20_000:
+            self._cache.clear()
+        batch = [[*self._source.encode(t, out_type=str), "</s>"] for t in todo]
+        results = self._translator.translate_batch(batch, beam_size=4, max_decoding_length=24)
+        for text, res in zip(todo, results, strict=True):
+            self._cache[text] = self._target.decode([t for t in res.hypotheses[0] if t != "</s>"])
 
 
 class OpusTranslator:
@@ -234,6 +245,11 @@ class OpusTranslator:
 
     def from_english(self, text: str) -> str:
         return self._en_es.translate(text)
+
+    def warm(self, german: list[str], english: list[str]) -> None:
+        """Precalcula por lote las traducciones que `senses_for` pedirá una a una."""
+        self._de_es.translate_many(german)
+        self._en_es.translate_many(english)
 
 
 if __name__ == "__main__":

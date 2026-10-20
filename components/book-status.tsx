@@ -18,11 +18,12 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * RF-13: estado del libro con sondeo cada 10 s (≤ 30 s de retraso) mientras
- * esté en cola o procesando, y «Reintentar» para quien subió o administra.
+ * RF-13: estado del libro con sondeo mientras esté en cola o procesando, y
+ * «Reintentar» para quien subió o administra. RF-46: cada 4 s, para que «Listo»
+ * aparezca en cuanto la barra llega al 100 % (egress trivial: dos filas pequeñas).
  */
 
-const POLL_MS = 10_000;
+const POLL_MS = 4_000;
 
 const isActive = (s: BookStatusInput) =>
   s.bookStatus === "queued" || s.bookStatus === "processing";
@@ -90,7 +91,9 @@ export function BookStatus({
             .maybeSingle(),
           supabase
             .from("jobs")
-            .select("status, pages_done, pages_total, error, created_at, started_at")
+            .select(
+              "status, pages_done, pages_total, error, created_at, started_at",
+            )
             .eq("book_id", bookId)
             .order("created_at", { ascending: false })
             .limit(1)
@@ -113,7 +116,8 @@ export function BookStatus({
           next.pagesDone !== prev.pagesDone;
         latest.current = next;
         setState(next);
-        if (job) setJob({ createdAt: job.created_at, startedAt: job.started_at });
+        if (job)
+          setJob({ createdAt: job.created_at, startedAt: job.started_at });
         if (changed) refresh();
       } catch {
         // Se conserva el último estado; el siguiente ciclo reintenta.
@@ -136,7 +140,8 @@ export function BookStatus({
       });
       if (looksLikeSessionLoss(res)) {
         // Redirección a /login o HTML: la sesión caducó; nunca se toma como «En cola».
-        if (mounted.current) setRetryError(apiErrorMessage("not_authenticated"));
+        if (mounted.current)
+          setRetryError(apiErrorMessage("not_authenticated"));
         return;
       }
       let code = "unexpected";
@@ -150,7 +155,8 @@ export function BookStatus({
       }
       if (!mounted.current) return;
       // 502: request_retry ya confirmó; solo falló el disparo. Libro en cola con job nuevo.
-      const accepted = res.ok || (res.status === 502 && code === "dispatch_failed");
+      const accepted =
+        res.ok || (res.status === 502 && code === "dispatch_failed");
       if (accepted) {
         const next: BookStatusInput = {
           ...latest.current,
