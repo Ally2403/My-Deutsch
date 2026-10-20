@@ -142,6 +142,56 @@ export type Database = {
         };
         Relationships: [];
       };
+      card_state: {
+        Row: {
+          difficulty: number;
+          due: string;
+          elapsed_days: number;
+          lapses: number;
+          last_review: string | null;
+          lexicon_id: number;
+          reps: number;
+          scheduled_days: number;
+          stability: number;
+          state: number;
+          user_id: string;
+        };
+        Insert: {
+          difficulty?: number;
+          due: string;
+          elapsed_days?: number;
+          lapses?: number;
+          last_review?: string | null;
+          lexicon_id: number;
+          reps?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+          user_id: string;
+        };
+        Update: {
+          difficulty?: number;
+          due?: string;
+          elapsed_days?: number;
+          lapses?: number;
+          last_review?: string | null;
+          lexicon_id?: number;
+          reps?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "card_state_lexicon_id_fkey";
+            columns: ["lexicon_id"];
+            isOneToOne: false;
+            referencedRelation: "lexicon";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       group_books: {
         Row: {
           added_at: string;
@@ -410,6 +460,41 @@ export type Database = {
             columns: ["book_id"];
             isOneToOne: false;
             referencedRelation: "books";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      review_log: {
+        Row: {
+          id: string;
+          lexicon_id: number;
+          rating: number;
+          reviewed_at: string;
+          state_before: number;
+          user_id: string;
+        };
+        Insert: {
+          id: string;
+          lexicon_id: number;
+          rating: number;
+          reviewed_at: string;
+          state_before: number;
+          user_id: string;
+        };
+        Update: {
+          id?: string;
+          lexicon_id?: number;
+          rating?: number;
+          reviewed_at?: string;
+          state_before?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_log_lexicon_id_fkey";
+            columns: ["lexicon_id"];
+            isOneToOne: false;
+            referencedRelation: "lexicon";
             referencedColumns: ["id"];
           },
         ];
