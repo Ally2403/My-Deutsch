@@ -22,6 +22,23 @@ class Translator(Protocol):
     def from_english(self, text: str) -> str: ...
 
 
+MAX_SENTENCE_CHARS = 600  # RF-47: tope de `es` por oración en el JSON de página
+
+
+def translate_sentences(translator: object, texts: list[str]) -> list[str]:
+    """Traduce oraciones enteras en una sola llamada por lote (RF-47). Un traductor sin
+    `from_german_many`, o que falla, deja las oraciones sin traducir (cadenas vacías)."""
+    many = getattr(translator, "from_german_many", None)
+    if many is None or not texts:
+        return [""] * len(texts)
+    try:
+        out = [(t or "").strip()[:MAX_SENTENCE_CHARS] for t in many(texts)]
+    except Exception as exc:  # noqa: BLE001 - un fallo del modelo no debe romper la página
+        log.warning("traducción de oraciones omitida: %s", type(exc).__name__)
+        return [""] * len(texts)
+    return out if len(out) == len(texts) else [""] * len(texts)
+
+
 class NullTranslator:
     """Sin traducción automática: solo quedan las acepciones de Wiktionary en español."""
 
@@ -33,6 +50,9 @@ class NullTranslator:
 
     def from_english(self, text: str) -> str:
         return ""
+
+    def from_german_many(self, texts: list[str]) -> list[str]:
+        return [""] * len(texts)
 
 
 def probes_for(entry: Entry) -> tuple[list[str], list[str]]:

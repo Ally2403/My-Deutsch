@@ -191,9 +191,9 @@
 
 **Interfaces:** el JSON v1 gana `sents?: { r: [first: number, last: number]; es: string }[]` — rangos de tokens dentro de un párrafo, sin solaparse, ordenados, `es` ≤ 600 caracteres, ≤ 80 oraciones por página. Compatible hacia atrás (`v` sigue en 1; el campo es opcional). `NullTranslator.from_german_many` devuelve cadenas vacías (y entonces no se escribe `sents`).
 
-- [ ] Paso 1 (pruebas, fallan): `test_page_json.py` — `build_page` con 2 oraciones produce `sents` con rangos correctos; oración partida por guion de fin de línea queda en un solo rango; oración que cruza párrafo se corta en el límite; `validate_page` rechaza rangos solapados/fuera de los tokens y `es` > 600; el aumento de tamaño de una página de 350 tokens es ≤ 3 KB. `page.test.ts` acepta y rechaza lo mismo en TypeScript.
-- [ ] Paso 2: implementar; usar la segmentación de spaCy ya calculada (`starts` en `analyze`). Traducir todas las oraciones de la página en una sola llamada por lote.
-- [ ] Paso 3: regenerar las fixtures de `demo` y `local-book` con `sents` (escritas a mano en la demo; el libro local con el worker). Medir el efecto en el tiempo por página con `bench.py` (objetivo: ≤ +20 %). Commit `RF-47: el worker traduce cada oración`.
+- [x] Paso 1 (pruebas, fallan): `test_page_json.py` — `build_page` con 2 oraciones produce `sents` con rangos correctos; oración partida por guion de fin de línea queda en un solo rango; oración que cruza párrafo se corta en el límite; `validate_page` rechaza rangos solapados/fuera de los tokens y `es` > 600; el aumento de tamaño de una página de 350 tokens es ≤ 3 KB. `page.test.ts` acepta y rechaza lo mismo en TypeScript.
+- [x] Paso 2: implementar; usar la segmentación de spaCy ya calculada (`starts` en `analyze`). Traducir todas las oraciones de la página en una sola llamada por lote.
+- [x] Paso 3 (parcial: la demo se escribió a mano; `local-book` no está en el repositorio; la medición con `bench.py` no se pudo hacer sin los modelos Opus-MT instalados): regenerar las fixtures de `demo` y `local-book` con `sents` (escritas a mano en la demo; el libro local con el worker). Medir el efecto en el tiempo por página con `bench.py` (objetivo: ≤ +20 %). Commit `RF-47: el worker traduce cada oración`.
 
 ### Tarea 3.2: Dominio de selección de frases
 

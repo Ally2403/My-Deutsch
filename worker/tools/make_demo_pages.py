@@ -122,6 +122,22 @@ def lex_json(tokens):
 DEMO_FIELDS = {1: [[0.1, 0.9, 0.3, 0.02], [0.55, 0.9, 0.3, 0.02]]}
 
 
+# RF-47: traducción por oración escrita a mano (la demo no usa el modelo).
+DEMO_SENTS = {
+    1: [
+        dict(r=[0, 4], es="La mesa está en la casa."),
+        dict(r=[5, 11], es="La lámpara y las casas son nuevas."),
+        dict(r=[12, 15], es="Anna viaja a Berlín."),
+    ],
+    2: [
+        dict(r=[0, 4], es="Él la llama mañana."),
+        dict(r=[5, 9], es="Ayer él se fue a casa."),
+        dict(r=[10, 13], es="La pieza cuesta poco."),
+        dict(r=[14, 19], es="La gente normalmente no espera mucho."),
+    ],
+}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     font = load_font()
@@ -142,6 +158,8 @@ def main():
             tokens=tokens,
             lex=lex_json(tokens),
         )
+        if n in DEMO_SENTS:
+            data["sents"] = DEMO_SENTS[n]
         img.save(OUT / f"page-{n}.webp", "WEBP", quality=70, method=6)
         (OUT / f"page-{n}.json").write_text(
             json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"

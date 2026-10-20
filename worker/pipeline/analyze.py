@@ -1,7 +1,7 @@
 """Tipo de palabra, lema, forma y verbos separables de cada token (RF-12, RF-23, RF-24)."""
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from lexicon.resolve import resolve
 from lexicon.store import Lexicon
@@ -16,6 +16,7 @@ class Analyzed:
     pos: str | None
     form: str | None  # etiqueta de forma respecto al lema: pret|part|pres|pl|comp|sup
     sep: int | None  # índice del token pareja de un verbo separable
+    sent_start: bool = False  # el token abre una oración según spaCy (RF-47)
 
 
 def form_tag(
@@ -193,4 +194,4 @@ def analyze(tokens: list[RawToken], nlp, lex: Lexicon) -> list[Analyzed]:
         for idx, other in ((v, p), (p, v)):
             old = result[idx]
             result[idx] = Analyzed(compound, "verb", old.form, other)
-    return result
+    return [replace(a, sent_start=s) for a, s in zip(result, starts, strict=True)]

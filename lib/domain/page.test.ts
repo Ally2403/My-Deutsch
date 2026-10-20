@@ -24,6 +24,46 @@ const valid = () => ({
   },
 });
 
+describe("parsePage: sents (RF-47)", () => {
+  const withSents = (sents: unknown) => ({ ...valid(), sents });
+
+  it("acepta una página con oraciones y sigue aceptando una sin sents", () => {
+    const page = parsePage(
+      withSents([
+        { r: [0, 0], es: "Casas." },
+        { r: [1, 1], es: "Fue." },
+      ]),
+    );
+    expect(page.sents).toHaveLength(2);
+    expect(parsePage(valid()).sents).toBeUndefined();
+    expect(parsePage(withSents([])).sents).toEqual([]);
+  });
+
+  it.each([
+    [
+      "solapadas",
+      [
+        { r: [0, 1], es: "a" },
+        { r: [1, 1], es: "b" },
+      ],
+    ],
+    [
+      "desordenadas",
+      [
+        { r: [1, 1], es: "a" },
+        { r: [0, 0], es: "b" },
+      ],
+    ],
+    ["fuera de los tokens", [{ r: [0, 2], es: "a" }]],
+    ["con es muy largo", [{ r: [0, 1], es: "x".repeat(601) }]],
+    ["con es que no es texto", [{ r: [0, 1], es: 3 }]],
+    ["más de 80", Array.from({ length: 81 }, () => ({ r: [0, 0], es: "a" }))],
+    ["que no son una lista", "no"],
+  ])("rechaza oraciones %s", (_name, sents) => {
+    expect(() => parsePage(withSents(sents))).toThrow(/Página inválida/);
+  });
+});
+
 describe("parsePage (formato del JSON de página)", () => {
   it("acepta una página válida", () => {
     const page = parsePage(valid());

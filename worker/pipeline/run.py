@@ -81,6 +81,12 @@ class _TimedTranslator:
     def from_english(self, text: str) -> str:
         return self._times.timed("translate", self._inner.from_english, text)
 
+    def from_german_many(self, texts: list[str]) -> list[str]:
+        many = getattr(self._inner, "from_german_many", None)
+        if many is None:
+            return [""] * len(texts)
+        return self._times.timed("translate", many, texts)
+
     def warm(self, german: list[str], english: list[str]) -> None:
         warm = getattr(self._inner, "warm", None)
         if warm is not None:

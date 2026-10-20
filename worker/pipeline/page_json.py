@@ -1,14 +1,24 @@
 """Ensambla el JSON de página v1 (docs/04-modelo-de-datos.md) y lo valida igual que `parsePage`."""
 
+import json
 from collections.abc import Iterable
 
 from lexicon.resolve import compound_entry
 from lexicon.store import Lexicon
-from lexicon.translate import MAX_SENSES, Translator, probes_for, senses_for
+from lexicon.translate import (
+    MAX_SENSES,
+    MAX_SENTENCE_CHARS,
+    Translator,
+    probes_for,
+    senses_for,
+    translate_sentences,
+)
 from pipeline.analyze import Analyzed
 from pipeline.geometry import Box, RawToken
 
 FORM_TAGS = {"pret", "part", "pres", "pl", "comp", "sup"}
+MAX_SENTS = 80  # RF-47
+SENTS_BUDGET_BYTES = 3000  # `sents` suma ≤ 3 KB por página (plan gratuito)
 
 
 class LexRegistry:
@@ -103,6 +113,40 @@ def _ranges(values: Iterable[int]) -> list[list[int]]:
     return out
 
 
+def sentence_ranges(tokens: list[RawToken], analyzed: list[Analyzed]) -> list[list[int]]:
+    """Rangos [primero, último] de tokens de cada oración: la segmentación de spaCy, cortada en
+    los límites de párrafo. Una palabra partida con guion ya es un solo token."""
+    out: list[list[int]] = []
+    for i, (tk, an) in enumerate(zip(tokens, analyzed, strict=True)):
+        if not out or an.sent_start or tk.par != tokens[i - 1].par:
+            out.append([i, i])
+        else:
+            out[-1][1] = i
+    return out
+
+
+def build_sents(
+    tokens: list[RawToken], analyzed: list[Analyzed], translator: Translator
+) -> list[dict]:
+    """RF-47: traducción por oración, en una sola llamada por lote. Sin letras no hay oración."""
+    ranges = [
+        r
+        for r in sentence_ranges(tokens, analyzed)
+        if any(c.isalpha() for tk in tokens[r[0] : r[1] + 1] for c in tk.text)
+    ][:MAX_SENTS]
+    texts = [" ".join(tk.text for tk in tokens[a : b + 1]) for a, b in ranges]
+    sents: list[dict] = []
+    size = 0
+    for r, es in zip(ranges, translate_sentences(translator, texts), strict=True):
+        if not es:
+            continue
+        size += len(json.dumps({"r": r, "es": es}, ensure_ascii=False).encode()) + 1
+        if size > SENTS_BUDGET_BYTES:
+            break
+        sents.append({"r": r, "es": es})
+    return sents
+
+
 def build_page(
     size: tuple[int, int],
     tokens: list[RawToken],
@@ -130,7 +174,7 @@ def build_page(
         if an.form:
             item["f"] = an.form
         out_tokens.append(item)
-    return {
+    page = {
         "v": 1,
         "size": [size[0], size[1]],
         "lines": _ranges(t.line for t in tokens),
@@ -140,6 +184,10 @@ def build_page(
         "tokens": out_tokens,
         "lex": {str(i): registry.entry(i) for i in sorted(used)},
     }
+    sents = build_sents(tokens, analyzed, translator)
+    if sents:
+        page["sents"] = sents
+    return page
 
 
 def _fail(msg: str) -> None:
@@ -225,3 +273,20 @@ def _validate(page: object) -> None:
     for name in ("images", "fields"):
         for b in _list(page, name):
             _check_box(b, name)
+    if "sents" in page:
+        _check_sents(page["sents"], len(tokens))
+
+
+def _check_sents(sents: object, count: int) -> None:
+    if not isinstance(sents, list) or len(sents) > MAX_SENTS:
+        _fail(f"sents debe ser una lista de {MAX_SENTS} oraciones como máximo")
+    previous_end = -1
+    for s in sents:
+        r = s.get("r") if isinstance(s, dict) else None
+        ok = isinstance(r, list) and len(r) == 2 and all(_is_int(x) for x in r)
+        if not (ok and previous_end < r[0] <= r[1] < count):
+            _fail("rango de oración inválido, solapado o desordenado en sents")
+        es = s.get("es")
+        if not isinstance(es, str) or len(es) > MAX_SENTENCE_CHARS:
+            _fail(f"es de la oración debe ser texto de {MAX_SENTENCE_CHARS} caracteres como máximo")
+        previous_end = r[1]
