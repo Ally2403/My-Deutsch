@@ -1,4 +1,8 @@
-# Retomar aquí (2026-10-20, plan de mejoras — autónomo)
+# Retomar aquí (2026-10-20, Fase 4 — RF-48 repaso, rama `feat/RF-48-repaso`)
+
+**Fase 4 (Tareas 4.1 a 4.5) — Hecho:** tablas `card_state` y `review_log` con RLS (migración `20261020100000_repaso.sql` **ya aplicada en producción** con `apply_migration`, aditiva; pgTAP `supabase/tests/repaso.test.sql` 9/9 contra la base real dentro de una transacción con rollback; `get_advisors`: sin avisos nuevos salvo FK `card_state.lexicon_id` sin índice, igual que `user_words`). Dominio FSRS (`lib/domain/review.ts`, `review-queue.ts`, `review-sync.ts`), pantalla `/repaso` (+ `/repaso/demo` pública y sintética para e2e), tarjeta «Repaso de hoy» en `/grupos`, enlace «Repaso» con insignia de vencidas en la barra (en móvil la navegación pasa a una segunda fila). **Decisiones autónomas:** sin pasos de aprendizaje de minutos (`card_state` no guarda `learning_steps`; «Otra vez» reinserta la tarjeta al final de la sesión); la reseña se guarda tras una ventana de 6 s para poder «Deshacer» (o al calificar la siguiente / al salir); «Difíciles» (lapses ≥ 2) no consume los límites diarios; el resumen de la pantalla principal usa tres lecturas ligeras y calcula el día de estudio en el navegador (zona horaria local). Detalle de verificación en RF-48.
+
+# (2026-10-20, plan de mejoras — autónomo)
 
 **Plan en curso:** `docs/superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md` (modo autónomo; las casillas del plan son el estado durable). **Hecho:** Tarea 0.1 (RF-46 a RF-50, RNF-18, RNF-19 y ADR-008 redactados, estado Pendiente). **Tarea 0.2:** skills `modo-autonomo` y `nuevo-requisito` creadas; **Pendiente de la usuaria:** añadir la lista de permisos del paso 2 de la Tarea 0.2 a `.claude/settings.local.json` (el arnés me lo bloqueó). **Siguiente:** fases 1, 2 y 4.
 
