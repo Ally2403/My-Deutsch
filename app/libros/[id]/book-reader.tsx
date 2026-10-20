@@ -65,7 +65,9 @@ export function BookReader({
     async (p: { lastPage: number; pagesRead: number[] }) => {
       if (!userId) return;
       // Solo se guardan valores plausibles; la fila es propia (RLS) y `updated_at` es informativo.
-      const pages = [...new Set(p.pagesRead)].filter((n) => n >= 1 && n <= total);
+      const pages = [...new Set(p.pagesRead)].filter(
+        (n) => n >= 1 && n <= total,
+      );
       // RLS (RN-04): solo se escribe el progreso propio de un libro visible.
       await createClient()
         .from("reading_progress")
@@ -104,8 +106,7 @@ export function BookReader({
           { user_id: userId, lexicon_id: lexiconId, status },
           { onConflict: "user_id,lexicon_id" },
         );
-      if (error && before)
-        setSeen((m) => new Map(m).set(lexiconId, before)); // se deshace si falla
+      if (error && before) setSeen((m) => new Map(m).set(lexiconId, before)); // se deshace si falla
     },
     [userId, seen],
   );
@@ -145,9 +146,15 @@ export function BookReader({
     return null;
   }, []);
   const annotations = useAnnotationSync({ bookId, userId });
-  const onPageChange = useReadingProgress({ save, initialPagesRead: pagesRead });
+  const [readNow, setReadNow] = useState(pagesRead);
+  const onPageChange = useReadingProgress({
+    save,
+    initialPagesRead: pagesRead,
+    onReadChange: setReadNow,
+  });
   return (
     <PageReader
+      pagesRead={readNow}
       total={total}
       loadPage={loadPage}
       imageUrl={imageUrl}

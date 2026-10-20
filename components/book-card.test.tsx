@@ -62,8 +62,12 @@ describe("BookCard (RF-13, RF-14)", () => {
   });
 
   it("muestra el porcentaje leído real (RF-20)", () => {
-    render(<BookCard {...base} percentRead={35} />);
-    expect(screen.getByText("35 % leído")).toBeInTheDocument();
+    const read = Array.from({ length: 42 }, (_, i) => i + 1);
+    render(<BookCard {...base} pagesRead={read} lastPage={43} />);
+    expect(screen.getByText("Pág. 43 de 120 · 35 % leído")).toBeInTheDocument();
+    expect(
+      screen.getByRole("progressbar", { name: "Avance de lectura" }),
+    ).toHaveAttribute("aria-valuenow", "35");
   });
 
   it("sin páginas publicadas no pide imagen y muestra la inicial", () => {
@@ -77,7 +81,7 @@ describe("BookCard (RF-13, RF-14)", () => {
   it("«N páginas» solo si page_count existe; 0 % leído por omisión", () => {
     const { unmount } = render(<BookCard {...base} />);
     expect(screen.getByText("120 páginas")).toBeInTheDocument();
-    expect(screen.getByText("0 % leído")).toBeInTheDocument();
+    expect(screen.getByText("Pág. 1 de 120 · 0 % leído")).toBeInTheDocument();
     unmount();
     render(<BookCard {...base} pageCount={null} />);
     expect(screen.queryByText(/\d+ páginas$/)).toBeNull();
@@ -142,7 +146,9 @@ describe("BookCard: quitar libro del grupo (RF-15)", () => {
 
   it("sin permiso no ofrece quitar", () => {
     render(<BookCard {...base} groupId="g1" canRemove={false} />);
-    expect(screen.queryByRole("button", { name: "Quitar del grupo" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Quitar del grupo" }),
+    ).toBeNull();
   });
 
   it("pide confirmación, explica los 7 días y borra solo el vínculo con este grupo", async () => {
@@ -152,7 +158,9 @@ describe("BookCard: quitar libro del grupo (RF-15)", () => {
     render(<BookCard {...withRemove} />);
     fireEvent.click(screen.getByRole("button", { name: "Quitar del grupo" }));
     expect(screen.getByText(/7 días/)).toBeInTheDocument();
-    expect(screen.getByText(/palabras guardadas se conservan/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/palabras guardadas se conservan/),
+    ).toBeInTheDocument();
     expect(filters).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: "Sí, quitar libro" }));
     await vi.waitFor(() => expect(refresh).toHaveBeenCalled());
@@ -168,10 +176,14 @@ describe("BookCard: quitar libro del grupo (RF-15)", () => {
     render(<BookCard {...withRemove} />);
     fireEvent.click(screen.getByRole("button", { name: "Quitar del grupo" }));
     fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
-    expect(screen.getByRole("button", { name: "Quitar del grupo" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Quitar del grupo" }),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Quitar del grupo" }));
     fireEvent.click(screen.getByRole("button", { name: "Sí, quitar libro" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudo quitar el libro");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "No se pudo quitar el libro",
+    );
     expect(refresh).not.toHaveBeenCalled();
   });
 });

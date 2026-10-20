@@ -20,7 +20,10 @@ export function useReadingProgress({
   initialPagesRead,
   readMs = PAGE_READ_MS,
   saveDelayMs = SAVE_DELAY_MS,
+  onReadChange,
 }: {
+  /** RF-49: avisa con la lista de páginas leídas cada vez que cambia. */
+  onReadChange?: (pagesRead: number[]) => void;
   save: ProgressSave;
   initialPagesRead: number[];
   readMs?: number;
@@ -31,9 +34,11 @@ export function useReadingProgress({
   const readTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dirty = useRef(false);
   const saveRef = useRef(save);
+  const onReadRef = useRef(onReadChange);
   useEffect(() => {
     saveRef.current = save;
-  }, [save]);
+    onReadRef.current = onReadChange;
+  }, [save, onReadChange]);
 
   const flush = useCallback(() => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -42,9 +47,9 @@ export function useReadingProgress({
     dirty.current = false;
     const { last, read } = state.current;
     try {
-      void Promise.resolve(saveRef.current({ lastPage: last, pagesRead: read })).catch(
-        () => {},
-      );
+      void Promise.resolve(
+        saveRef.current({ lastPage: last, pagesRead: read }),
+      ).catch(() => {});
     } catch {
       /* se reintenta en el siguiente cambio */
     }
@@ -63,6 +68,7 @@ export function useReadingProgress({
       if (readTimer.current) clearTimeout(readTimer.current);
       readTimer.current = setTimeout(() => {
         state.current.read = addPageRead(state.current.read, page);
+        onReadRef.current?.(state.current.read);
         schedule();
       }, readMs);
     },

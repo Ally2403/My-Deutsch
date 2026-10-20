@@ -177,9 +177,9 @@
 - `progressLabel(page: number, total: number, pagesRead: number[]): string` → `«Pág. 34 de 167 · 20 % leído»` (`%` usa `percentRead`).
 - `<ReadingProgress page total pagesRead />` — `role="progressbar"` con `aria-valuenow` (= % leído), `aria-valuetext` (= `progressLabel`), barra fina con dos capas (leído / posición actual), clases con tokens CSS; ≥ 44 px de alto táctil si es interactiva (no lo es).
 
-- [ ] Paso 1 (pruebas, fallan): los casos anteriores + `pagesRead` con duplicados y páginas fuera de rango (ignoradas) + total 1.
-- [ ] Paso 2: implementar; en el lector se coloca junto al grupo «Páginas» y se actualiza al pasar página (usa `use-reading-progress`, que ya lleva `pages_read`); en `app/libros/[id]` y en la tarjeta del libro se reutiliza el mismo texto.
-- [ ] Paso 3: e2e (demo) a 360/768/1280 + WebKit: sin desborde horizontal; contraste ≥ 4,5:1 en claro y oscuro (axe ya está en el proyecto). Commit `RF-49: indicador de avance en el lector y el libro`.
+- [x] Paso 1 (pruebas, fallan): los casos anteriores + `pagesRead` con duplicados y páginas fuera de rango (ignoradas) + total 1.
+- [x] Paso 2: implementar; en el lector se coloca junto al grupo «Páginas» y se actualiza al pasar página (usa `use-reading-progress`, que ya lleva `pages_read`); en `app/libros/[id]` y en la tarjeta del libro se reutiliza el mismo texto.
+- [x] Paso 3: e2e (demo) a 360/768/1280 + WebKit: sin desborde horizontal; contraste ≥ 4,5:1 en claro y oscuro (axe ya está en el proyecto). Commit `RF-49: indicador de avance en el lector y el libro`.
 
 ---
 

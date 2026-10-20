@@ -698,20 +698,34 @@ test("RF-33 / RNF-14: escribir una respuesta, cambiar de página antes de 1 s y 
   await page.getByRole("button", { name: "Página siguiente" }).click();
   await expect(page.getByText("página 2 de 3")).toBeVisible();
   // dispatchEvent: el indicador de desarrollo de Next puede tapar este botón a 360 px en CI.
-  await page.getByRole("button", { name: "Página anterior" }).dispatchEvent("click");
-  await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveValue("der Tisch");
+  await page
+    .getByRole("button", { name: "Página anterior" })
+    .dispatchEvent("click");
+  await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveValue(
+    "der Tisch",
+  );
 
   // Sin conexión: se guarda en local y queda pendiente.
   await context.setOffline(true);
-  await page.getByRole("textbox", { name: "Respuesta" }).fill("der Tisch, die Tische");
-  await expect(page.getByRole("status").filter({ hasText: "al reconectar" })).toBeVisible();
+  await page
+    .getByRole("textbox", { name: "Respuesta" })
+    .fill("der Tisch, die Tische");
+  await expect(
+    page.getByRole("status").filter({ hasText: "al reconectar" }),
+  ).toBeVisible();
   await context.setOffline(false);
-  await expect(page.getByRole("status").filter({ hasText: "Guardado" })).toBeVisible();
-  const remote = await page.evaluate(() => localStorage.getItem("md-demo-remote-annotations"));
+  await expect(
+    page.getByRole("status").filter({ hasText: "Guardado" }),
+  ).toBeVisible();
+  const remote = await page.evaluate(() =>
+    localStorage.getItem("md-demo-remote-annotations"),
+  );
   expect(remote).toContain("die Tische");
 });
 
-test("RF-35: reiniciar la página borra mis respuestas tras confirmar", async ({ page }) => {
+test("RF-35: reiniciar la página borra mis respuestas tras confirmar", async ({
+  page,
+}) => {
   await ready(page);
   await page.getByRole("button", { name: "Escribir", exact: true }).click();
   const layer = page.getByTestId("annotation-layer");
@@ -723,7 +737,9 @@ test("RF-35: reiniciar la página borra mis respuestas tras confirmar", async ({
   await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveCount(0);
 });
 
-test("RF-33 c3: fuera del modo Escribir, tocar la página consulta palabras", async ({ page }) => {
+test("RF-33 c3: fuera del modo Escribir, tocar la página consulta palabras", async ({
+  page,
+}) => {
   await ready(page);
   await page.getByRole("button", { name: "Tisch", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
@@ -737,7 +753,9 @@ test("RF-18: el modo lectura ajusta el texto sin desplazamiento horizontal y con
   const view = page.getByTestId("reading-view");
   await expect(view).toBeVisible();
   const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(0);
   const inner = await view.evaluate((el) => el.scrollWidth - el.clientWidth);
@@ -752,7 +770,10 @@ test("RF-18: el modo lectura ajusta el texto sin desplazamiento horizontal y con
   await page.getByRole("button", { name: "Letra más grande" }).click();
   await expect(view).toHaveAttribute("data-size", "lg");
   await page.reload();
-  await expect(page.getByTestId("reading-view")).toHaveAttribute("data-size", "lg");
+  await expect(page.getByTestId("reading-view")).toHaveAttribute(
+    "data-size",
+    "lg",
+  );
 });
 
 test("RF-34: los campos detectados se llenan con un toque y uno mal detectado se oculta", async ({
@@ -768,7 +789,9 @@ test("RF-34: los campos detectados se llenan con un toque y uno mal detectado se
   await slots.first().dispatchEvent("click");
   await page.getByRole("textbox", { name: "Respuesta" }).fill("der Tisch");
   await expect(slots).toHaveCount(1);
-  await page.getByRole("button", { name: "Ocultar campo" }).dispatchEvent("click");
+  await page
+    .getByRole("button", { name: "Ocultar campo" })
+    .dispatchEvent("click");
   await expect(slots).toHaveCount(0);
   // El modo libre sigue disponible.
   const layer = page.getByTestId("annotation-layer");
@@ -777,7 +800,9 @@ test("RF-34: los campos detectados se llenan con un toque y uno mal detectado se
   await expect(page.getByRole("textbox", { name: "Respuesta" })).toHaveCount(2);
 });
 
-test("RF-18 c2: en modo lectura la ilustración de la página se muestra recortada", async ({ page }) => {
+test("RF-18 c2: en modo lectura la ilustración de la página se muestra recortada", async ({
+  page,
+}) => {
   await ready(page);
   await page.getByRole("button", { name: "Modo lectura" }).click();
   await page.getByLabel("Ir a la página").fill("3");
@@ -788,3 +813,39 @@ test("RF-18 c2: en modo lectura la ilustración de la página se muestra recorta
   expect(box.width).toBeGreaterThan(100);
   expect(box.height).toBeGreaterThan(50);
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`RF-49 (${theme}): el indicador de avance se actualiza, no desborda y cumple contraste`, async ({
+    page,
+  }) => {
+    await page.addInitScript(
+      ([t]) => localStorage.setItem("my-deutsch:theme", t),
+      [theme],
+    );
+    await ready(page);
+    const bar = page.getByRole("progressbar", { name: "Avance de lectura" });
+    await expect(bar).toHaveAttribute(
+      "aria-valuetext",
+      /^Pág\. 1 de \d+ · 0 % leído$/,
+    );
+    await page.getByRole("button", { name: "Página siguiente" }).click();
+    await expect(bar).toHaveAttribute(
+      "aria-valuetext",
+      /^Pág\. 2 de \d+ · 0 % leído$/,
+    );
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+    const results = await new AxeBuilder({ page })
+      .withRules(["color-contrast"])
+      .analyze();
+    expect(
+      results.violations.filter(
+        (v) => v.impact === "serious" || v.impact === "critical",
+      ),
+    ).toEqual([]);
+  });
+}
