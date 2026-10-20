@@ -77,7 +77,7 @@ const serve = (
 describe("BookStatus (RF-13)", () => {
   it("procesando muestra etiqueta y barra accesible", () => {
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    expect(screen.getByText("Procesando 12/200 páginas")).toBeInTheDocument();
+    expect(screen.getByText("Procesando hoja 12 de 200")).toBeInTheDocument();
     const bar = screen.getByRole("progressbar");
     expect(bar).toHaveAttribute("aria-valuenow", "6");
     expect(bar).toHaveAttribute("aria-valuemin", "0");
@@ -96,17 +96,17 @@ describe("BookStatus (RF-13)", () => {
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
-  it("sondea cada 10 s, actualiza y refresca al cambiar pagesDone", async () => {
+  it("sondea cada 4 s, actualiza y refresca al cambiar pagesDone", async () => {
     serve(
       { status: "processing", page_count: 200 },
       { status: "processing", pages_done: 40, error: null },
     );
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    await tick(9_999);
+    await tick(3_999);
     expect(h.book).not.toHaveBeenCalled();
     await tick(1);
     expect(h.book).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("Procesando 40/200 páginas")).toBeInTheDocument();
+    expect(screen.getByText("Procesando hoja 40 de 200")).toBeInTheDocument();
     expect(h.refresh).toHaveBeenCalledTimes(1);
   });
 
@@ -123,9 +123,12 @@ describe("BookStatus (RF-13)", () => {
       />,
     );
     expect(screen.queryByRole("progressbar")).toBeNull();
-    await tick(10_000);
-    expect(screen.getByText("Procesando 12/200 páginas")).toBeInTheDocument();
-    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "6");
+    await tick(4_000);
+    expect(screen.getByText("Procesando hoja 12 de 200")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "6",
+    );
   });
 
   it("page_count del libro tiene prioridad sobre jobs.pages_total", async () => {
@@ -134,8 +137,8 @@ describe("BookStatus (RF-13)", () => {
       { status: "processing", pages_done: 12, pages_total: 200, error: null },
     );
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    await tick(10_000);
-    expect(screen.getByText("Procesando 12/180 páginas")).toBeInTheDocument();
+    await tick(4_000);
+    expect(screen.getByText("Procesando hoja 12 de 180")).toBeInTheDocument();
   });
 
   it("no refresca si nada cambió", async () => {
@@ -144,7 +147,7 @@ describe("BookStatus (RF-13)", () => {
       { status: "processing", pages_done: 12, error: null },
     );
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    await tick(10_000);
+    await tick(4_000);
     expect(h.book).toHaveBeenCalledTimes(1);
     expect(h.refresh).not.toHaveBeenCalled();
   });
@@ -155,11 +158,61 @@ describe("BookStatus (RF-13)", () => {
       { status: "ready", pages_done: 200, error: null },
     );
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    await tick(10_000);
+    await tick(4_000);
     expect(screen.getByText("Listo")).toBeInTheDocument();
     expect(h.refresh).toHaveBeenCalled();
     await tick(60_000);
     expect(h.book).toHaveBeenCalledTimes(1);
+  });
+
+  it("RF-46: la barra llega a 100 % con la última hoja y «Listo» aparece en el sondeo siguiente", async () => {
+    h.book
+      .mockResolvedValueOnce({
+        data: { status: "processing", page_count: null },
+        error: null,
+      })
+      .mockResolvedValue({
+        data: { status: "ready", page_count: 400 },
+        error: null,
+      });
+    h.job
+      .mockResolvedValueOnce({
+        data: {
+          status: "processing",
+          pages_done: 200,
+          pages_total: 200,
+          error: null,
+        },
+        error: null,
+      })
+      .mockResolvedValue({
+        data: {
+          status: "done",
+          pages_done: 200,
+          pages_total: 200,
+          error: null,
+        },
+        error: null,
+      });
+    render(
+      <BookStatus
+        bookId="b1"
+        initial={{ ...processing, pagesDone: 100, pageCount: 200 }}
+        canRetry={false}
+      />,
+    );
+    expect(screen.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "50",
+    );
+    await tick(4_000);
+    expect(screen.getByText("Procesando hoja 200 de 200")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "100",
+    );
+    await tick(4_000);
+    expect(screen.getByText("Listo")).toBeInTheDocument();
   });
 
   it("en error inicial no sondea", async () => {
@@ -180,12 +233,12 @@ describe("BookStatus (RF-13)", () => {
       error: null,
     });
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    await tick(10_000);
-    expect(screen.getByText("Procesando 12/200 páginas")).toBeInTheDocument();
-    await tick(10_000);
-    expect(screen.getByText("Procesando 12/200 páginas")).toBeInTheDocument();
-    await tick(10_000);
-    expect(screen.getByText("Procesando 50/200 páginas")).toBeInTheDocument();
+    await tick(4_000);
+    expect(screen.getByText("Procesando hoja 12 de 200")).toBeInTheDocument();
+    await tick(4_000);
+    expect(screen.getByText("Procesando hoja 12 de 200")).toBeInTheDocument();
+    await tick(4_000);
+    expect(screen.getByText("Procesando hoja 50 de 200")).toBeInTheDocument();
   });
 
   it("ignora respuestas que llegan después de desmontar", async () => {
@@ -195,7 +248,7 @@ describe("BookStatus (RF-13)", () => {
     const { unmount } = render(
       <BookStatus bookId="b1" initial={processing} canRetry={false} />,
     );
-    await tick(10_000);
+    await tick(4_000);
     unmount();
     await act(async () => {
       resolve({ data: { status: "ready", page_count: 200 }, error: null });
@@ -211,8 +264,8 @@ describe("BookStatus (RF-13)", () => {
       error: null,
     });
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
-    await tick(10_000);
-    await tick(10_000);
+    await tick(4_000);
+    await tick(4_000);
     expect(resolvers).toHaveLength(2);
     await act(async () => {
       resolvers[1]({ data: { status: "ready", page_count: 200 }, error: null });
@@ -246,7 +299,7 @@ describe("BookStatus (RF-13)", () => {
         canRetry={false}
       />,
     );
-    await tick(10_000);
+    await tick(4_000);
     expect(screen.getByText("En cola")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).toBeNull();
   });
@@ -254,7 +307,7 @@ describe("BookStatus (RF-13)", () => {
   it("estado en región aria-live polite", () => {
     render(<BookStatus bookId="b1" initial={processing} canRetry={false} />);
     const live = screen
-      .getByText("Procesando 12/200 páginas")
+      .getByText("Procesando hoja 12 de 200")
       .closest("[aria-live]");
     expect(live).toHaveAttribute("aria-live", "polite");
   });
@@ -309,9 +362,9 @@ describe("BookStatus (RF-13)", () => {
       expect(h.refresh).toHaveBeenCalledTimes(1);
       expect(screen.getByText("En cola")).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
-      await tick(10_000);
+      await tick(4_000);
       expect(h.book).toHaveBeenCalledTimes(1);
-      expect(screen.getByText("Procesando 1/10 páginas")).toBeInTheDocument();
+      expect(screen.getByText("Procesando hoja 1 de 10")).toBeInTheDocument();
     });
 
     it.each([
@@ -342,15 +395,33 @@ describe("BookStatus (RF-13)", () => {
     it.each([
       [
         "redirigida a /login",
-        { ok: true, status: 200, redirected: true, headers: new Headers({ "content-type": "text/html" }), json: async () => ({}) },
+        {
+          ok: true,
+          status: 200,
+          redirected: true,
+          headers: new Headers({ "content-type": "text/html" }),
+          json: async () => ({}),
+        },
       ],
       [
         "200 con HTML",
-        { ok: true, status: 200, redirected: false, headers: new Headers({ "content-type": "text/html" }), json: async () => ({}) },
+        {
+          ok: true,
+          status: 200,
+          redirected: false,
+          headers: new Headers({ "content-type": "text/html" }),
+          json: async () => ({}),
+        },
       ],
       [
         "401 JSON",
-        { ok: false, status: 401, redirected: false, headers: new Headers({ "content-type": "application/json" }), json: async () => ({ error: "not_authenticated" }) },
+        {
+          ok: false,
+          status: 401,
+          redirected: false,
+          headers: new Headers({ "content-type": "application/json" }),
+          json: async () => ({ error: "not_authenticated" }),
+        },
       ],
     ])("respuesta %s: sesión caducada, no pasa a En cola", async (_n, res) => {
       fetchMock.mockResolvedValue(res);
@@ -383,11 +454,11 @@ describe("BookStatus (RF-13)", () => {
       expect(screen.getByText("En cola")).toBeInTheDocument();
       expect(h.refresh).toHaveBeenCalledTimes(1);
       expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
-      expect(
-        screen.getAllByRole("alert").map((a) => a.textContent),
-      ).toContain(RETRY_DISPATCH_FAILED_MESSAGE);
-      await tick(10_000);
-      expect(screen.getByText("Procesando 2/10 páginas")).toBeInTheDocument();
+      expect(screen.getAllByRole("alert").map((a) => a.textContent)).toContain(
+        RETRY_DISPATCH_FAILED_MESSAGE,
+      );
+      await tick(4_000);
+      expect(screen.getByText("Procesando hoja 2 de 10")).toBeInTheDocument();
     });
 
     it("un fallo de red muestra el mensaje inesperado y permite reintentar de nuevo", async () => {
@@ -428,7 +499,7 @@ describe("BookStatus (RF-13)", () => {
   describe("procesamiento atascado sin recargar", () => {
     it("aparece Reintentar al cumplirse 6 h tras un ciclo de sondeo", async () => {
       vi.setSystemTime(new Date("2026-10-18T12:00:00Z"));
-      const started = "2026-10-18T06:00:05Z"; // faltan 5 s para las 6 h
+      const started = "2026-10-18T06:00:03Z"; // faltan 3 s para las 6 h (< un ciclo de 4 s)
       h.book.mockResolvedValue({
         data: { status: "processing", page_count: 200 },
         error: null,
@@ -454,7 +525,7 @@ describe("BookStatus (RF-13)", () => {
         />,
       );
       expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
-      await tick(10_000);
+      await tick(4_000);
       expect(
         screen.getByRole("button", { name: "Reintentar" }),
       ).toBeInTheDocument();
@@ -502,7 +573,7 @@ describe("BookStatus (RF-13)", () => {
         />,
       );
       expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
-      await tick(10_000);
+      await tick(4_000);
       expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
       await tick(60_000 * 2);
       expect(
@@ -523,7 +594,7 @@ describe("BookStatus (RF-13)", () => {
           jobStartedAt={null}
         />,
       );
-      await tick(10_000);
+      await tick(4_000);
       expect(screen.queryByRole("button", { name: "Reintentar" })).toBeNull();
     });
   });

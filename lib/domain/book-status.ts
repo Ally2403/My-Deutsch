@@ -34,8 +34,8 @@ export function describeStatus(i: BookStatusInput): Described {
       const progress = ratio(i.pagesDone, i.pageCount);
       const label =
         i.pageCount !== null && i.pageCount > 0
-          ? `Procesando ${i.pagesDone}/${i.pageCount} páginas`
-          : `Procesando ${i.pagesDone} páginas…`;
+          ? `Procesando hoja ${i.pagesDone} de ${i.pageCount}`
+          : `Procesando hoja ${i.pagesDone}…`;
       return { label, tone: "working", progress };
     }
     case "queued":

@@ -91,6 +91,7 @@ def process_pdf(
     log: logging.Logger | None = None,
     on_start: Callable[[int], None] | None = None,
     on_page: Callable[[int, Path], None] | None = None,
+    on_sheet: Callable[[int], None] | None = None,
 ) -> dict:
     engine = engine or Engine()
     log = log or logging.getLogger("pipeline")
@@ -132,6 +133,9 @@ def process_pdf(
                     _write_json(out / "progress.json", {"status": "running", "pages_done": n})
                     if on_page:
                         on_page(n, pages)
+                if on_sheet:  # RF-46: el avance cuenta hojas del PDF, no páginas lógicas
+                    on_sheet(index)
+            sheets = len(doc)
     except Exception as exc:
         _write_json(out / "progress.json", {"status": "error", "pages_done": max(n - 1, 0)})
         log.error("falló en la página %d: %s", n, type(exc).__name__)
@@ -154,6 +158,7 @@ def process_pdf(
     confs = [m["ocr_confidence"] for m in metas if m["ocr_confidence"] is not None]
     summary = {
         "pages": n,
+        "sheets": sheets,
         "skipped": skipped,
         "mean_confidence": round(sum(confs) / len(confs), 1) if confs else None,
         "seconds": round(time.monotonic() - started, 1),

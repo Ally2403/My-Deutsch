@@ -109,7 +109,13 @@ class _Publisher:
                 "ocr_confidence": meta["ocr_confidence"],
             }
         )
-        self.client.update_job(self.book_id, pages_done=n)
+
+    def sheet_done(self, index: int) -> None:
+        """RF-46: pages_done cuenta hojas del PDF (igual que pages_total), nunca páginas lógicas."""
+        try:
+            self.client.update_job(self.book_id, pages_done=index)
+        except SupabaseError:
+            raise _PublishError from None
 
 
 def run_job(
@@ -157,6 +163,7 @@ def run_job(
                 log=log,
                 on_start=publisher.sheets,
                 on_page=publisher.page,
+                on_sheet=publisher.sheet_done,
             )
             _finish(client, book_id, out, summary)
         except _PublishError:
@@ -204,7 +211,8 @@ def _finish(client, book_id: str, out: Path, summary: dict) -> None:
             for p in manifest["pages"]
         ],
     )
-    client.update_job(book_id, pages_total=summary["pages"], pages_done=summary["pages"])
+    # RF-46: el avance del trabajo cuenta hojas del PDF; books.page_count lleva las páginas lógicas
+    client.update_job(book_id, pages_total=summary["sheets"], pages_done=summary["sheets"])
     client.finish_book(
         book_id, page_count=summary["pages"], ocr_confidence=summary["mean_confidence"]
     )

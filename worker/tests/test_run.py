@@ -230,3 +230,45 @@ def test_hook_exception_marks_progress_error(pdf, lex, tmp_path, monkeypatch):
         run(pdf, tmp_path, lex, CountingEngine(), monkeypatch, on_page=boom)
     progress = json.loads((tmp_path / "progress.json").read_text(encoding="utf-8"))
     assert progress["status"] == "error"
+
+
+def test_on_sheet_is_called_once_per_pdf_sheet_after_its_pages(pdf, lex, tmp_path, monkeypatch):
+    """RF-46: el avance cuenta hojas del PDF, no páginas lógicas (una doble son 2 páginas)."""
+    events: list[tuple[str, int]] = []
+    summary = run(
+        pdf,
+        tmp_path,
+        lex,
+        CountingEngine(),
+        monkeypatch,
+        on_page=lambda n, d: events.append(("page", n)),
+        on_sheet=lambda i: events.append(("sheet", i)),
+    )
+    assert summary["sheets"] == 3 and summary["pages"] == 4
+    # la hoja 2 (doble) se anuncia después de sus páginas 2 y 3
+    assert events == [
+        ("page", 1),
+        ("sheet", 1),
+        ("page", 2),
+        ("page", 3),
+        ("sheet", 2),
+        ("page", 4),
+        ("sheet", 3),
+    ]
+
+
+def test_on_sheet_is_called_for_sheets_skipped_on_resume(pdf, lex, tmp_path, monkeypatch):
+    run(pdf, tmp_path, lex, CountingEngine(), monkeypatch)
+    seen: list[int] = []
+    run(pdf, tmp_path, lex, CountingEngine(), monkeypatch, on_sheet=seen.append)
+    assert seen == [1, 2, 3]
+
+
+def test_single_sheet_book_reports_one_sheet(lex, tmp_path, monkeypatch):
+    doc = pymupdf.open()
+    doc.new_page(width=600, height=800)
+    path = tmp_path / "una.pdf"
+    doc.save(path)
+    seen: list[int] = []
+    summary = run(path, tmp_path / "out", lex, CountingEngine(), monkeypatch, on_sheet=seen.append)
+    assert summary["sheets"] == 1 and seen == [1]
