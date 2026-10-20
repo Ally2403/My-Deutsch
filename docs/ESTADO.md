@@ -1,3 +1,7 @@
+# Retomar aquí (2026-10-20, plan de mejoras — autónomo)
+
+**Plan en curso:** `docs/superpowers/plans/2026-10-20-mejoras-lectura-y-carga.md` (modo autónomo; las casillas del plan son el estado durable). **Hecho:** Tarea 0.1 (RF-46 a RF-50, RNF-18, RNF-19 y ADR-008 redactados, estado Pendiente). **Siguiente:** Tarea 0.2 (skills y permisos), luego fases 1, 2 y 4 en paralelo.
+
 # Retomar aquí (2026-10-19, RNF-13 verificado)
 
 **RNF-13 — Hecho:** la usuaria creó los secretos y el workflow `respaldo` salió en verde. Quedan En progreso solo **RNF-08** (ver la primera ejecución de `lighthouse` en Actions tras un despliegue de producción) y **RNF-10** (k6 10 min con cuenta de prueba y libro real).

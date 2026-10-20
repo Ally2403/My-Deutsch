@@ -66,6 +66,11 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-43 | [Calidad de las traducciones al español](funcionales/RF-43-calidad-de-las-traducciones.md) | M-6    | Alta      | 3    | Hecho       |
 | RF-44 | [Tema claro y oscuro con selector y barra de navegación](funcionales/RF-44-tema-claro-y-oscuro.md) | M-T    | Alta      | 5    | Hecho       |
 | RF-45 | [Verbos separables con punto medio en el panel](funcionales/RF-45-verbo-separable-con-punto-medio.md) | M-5    | Media     | 3    | Hecho       |
+| RF-46 | [Progreso de procesamiento fiel](funcionales/RF-46-progreso-de-procesamiento-fiel.md) | M-4 | Alta | 6 | Pendiente |
+| RF-47 | [Traducir frases seleccionadas](funcionales/RF-47-traducir-frases-seleccionadas.md) | M-5 | Alta | 6 | Pendiente |
+| RF-48 | [Repaso con tarjetas (FSRS)](funcionales/RF-48-repaso-con-tarjetas.md) | M-7 | Alta | 6 | Pendiente |
+| RF-49 | [Indicador de avance de lectura](funcionales/RF-49-indicador-de-avance-de-lectura.md) | M-5 | Media | 6 | Pendiente |
+| RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md) | M-T | Alta | 6 | Pendiente |
 
 ## Requerimientos no funcionales (17)
 
@@ -88,6 +93,8 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-15 | [Compatibilidad con iPhone y PWA](no-funcionales/RNF-15-compatibilidad-con-iphone-y-pwa.md)                               | M-T    | Alta      | 3    | Hecho       |
 | RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Hecho       |
 | RNF-17 | [Límite de intentos de código de invitación](no-funcionales/RNF-17-limite-de-intentos-de-codigo-de-invitacion.md)         | M-2    | Alta      | 3    | Hecho       |
+| RNF-18 | [Velocidad de procesamiento](no-funcionales/RNF-18-velocidad-de-procesamiento.md) | M-4 | Alta | 6 | Pendiente |
+| RNF-19 | [Rendimiento de lectura](no-funcionales/RNF-19-rendimiento-de-lectura.md) | M-5 | Media | 6 | Pendiente |
 
 ## Alcance del MVP (cierre 2026-10-19)
 

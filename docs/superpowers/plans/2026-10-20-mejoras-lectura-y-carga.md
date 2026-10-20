@@ -100,10 +100,10 @@
 - **RF-50** PWA instalable con lectura sin conexión de lo ya visto. Reemplaza la decisión «solo web» (RNF-15 c2) → **ADR-008**.
 - **RNF-19** Rendimiento de lectura: precarga del JSON de la página siguiente/anterior y recorte de JS inicial; no empeorar RNF-02 ni Lighthouse (85/90/90).
 
-- [ ] Paso 1: redactar cada archivo con el formato de un requisito existente (copiar `RF-45-…md`), con criterios de aceptación medibles y «Aprobado por pedido explícito de la usuaria, 2026-10-20».
-- [ ] Paso 2: ADR-008 «PWA con service worker propio»: reemplaza lo dicho en ADR-004 (`@serwist/next`) porque Next 16 usa Turbopack; explica que RNF-15 c2 vuelve a estar activo. Marcar RNF-15 c2 como «Reactivado por RF-50».
-- [ ] Paso 3: añadir filas a `INDEX.md` (estado «Pendiente») y ejecutar `pnpm lint` (Prettier de docs).
-- [ ] Paso 4: commit `docs: requisitos RF-46 a RF-50, RNF-18, RNF-19 y ADR-008`.
+- [x] Paso 1: redactar cada archivo con el formato de un requisito existente (copiar `RF-45-…md`), con criterios de aceptación medibles y «Aprobado por pedido explícito de la usuaria, 2026-10-20».
+- [x] Paso 2: ADR-008 «PWA con service worker propio»: reemplaza lo dicho en ADR-004 (`@serwist/next`) porque Next 16 usa Turbopack; explica que RNF-15 c2 vuelve a estar activo. Marcar RNF-15 c2 como «Reactivado por RF-50».
+- [x] Paso 3: añadir filas a `INDEX.md` (estado «Pendiente») y ejecutar `pnpm lint` (Prettier de docs).
+- [x] Paso 4: commit `docs: requisitos RF-46 a RF-50, RNF-18, RNF-19 y ADR-008`.
 
 ### Tarea 0.2: Skills de proyecto y permisos
 
