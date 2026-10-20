@@ -97,3 +97,25 @@ export function glossesFor(page: PageData, range: TokenRange): Gloss[] {
   }
   return out;
 }
+
+const SENTENCE_END = /[.!?]["”»')]?$/;
+
+/** Rango de la oración que contiene al token: el de `sents` si existe; si no, hasta el signo
+ * de fin de oración dentro del párrafo (libros subidos antes de RF-47). */
+export function sentenceRangeOf(
+  page: PageData,
+  tokenIndex: number,
+): TokenRange {
+  const own = page.sents?.find(
+    (s) => s.r[0] <= tokenIndex && tokenIndex <= s.r[1],
+  );
+  if (own) return own.r;
+  const [first, last] = page.paragraphs.find(
+    ([s, e]) => tokenIndex >= s && tokenIndex <= e,
+  ) ?? [0, Math.max(page.tokens.length - 1, 0)];
+  let start = tokenIndex;
+  while (start > first && !SENTENCE_END.test(page.tokens[start - 1].t)) start--;
+  let end = tokenIndex;
+  while (end < last && !SENTENCE_END.test(page.tokens[end].t)) end++;
+  return [start, end];
+}

@@ -3,6 +3,7 @@
 import { Fragment } from "react";
 import type { Gender } from "@/lib/domain/gender";
 import type { Box, PageData } from "@/lib/domain/page";
+import type { TokenRange } from "@/lib/domain/phrase";
 
 type Props = {
   page: PageData;
@@ -15,6 +16,11 @@ type Props = {
   plurals?: ReadonlySet<number>;
   /** Palabras cuyo lema ya está en el diccionario personal (RF-28). */
   seen?: ReadonlyMap<number, "seen" | "known">;
+  /** RF-47: rango de frase resaltado (selección en curso o panel abierto). */
+  phrase?: TokenRange | null;
+  layerRef?: React.Ref<HTMLElement>;
+  /** RF-47: la tecla T sobre una palabra enfocada pide la oración completa. */
+  onTranslateSentence?: (tokenIndex: number) => void;
 };
 
 const pct = (v: number) => `${+(v * 100).toFixed(3)}%`;
@@ -24,11 +30,25 @@ function boxStyle([x, y, w, h]: Box) {
 }
 
 /** Capa de texto transparente sobre la imagen: cada palabra ocupa su posición (RF-17). */
-export function TextLayer({ page, onWordClick, active, highlight, plurals, seen }: Props) {
+export function TextLayer({
+  page,
+  onWordClick,
+  active,
+  highlight,
+  plurals,
+  seen,
+  phrase,
+  onTranslateSentence,
+  layerRef,
+}: Props) {
   const lineEnds = new Set(page.lines.map(([, last]) => last));
 
   return (
-    <div className="reader-text-layer" lang="de">
+    <div
+      ref={layerRef as React.Ref<HTMLDivElement>}
+      className="reader-text-layer"
+      lang="de"
+    >
       {page.tokens.map((token, i) => {
         const activate = (el: HTMLElement) =>
           onWordClick(i, el.getBoundingClientRect());
@@ -36,6 +56,7 @@ export function TextLayer({ page, onWordClick, active, highlight, plurals, seen 
         const cls = [
           "reader-word",
           active?.has(i) && "reader-word-active",
+          phrase && i >= phrase[0] && i <= phrase[1] && "reader-word-phrase",
           gender && `hl-${gender}`,
           plurals?.has(i) && "pl-mark",
           seen?.has(i) && `seen-${seen.get(i)}`,
@@ -55,6 +76,15 @@ export function TextLayer({ page, onWordClick, active, highlight, plurals, seen 
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   activate(e.currentTarget);
+                } else if (
+                  (e.key === "t" || e.key === "T") &&
+                  onTranslateSentence &&
+                  !e.ctrlKey &&
+                  !e.metaKey &&
+                  !e.altKey
+                ) {
+                  e.preventDefault();
+                  onTranslateSentence(i);
                 }
               }}
             >

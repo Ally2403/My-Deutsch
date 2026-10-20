@@ -4,6 +4,7 @@ import {
   canTranslatePhrase,
   glossesFor,
   phraseText,
+  sentenceRangeOf,
   sentencesCovering,
   tokenRangeFromSelection,
 } from "./phrase";
@@ -135,5 +136,15 @@ describe("glossesFor", () => {
     const page = makePage();
     page.tokens[3] = { ...page.tokens[3], t: "«Tisch»,", l: 1 };
     expect(glossesFor(page, [3, 3])[0].form).toBe("Tisch");
+  });
+});
+
+describe("sentenceRangeOf", () => {
+  it("usa el rango de sents cuando la página lo trae", () => {
+    expect(sentenceRangeOf(makePage(), 5)).toEqual([4, 7]);
+  });
+  it("sin sents corta en el signo de fin de oración dentro del párrafo", () => {
+    expect(sentenceRangeOf(makePage(false), 5)).toEqual([4, 7]);
+    expect(sentenceRangeOf(makePage(false), 1)).toEqual([0, 3]);
   });
 });
