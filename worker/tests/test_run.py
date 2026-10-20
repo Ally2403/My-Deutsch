@@ -257,6 +257,19 @@ def test_on_sheet_is_called_once_per_pdf_sheet_after_its_pages(pdf, lex, tmp_pat
     ]
 
 
+def test_summary_reports_seconds_per_stage_without_leaking_into_the_manifest(
+    pdf, lex, tmp_path, monkeypatch
+):
+    """RNF-18: tiempos por etapa (solo números) en el resumen; el manifiesto es determinista."""
+    from pipeline.run import STAGES
+
+    summary = run(pdf, tmp_path, lex, CountingEngine(), monkeypatch, on_page=lambda n, d: None)
+    assert set(summary["stage_seconds"]) == set(STAGES)
+    assert all(isinstance(v, float) and v >= 0 for v in summary["stage_seconds"].values())
+    manifest = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
+    assert set(manifest["summary"]) == {"pages", "sheets", "mean_confidence"}
+
+
 def test_on_sheet_is_called_for_sheets_skipped_on_resume(pdf, lex, tmp_path, monkeypatch):
     run(pdf, tmp_path, lex, CountingEngine(), monkeypatch)
     seen: list[int] = []
