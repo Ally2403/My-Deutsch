@@ -35,4 +35,4 @@ La migración `20261017180200_revocar_funciones_internas.sql` menciona `public.r
 
 `process-book.yml` elige la base según la rama desde la que corre: en `main` usa los secretos de producción; en cualquier otra rama (`dev`) usa la URL de «My Deutsch Dev» y el secreto `SUPABASE_SERVICE_ROLE_KEY_DEV`. La app de dev dispara la copia de la rama `dev` con `GITHUB_DISPATCH_REF=dev` (variable de Vercel solo para Preview de `dev`). Al subir a producción, `main` conserva el comportamiento actual.
 
-Variables de Vercel (Preview, rama `dev`): `SUPABASE_SERVICE_ROLE_KEY` (de dev), `GITHUB_DISPATCH_TOKEN` y `GITHUB_DISPATCH_REF=dev`.
+Variables de Vercel (Preview, rama `dev`): `SUPABASE_URL` (la URL de dev; el servidor la usa para la service role, además de las `NEXT_PUBLIC_*`), `SUPABASE_SERVICE_ROLE_KEY` (de dev), `GITHUB_DISPATCH_TOKEN` y `GITHUB_DISPATCH_REF=dev`.
