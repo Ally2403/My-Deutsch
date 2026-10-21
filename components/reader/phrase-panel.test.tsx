@@ -56,9 +56,25 @@ function makePage(withSents: boolean): PageData {
 afterEach(() => vi.restoreAllMocks());
 
 describe("PhrasePanel (RF-47)", () => {
-  it("muestra la traducción de las dos oraciones que cubre la selección", () => {
+  it("una selección parcial no traduce más allá de lo elegido y ofrece la oración completa", () => {
     render(
       <PhrasePanel page={makePage(true)} range={[2, 5]} onClose={() => {}} />,
+    );
+    expect(screen.queryByText("La mesa está aquí.")).toBeNull();
+    expect(screen.queryByText("La lámpara es nueva.")).toBeNull();
+    expect(screen.getAllByRole("listitem")[0].textContent).toContain(
+      "estar de pie",
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Ver la oración completa" }),
+    );
+    expect(screen.getByText("La mesa está aquí.")).toBeTruthy();
+    expect(screen.getByText("La lámpara es nueva.")).toBeTruthy();
+  });
+
+  it("muestra la traducción de las oraciones que la selección contiene enteras", () => {
+    render(
+      <PhrasePanel page={makePage(true)} range={[0, 7]} onClose={() => {}} />,
     );
     const dialog = screen.getByRole("dialog", {
       name: /traducción de la frase/i,
@@ -109,17 +125,19 @@ describe("PhrasePanel (RF-47)", () => {
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 
-  it("Copiar escribe el texto y la traducción en el portapapeles", async () => {
+  it("Copiar escribe el texto y, si la oración está entera, su traducción", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       value: { writeText },
       configurable: true,
     });
     render(
-      <PhrasePanel page={makePage(true)} range={[1, 2]} onClose={() => {}} />,
+      <PhrasePanel page={makePage(true)} range={[0, 3]} onClose={() => {}} />,
     );
     fireEvent.click(screen.getByRole("button", { name: "Copiar" }));
     await waitFor(() => expect(screen.getByText("Copiado")).toBeTruthy());
-    expect(writeText).toHaveBeenCalledWith("Tisch steht\n\nLa mesa está aquí.");
+    expect(writeText).toHaveBeenCalledWith(
+      "Der Tisch steht hier.\n\nLa mesa está aquí.",
+    );
   });
 });

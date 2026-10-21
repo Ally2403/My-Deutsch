@@ -6,6 +6,7 @@ import {
   phraseText,
   sentenceRangeOf,
   sentencesCovering,
+  sentencesFullyIn,
   tokenRangeFromSelection,
 } from "./phrase";
 
@@ -119,6 +120,31 @@ describe("sentencesCovering", () => {
   it("recorta los extremos y no falla fuera de la página", () => {
     expect(sentencesCovering(makePage(), [-5, 1])).toHaveLength(1);
     expect(sentencesCovering(makePage(), [50, 60])).toEqual([]);
+  });
+});
+
+describe("sentencesFullyIn", () => {
+  it("una selección parcial de una oración no cubre ninguna", () => {
+    expect(sentencesFullyIn(makePage(), [1, 2])).toEqual([]);
+    expect(sentencesFullyIn(makePage(), [2, 5])).toEqual([]);
+  });
+  it("una oración entera sí cuenta, y solo esa", () => {
+    const out = sentencesFullyIn(makePage(), [0, 5]);
+    expect(out.map((s) => s.es)).toEqual(["La mesa está aquí."]);
+  });
+  it("dos oraciones enteras cuentan las dos", () => {
+    expect(sentencesFullyIn(makePage(), [0, 7])).toHaveLength(2);
+  });
+  it("ignora la puntuación suelta de los extremos de la oración", () => {
+    const page = makePage();
+    page.tokens[3] = { ...page.tokens[3], t: "." };
+    page.tokens[2] = { ...page.tokens[2], t: "steht" };
+    expect(sentencesFullyIn(page, [0, 2]).map((s) => s.es)).toEqual([
+      "La mesa está aquí.",
+    ]);
+  });
+  it("sin sents no hay oraciones completas", () => {
+    expect(sentencesFullyIn(makePage(false), [0, 7])).toEqual([]);
   });
 });
 

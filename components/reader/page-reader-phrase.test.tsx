@@ -56,6 +56,10 @@ describe("PageReader: traducir frases (RF-47)", () => {
       name: /traducción de la frase/i,
     });
     expect(dialog).toBeInTheDocument();
+    expect(screen.queryByText("La mesa está aquí.")).toBeNull(); // solo lo elegido
+    fireEvent.click(
+      screen.getByRole("button", { name: "Ver la oración completa" }),
+    );
     expect(screen.getByText("La mesa está aquí.")).toBeInTheDocument();
     expect(screen.getByText("Llueve.")).toBeInTheDocument();
   });
@@ -109,6 +113,9 @@ describe("PageReader: traducir frases (RF-47)", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Frase" }));
     fireEvent.click(screen.getByRole("button", { name: "Tisch" }));
     fireEvent.click(screen.getByRole("button", { name: "hier." }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Ver la oración completa" }),
+    );
     expect(screen.getByText("La mesa está aquí.")).toBeInTheDocument();
     expect(fetchSpy).not.toHaveBeenCalled();
     vi.unstubAllGlobals();

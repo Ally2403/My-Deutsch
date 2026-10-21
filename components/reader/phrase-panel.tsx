@@ -7,6 +7,7 @@ import {
   glossesFor,
   phraseText,
   sentencesCovering,
+  sentencesFullyIn,
   type Gloss,
   type TokenRange,
 } from "@/lib/domain/phrase";
@@ -43,14 +44,18 @@ function GlossWord({ gloss }: { gloss: Gloss }) {
   return <span className="font-semibold">{gloss.lemma}</span>;
 }
 
-/** Panel de frase (RF-47): texto original, traducción precalculada de cada oración que toca la
- * selección y glosas de sus palabras. No hace peticiones de red (RNF-01). */
+/** Panel de frase (RF-47): texto original, glosas de sus palabras y la traducción precalculada de
+ * las oraciones que la selección contiene por completo. Si solo se eligió un trozo, la oración
+ * entera se ofrece aparte («Ver la oración completa»). No hace peticiones de red (RNF-01). */
 export function PhrasePanel({ page, range, onClose, anchor = null }: Props) {
   const [copied, setCopied] = useState(false);
+  const [showFull, setShowFull] = useState(false);
   const text = phraseText(page, range);
-  const sentences = sentencesCovering(page, range);
   const glosses = glossesFor(page, range);
-  const translated = sentences.filter((s) => s.es !== null);
+  const whole = sentencesFullyIn(page, range);
+  const context = sentencesCovering(page, range).filter((s) => s.es !== null);
+  const hasSents = (page.sents?.length ?? 0) > 0;
+  const translated = whole.length > 0 ? whole : showFull ? context : [];
 
   async function copy() {
     const body = [text, ...translated.map((s) => s.es as string)].join("\n\n");
@@ -68,8 +73,13 @@ export function PhrasePanel({ page, range, onClose, anchor = null }: Props) {
         {text}
       </p>
 
-      {translated.length > 0 ? (
+      {translated.length > 0 && (
         <section aria-label="Traducción" className="mt-3 space-y-2">
+          {whole.length === 0 && (
+            <h2 className="text-sm font-semibold text-muted">
+              Oración completa
+            </h2>
+          )}
           {translated.map((s) => (
             <p key={s.range[0]}>{s.es}</p>
           ))}
@@ -77,7 +87,17 @@ export function PhrasePanel({ page, range, onClose, anchor = null }: Props) {
             Traducción automática; puede fallar en frases idiomáticas.
           </p>
         </section>
-      ) : (
+      )}
+      {translated.length === 0 && hasSents && context.length > 0 && (
+        <button
+          type="button"
+          className="chip mt-3"
+          onClick={() => setShowFull(true)}
+        >
+          Ver la oración completa
+        </button>
+      )}
+      {!hasSents && (
         <p className="mt-3 text-sm text-muted">
           Sube de nuevo el libro para traducir oraciones completas.
         </p>

@@ -7,7 +7,7 @@
 | **Módulo**            | M-5 Lector                                                                         |
 | **Prioridad**         | Alta                                                                               |
 | **Fase**              | 6                                                                                  |
-| **Estado**            | En progreso                                                                           |
+| **Estado**            | En progreso                                                                        |
 | **Dependencias**      | [RF-21](RF-21-consultar-palabra.md), [RF-43](RF-43-calidad-de-las-traducciones.md) |
 | **Reglas de negocio** | —                                                                                  |
 
@@ -17,7 +17,7 @@ Arrastrando con el mouse (o con el modo «Frase» de dos toques en celular y tab
 
 ## Justificación
 
-Entender frases completas con su contexto. Decisión autónoma: no se traduce «exactamente lo seleccionado» porque exigiría un servicio externo; se traduce la oración que lo contiene (costo cero y sin enviar texto a terceros).
+Entender frases completas con su contexto. Decisión autónoma: no se traduce «exactamente lo seleccionado» porque exigiría un servicio externo (costo cero y sin enviar texto a terceros). Corrección 2026-10-21: la oración que contiene un trozo ya no se muestra por defecto (criterio 6); se ofrece aparte.
 
 ## Criterios de aceptación
 
@@ -26,6 +26,7 @@ Entender frases completas con su contexto. Decisión autónoma: no se traduce «
 3. El panel muestra el texto, la traducción de cada oración cubierta (con el aviso de traducción automática), glosas con género en color y artículo (RNF-09) y botón «Copiar».
 4. Libro antiguo sin `sents`: solo glosas y el aviso «Sube de nuevo el libro para traducir oraciones completas.»
 5. Ninguna petición de red al abrir el panel (RNF-01); `role="dialog"`, Esc cierra, axe sin violaciones; 360/768/1280 y WebKit iPhone.
+6. (2026-10-21, pedido de la usuaria) El panel no traduce más allá de lo seleccionado: la traducción de una oración se muestra sola solo si la selección la contiene entera; si se eligió un trozo, se muestran el texto elegido y las glosas, y la oración completa queda detrás del botón «Ver la oración completa».
 
 ## Aprobación
 
