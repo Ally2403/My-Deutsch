@@ -75,10 +75,27 @@ jobs:
       - name: Instalar los modelos Opus-MT (revisión y huellas SHA-256 fijadas, ADR-007)
         run: uv run --extra opus --extra opus-convert python -m lexicon.opus provision
 
-      - name: Procesar y publicar
+      # RNF-20 · ADR-009: `main` usa solo los secretos de producción; cualquier otra rama (`dev`) usa
+      # solo los de «My Deutsch Dev». Si falta alguno, el trabajo falla: nunca se mezclan entornos.
+      - name: Resolver entorno
+        working-directory: .
         env:
-          # RNF-20 · ADR-009: la copia del workflow de `main` usa producción; la de `dev` usa la
-          # base «My Deutsch Dev» (URL pública; la clave está en el secreto SUPABASE_SERVICE_ROLE_KEY_DEV).
-          SUPABASE_URL: ${{ github.ref_name == 'main' && secrets.SUPABASE_URL || 'https://eaanrkngazophdobzvzx.supabase.co' }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ github.ref_name == 'main' && secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+          PROD_URL: ${{ secrets.SUPABASE_URL }}
+          PROD_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DEV_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+        run: |
+          if [ "$GITHUB_REF_NAME" = main ]; then
+            URL="$PROD_URL"; KEY="$PROD_KEY"
+          else
+            URL="https://eaanrkngazophdobzvzx.supabase.co"; KEY="$DEV_KEY"
+          fi
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "secretos del entorno incompletos para la rama $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "::add-mask::$KEY"
+          echo "SUPABASE_URL=$URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$KEY" >> "$GITHUB_ENV"
+
+      - name: Procesar y publicar
         run: uv run --extra opus python -m publish --book-id "$BOOK_ID" --lexicon .local/lexicon.sqlite
