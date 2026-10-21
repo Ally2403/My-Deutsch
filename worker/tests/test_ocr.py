@@ -45,3 +45,13 @@ def test_parallel_tesseract_runs_with_one_openmp_thread_each(monkeypatch):
     monkeypatch.setattr(ocr.subprocess, "run", fake_run)
     ocr.tesseract(b"png", env=ocr.single_thread_env())
     assert seen["env"]["OMP_THREAD_LIMIT"] == "1"
+
+
+def test_printed_candidates_skips_a_page_whose_footer_is_a_black_band():
+    # RF-46: si el 10 % inferior es negro desde su primera fila, la franja del pie queda vacía y
+    # Pixmap fallaba (FzErrorArgument) en vez de seguir sin número impreso.
+    import numpy as np
+
+    page = np.full((1000, 800), 255, np.uint8)
+    page[850:] = 0
+    assert ocr.printed_candidates(page) == []
