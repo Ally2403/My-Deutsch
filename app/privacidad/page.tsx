@@ -39,6 +39,14 @@ export default function Privacidad() {
         <li>Los miembros de tus grupos ven tu nombre y tu foto.</li>
       </ul>
 
+      <h2 className="mt-8 font-display text-xl font-bold">Lectura sin conexión</h2>
+      <p className="mt-2">
+        Para poder leer sin internet, la app guarda en tu dispositivo las páginas
+        de los libros que ya abriste (imagen y texto). Esas copias son tuyas, no
+        se comparten y se borran cuando cierras sesión o entra otra persona en
+        el mismo dispositivo.
+      </p>
+
       <h2 className="mt-8 font-display text-xl font-bold">Qué no hacemos</h2>
       <p className="mt-2">
         No vendemos ni compartimos tus datos y no mostramos publicidad. De
