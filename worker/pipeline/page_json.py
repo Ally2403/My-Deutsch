@@ -1,6 +1,7 @@
 """Ensambla el JSON de página v1 (docs/04-modelo-de-datos.md) y lo valida igual que `parsePage`."""
 
 import json
+import re
 from collections.abc import Iterable
 
 from lexicon.resolve import compound_entry
@@ -113,12 +114,42 @@ def _ranges(values: Iterable[int]) -> list[list[int]]:
     return out
 
 
+_TERMINAL = re.compile(r"[.!?…][\"”»')\]]*$")
+# Abreviaturas frecuentes que terminan en punto sin cerrar la oración.
+_ABBREVIATIONS = frozenset(
+    [
+        *("z.b.", "d.h.", "u.a.", "u.ä.", "o.ä.", "z.t.", "usw.", "bzw.", "ca.", "nr."),
+        *("dr.", "hr.", "fr.", "str.", "vgl.", "evtl.", "ggf.", "inkl.", "bsp.", "tel."),
+        *("etc.", "prof.", "sog.", "max.", "min.", "std.", "jh.", "geb.", "ebd.", "s.o."),
+        *("u.v.m.", "i.d.r.", "o.k.", "mio.", "mrd."),
+    ]
+)
+
+
+def _ends_sentence(text: str, following: str | None) -> bool:
+    """Heurística por puntuación: el token cierra una oración si termina en . ! ? y el siguiente
+    abre otra (empieza en mayúscula, cifra o signo). Spacy recibe las palabras sin la puntuación
+    exterior, así que a veces junta varias oraciones en una; este corte lo corrige."""
+    if following is None or not _TERMINAL.search(text):
+        return False
+    core = re.sub(r"[\"”»')\]]+$", "", text).lower()
+    letters = [c for c in core if c.isalpha()]
+    if core in _ABBREVIATIONS or len(letters) < 2 and "." in core:
+        return False  # abreviatura o inicial («A.»)
+    if not letters and core.endswith("."):
+        return False  # ordinal o cifra con punto («3.»)
+    first = next((c for c in following if c.isalnum()), None)
+    return first is None or not first.islower()
+
+
 def sentence_ranges(tokens: list[RawToken], analyzed: list[Analyzed]) -> list[list[int]]:
-    """Rangos [primero, último] de tokens de cada oración: la segmentación de spaCy, cortada en
-    los límites de párrafo. Una palabra partida con guion ya es un solo token."""
+    """Rangos [primero, último] de tokens de cada oración: la segmentación de spaCy más los
+    cortes por puntuación, y siempre cortada en los límites de párrafo. Una palabra partida con
+    guion ya es un solo token."""
     out: list[list[int]] = []
     for i, (tk, an) in enumerate(zip(tokens, analyzed, strict=True)):
-        if not out or an.sent_start or tk.par != tokens[i - 1].par:
+        prev = tokens[i - 1] if i else None
+        if not out or an.sent_start or tk.par != prev.par or _ends_sentence(prev.text, tk.text):
             out.append([i, i])
         else:
             out[-1][1] = i
