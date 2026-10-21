@@ -2,10 +2,10 @@
 
 Todo el plan `2026-10-20-mejoras-lectura-y-carga.md` y RF-51 están fusionados en `main`. Lo que sigue es solo de la usuaria (reemplaza el punto 1 del bloque de la Fase 7):
 
-1. **Actualizar los libros ya subidos sin resubirlos:** Actions -> «upgrade-books» -> Run workflow, primero `dry_run = true`, revisar el resumen y luego `dry_run = false` (o `gh workflow run upgrade-books.yml -f dry_run=false`). Añade la traducción de oraciones conservando progreso y anotaciones. **No** hace falta quitar ni resubir el libro. Los campos de ejercicio (RF-34) e ilustraciones (RF-18) solo se obtienen subiendo un PDF nuevo (el PDF se borra al terminar y quitar un libro del grupo no lo borra: RN-02 lo vuelve a enlazar al mismo libro; hoy no existe forma de reprocesar desde el PDF).
+1. **Libros existentes: HECHO (2026-10-21).** `upgrade-books` con `dry_run=false` actualizó 4 libros (322 páginas nuevas, 0 errores); `books.pipeline_version = 2` en los 4. Falta que la usuaria abra un libro y compruebe el panel «Frase» (RF-47/RF-51). Campos de ejercicio (RF-34) e ilustraciones (RF-18) solo con un PDF nuevo.
 2. Cronometrar un libro real de 167 páginas (RNF-18) y comprobar que la barra llega a 100 % justo al terminar (RF-46).
 3. Probar la PWA en un iPhone real, una sesión real de repaso y el aviso «Este libro ya estaba en la biblioteca» (RF-50, RF-48, RF-51).
-4. Permisos: pegar la lista de la Tarea 0.2 en `.claude/settings.local.json` (ya hecho por la usuaria el 2026-10-21; verificar).
+4. Permisos: verificados (2026-10-21); se añadió `gh workflow run`.
 5. RNF-08 (Lighthouse en Actions tras un despliegue de producción) y RNF-10 (k6 10 min) siguen pendientes.
 6. Deuda técnica: `components/reader/page-reader.tsx` (826 líneas) sin dividir; la revisión de la Fase 7 fue manual (no se corrieron `code-review` ni `simplify`); los logs de Vercel no son accesibles desde el MCP (403: otorgar acceso al equipo si se necesitan).
 7. Sin explicar: un primer intento de subida se quedó en «Verificando tu archivo…» (no hay rastro en la base). Si se repite, anotar cuánto se esperó.
