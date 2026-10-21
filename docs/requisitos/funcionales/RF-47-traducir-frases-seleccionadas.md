@@ -48,3 +48,7 @@ Aprobado por pedido explícito de la usuaria, 2026-10-20. Plan: [`superpowers/pl
 ## Corrección 2 (2026-10-21): oraciones que juntaban varias
 
 Con un libro real se vio que `sents` agrupaba párrafos enteros (hasta 72 tokens) porque spaCy recibe las palabras sin la puntuación exterior y no cortaba. Desde la versión 3 del pipeline (`PIPELINE_VERSION = 3`) las oraciones también se cortan por puntuación final (`. ! ?` seguida de mayúscula, salvo abreviaturas, iniciales y ordinales). El modo `upgrade` (RF-51) recalcula las páginas cuyas `sents` no coinciden con esa segmentación, conservando todo lo demás.
+
+## Corrección 3 (2026-10-21): traducir el trozo exacto, sin botón
+
+La usuaria pidió que al seleccionar salga al instante la traducción de **lo seleccionado**, sin pulsar «Ver la oración completa». Decisión (aprobada por la usuaria): una selección que cubre oraciones enteras usa su traducción precalculada (sin red, RNF-01); un trozo se traduce al momento con un servicio gratuito (MyMemory, `lib/phrase-translate.ts`), llamado desde el navegador, enviando solo el trozo seleccionado. Si falla (sin conexión o límite diario), se muestra el motivo y entonces sí se ofrece «Ver la oración completa». La consulta de una palabra no cambia: sigue sin red. Se actualizó la política de privacidad.

@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8    | Ejercicios             |
 | M-T    | Transversal            |
 
-## Requerimientos funcionales (52)
+## Requerimientos funcionales (53)
 
 | ID    | Título                                                                                                                         | Módulo | Prioridad | Fase | Estado      |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | ---- | ----------- |
@@ -73,6 +73,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md)                        | M-T    | Alta      | 6    | En progreso |
 | RF-51 | [Actualizar libros ya procesados en sitio](funcionales/RF-51-actualizar-libros-ya-procesados-en-sitio.md)                      | M-4    | Alta      | 6    | En progreso |
 | RF-52 | [Rediseño visual profesional](funcionales/RF-52-rediseno-visual-profesional.md)                                                | M-1    | Alta      | 6    | En progreso |
+| RF-53 | [Aviso al terminar la subida de un libro](funcionales/RF-53-aviso-al-terminar-la-subida-de-un-libro.md)                        | M-3    | Media     | 6    | En progreso |
 
 ## Requerimientos no funcionales (20)
 

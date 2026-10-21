@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { clearFragmentCache } from "@/lib/phrase-translate";
 import type { PageData } from "@/lib/domain/page";
 import { PhrasePanel } from "./phrase-panel";
 
@@ -53,23 +54,76 @@ function makePage(withSents: boolean): PageData {
   };
 }
 
-afterEach(() => vi.restoreAllMocks());
+const fragmentReply = (es: string) =>
+  vi
+    .fn()
+    .mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          responseStatus: 200,
+          responseData: { translatedText: es },
+        }),
+      ),
+    );
+
+beforeEach(() => {
+  clearFragmentCache();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.reject(new Error("sin red"))),
+  );
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe("PhrasePanel (RF-47)", () => {
-  it("una selección parcial no traduce más allá de lo elegido y ofrece la oración completa", () => {
+  it("una selección parcial muestra al instante la traducción de ese trozo, no la de la oración", async () => {
+    const f = fragmentReply("está de pie aquí. La");
+    vi.stubGlobal("fetch", f);
     render(
-      <PhrasePanel page={makePage(true)} range={[2, 5]} onClose={() => {}} />,
+      <PhrasePanel page={makePage(true)} range={[2, 4]} onClose={() => {}} />,
+    );
+    expect(screen.getByText("Traduciendo…")).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByText("está de pie aquí. La")).toBeTruthy(),
+    );
+    expect(String(f.mock.calls[0][0])).toContain(
+      encodeURIComponent("steht hier. Die"),
     );
     expect(screen.queryByText("La mesa está aquí.")).toBeNull();
     expect(screen.queryByText("La lámpara es nueva.")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Ver la oración completa" }),
+    ).toBeNull();
     expect(screen.getAllByRole("listitem")[0].textContent).toContain(
       "estar de pie",
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: "Ver la oración completa" }),
+  });
+
+  it("si el trozo no se pudo traducir, ofrece la oración completa como ayuda", async () => {
+    render(
+      <PhrasePanel page={makePage(true)} range={[2, 5]} onClose={() => {}} />,
     );
+    const button = await screen.findByRole("button", {
+      name: "Ver la oración completa",
+    });
+    expect(screen.getByText(/revisa tu conexión/i)).toBeTruthy();
+    fireEvent.click(button);
     expect(screen.getByText("La mesa está aquí.")).toBeTruthy();
     expect(screen.getByText("La lámpara es nueva.")).toBeTruthy();
+  });
+
+  it("una selección que cubre oraciones enteras no consulta la red", () => {
+    const f = vi.fn();
+    vi.stubGlobal("fetch", f);
+    render(
+      <PhrasePanel page={makePage(true)} range={[0, 3]} onClose={() => {}} />,
+    );
+    expect(screen.getByText("La mesa está aquí.")).toBeTruthy();
+    expect(f).not.toHaveBeenCalled();
   });
 
   it("muestra la traducción de las oraciones que la selección contiene enteras", () => {
