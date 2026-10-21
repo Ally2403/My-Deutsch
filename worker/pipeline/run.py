@@ -17,6 +17,7 @@ import os
 import shutil
 import threading
 import time
+import traceback
 from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
@@ -291,7 +292,12 @@ def process_pdf(
                 on_sheet(index)
     except Exception as exc:
         _write_json(out / "progress.json", {"status": "error", "pages_done": max(n - 1, 0)})
-        log.error("falló en la página %d: %s", n, type(exc).__name__)
+        # Diagnóstico sin contenido del libro: solo el mensaje de nuestros propios ValueError (son
+        # genéricos: tamaños, ids) y el archivo:línea donde se lanzó.
+        frames = traceback.extract_tb(exc.__traceback__)
+        where = f"{Path(frames[-1].filename).name}:{frames[-1].lineno}" if frames else "?"
+        detail = str(exc) if isinstance(exc, ValueError) else ""
+        log.error("falló en la página %d: %s en %s %s", n, type(exc).__name__, where, detail)
         raise
     finally:
         if pool is not None:
