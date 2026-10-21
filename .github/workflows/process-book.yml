@@ -80,11 +80,12 @@ jobs:
       - name: Resolver entorno
         working-directory: .
         env:
-          PROD_URL: ${{ secrets.SUPABASE_URL }}
-          PROD_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          DEV_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+          # El secreto que no corresponde a la rama llega vacío: no se materializa en el runner.
+          PROD_URL: ${{ github.ref == 'refs/heads/main' && secrets.SUPABASE_URL || '' }}
+          PROD_KEY: ${{ github.ref == 'refs/heads/main' && secrets.SUPABASE_SERVICE_ROLE_KEY || '' }}
+          DEV_KEY: ${{ github.ref != 'refs/heads/main' && secrets.SUPABASE_SERVICE_ROLE_KEY_DEV || '' }}
         run: |
-          if [ "$GITHUB_REF_NAME" = main ]; then
+          if [ "$GITHUB_REF" = refs/heads/main ]; then
             URL="$PROD_URL"; KEY="$PROD_KEY"
           else
             URL="https://eaanrkngazophdobzvzx.supabase.co"; KEY="$DEV_KEY"
