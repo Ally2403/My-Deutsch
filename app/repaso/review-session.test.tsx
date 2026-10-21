@@ -56,6 +56,15 @@ afterEach(() => {
 });
 
 describe("RF-48 sesión de repaso", () => {
+  it("muestra solo el primer significado, al frente y al reverso", () => {
+    setup([word(1, { glosses: ["casa", "hogar", "vivienda"] })]);
+    expect(screen.getByText("casa")).toBeTruthy();
+    expect(screen.queryByText(/hogar|vivienda/)).toBeNull();
+    fireEvent.keyDown(window, { key: " " });
+    expect(screen.getByText("casa")).toBeTruthy();
+    expect(screen.queryByText(/hogar|vivienda/)).toBeNull();
+  });
+
   it("voltea con Espacio y califica con la tecla 3: avanza y guarda la reseña", async () => {
     const { sync } = setup([word(1), word(2)]);
     expect(screen.getByText("1 de 2")).toBeTruthy();

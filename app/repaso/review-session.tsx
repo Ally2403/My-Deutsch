@@ -159,7 +159,9 @@ function SessionInner({
   undoWindowMs = 6000,
 }: Props) {
   const [filters, setFilters] = useState<ReviewFilters>(() =>
-    filtersFromParams(new URLSearchParams(initialQuery ?? window.location.search)),
+    filtersFromParams(
+      new URLSearchParams(initialQuery ?? window.location.search),
+    ),
   );
   const [cardMap, setCardMap] = useState<Map<number, CardState>>(
     () =>
@@ -546,9 +548,7 @@ function SessionInner({
                   ¿Cómo se dice en alemán?
                 </p>
                 <p className="mt-3 break-words font-display text-3xl font-extrabold">
-                  {item.word.glosses.length > 0
-                    ? item.word.glosses.slice(0, 3).join("; ")
-                    : "(sin significado)"}
+                  {item.word.glosses[0] ?? "(sin significado)"}
                 </p>
                 {front && <p className="mt-5 text-lg text-muted">{front}</p>}
               </>
@@ -579,11 +579,7 @@ function SessionInner({
                 {item.word.plural && (
                   <p className="mt-1 text-muted">Plural: {item.word.plural}</p>
                 )}
-                <ul className="mt-3 list-inside list-disc text-lg">
-                  {item.word.glosses.slice(0, 4).map((g) => (
-                    <li key={g}>{g}</li>
-                  ))}
-                </ul>
+                <p className="mt-3 text-lg">{item.word.glosses[0]}</p>
                 {item.word.sentence && (
                   <blockquote className="mt-4 border-l-2 border-border pl-3 text-muted">
                     {item.word.sentence}
