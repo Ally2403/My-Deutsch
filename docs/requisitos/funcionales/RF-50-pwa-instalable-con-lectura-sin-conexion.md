@@ -7,7 +7,7 @@
 | **Módulo**            | M-T Transversal                                                       |
 | **Prioridad**         | Alta                                                                  |
 | **Fase**              | 6                                                                     |
-| **Estado**            | En curso                                                               |
+| **Estado**            | En progreso                                                               |
 | **Dependencias**      | [RNF-15](../no-funcionales/RNF-15-compatibilidad-con-iphone-y-pwa.md) |
 | **Reglas de negocio** | RN-04                                                                 |
 

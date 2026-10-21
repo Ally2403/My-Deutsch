@@ -36,7 +36,7 @@ function routeFor(url, method, opts) {
   let u;
   try {
     u = new URL(url);
-  } catch {
+  } catch (_err) {
     return "network-only";
   }
   if (o.origin && u.origin !== o.origin) return "network-only";
@@ -78,7 +78,7 @@ if (
       const meta = await caches.open(META_CACHE);
       const hit = await meta.match(META_KEY);
       currentUser = hit ? await hit.text() : null;
-    } catch {
+    } catch (_err) {
       currentUser = null;
     }
     return currentUser || null;
@@ -163,7 +163,7 @@ if (
         if (cache) await cache.put(request, res.clone());
       }
       return res;
-    } catch {
+    } catch (_err) {
       if (isCacheableNavigation(pathname)) {
         const cache = await navNamespace(pathname);
         const hit = cache && (await cache.match(request));

@@ -16,6 +16,9 @@ Producción: https://my-deutsch.vercel.app · Repositorio: `Ally2403/My-Deutsch`
 ## Añadido después del cierre (2026-10-19, todo en `main`)
 RF-33/RNF-14/RF-35 (escribir respuestas sobre la página, guardado fiable offline, reiniciar página) · RF-34 (campos de ejercicio detectados) · RF-32 (exportar diccionario a CSV) · RF-37 (preferencias de lectura en el perfil) · RF-18 (modo lectura, con ilustraciones detectadas por el worker) · RF-45 (verbos separables con punto medio en el panel).
 
+## Mejoras del 2026-10-20 (en `main`, En progreso hasta que la usuaria las verifique)
+RF-46 (progreso de procesamiento fiel por hojas) · RNF-18 (procesamiento en paralelo; 1,75x en la muestra, meta 2x sin medir en un libro real) · RF-47 (traducir frases seleccionadas; los libros ya subidos deben subirse de nuevo) · RF-48 (repaso con tarjetas FSRS) · RF-49 (indicador de avance) · RF-50 (PWA instalable con lectura sin conexión, [ADR-008](decisiones/ADR-008-pwa-con-service-worker-propio.md)) · RNF-19 (rendimiento de lectura). Pendiente de la usuaria: iPhone real, libro de 167 páginas cronometrado, sesión real de repaso.
+
 ## En progreso (necesitan una acción de la usuaria)
 | ID | Tema | Falta |
 |---|---|---|
@@ -24,11 +27,12 @@ RF-33/RNF-14/RF-35 (escribir respuestas sobre la página, guardado fiable offlin
 
 ## Limitaciones conocidas
 - **RNF-02 criterio 2 (cambio aprobado 2026-10-19):** las páginas son privadas, así que se sirven desde la app con caché privada de 7 días, no desde un CDN con caché inmutable de 1 año.
-- Para que los libros ya subidos muestren campos de ejercicio e ilustraciones hay que reprocesarlos.
+- Para que los libros ya subidos muestren campos de ejercicio, ilustraciones y traducción de frases hay que subirlos de nuevo (el PDF se borra al terminar).
+- `components/reader/page-reader.tsx` supera las 800 líneas; dividirlo queda como deuda técnica (necesita e2e).
 - Un reintento de procesamiento repite el libro desde la primera hoja.
 - Las traducciones son automáticas (Opus-MT) y pueden fallar en frases idiomáticas; el panel lo indica.
 - Alrededor del 1 % de las palabras queda ligeramente desalineado frente a la tinta (≤ 4,7 % del ancho).
-- Sin prueba con lector de pantalla real; sin PWA instalable (descartada).
+- Sin prueba con lector de pantalla real; la PWA instalable (RF-50) falta probarla en un iPhone real.
 - Pendientes de seguridad diferidos (RF-43): fijar el SHA-256 de los modelos ya convertidos, revisar enlaces simbólicos en la carpeta de preparación y exigir un indicador de desarrollo para `MYDEUTSCH_MODELS_DIR`. Riesgo bajo hoy.
 - Cierres de sesión: se redujo la causa probable (renovación doble); si reaparece, revisar los logs de Auth (`refresh_token_not_found`) y subir el «JWT expiry» en Supabase.
 

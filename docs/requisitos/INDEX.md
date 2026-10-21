@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8    | Ejercicios             |
 | M-T    | Transversal            |
 
-## Requerimientos funcionales (44)
+## Requerimientos funcionales (50)
 
 | ID    | Título                                                                                                                         | Módulo | Prioridad | Fase | Estado      |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | ---- | ----------- |
@@ -67,12 +67,12 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-44 | [Tema claro y oscuro con selector y barra de navegación](funcionales/RF-44-tema-claro-y-oscuro.md)                             | M-T    | Alta      | 5    | Hecho       |
 | RF-45 | [Verbos separables con punto medio en el panel](funcionales/RF-45-verbo-separable-con-punto-medio.md)                          | M-5    | Media     | 3    | Hecho       |
 | RF-46 | [Progreso de procesamiento fiel](funcionales/RF-46-progreso-de-procesamiento-fiel.md)                                          | M-4    | Alta      | 6    | En progreso |
-| RF-47 | [Traducir frases seleccionadas](funcionales/RF-47-traducir-frases-seleccionadas.md)                                            | M-5    | Alta      | 6    | En curso    |
+| RF-47 | [Traducir frases seleccionadas](funcionales/RF-47-traducir-frases-seleccionadas.md)                                            | M-5    | Alta      | 6    | En progreso |
 | RF-48 | [Repaso con tarjetas (FSRS)](funcionales/RF-48-repaso-con-tarjetas.md)                                                         | M-7    | Alta      | 6    | En progreso |
-| RF-49 | [Indicador de avance de lectura](funcionales/RF-49-indicador-de-avance-de-lectura.md)                                          | M-5    | Media     | 6    | En curso    |
-| RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md)                        | M-T    | Alta      | 6    | En curso     |
+| RF-49 | [Indicador de avance de lectura](funcionales/RF-49-indicador-de-avance-de-lectura.md)                                          | M-5    | Media     | 6    | En progreso |
+| RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md)                        | M-T    | Alta      | 6    | En progreso |
 
-## Requerimientos no funcionales (17)
+## Requerimientos no funcionales (19)
 
 | ID     | Título                                                                                                                    | Módulo | Prioridad | Fase | Estado      |
 | ------ | ------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---- | ----------- |
@@ -94,11 +94,13 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Hecho       |
 | RNF-17 | [Límite de intentos de código de invitación](no-funcionales/RNF-17-limite-de-intentos-de-codigo-de-invitacion.md)         | M-2    | Alta      | 3    | Hecho       |
 | RNF-18 | [Velocidad de procesamiento](no-funcionales/RNF-18-velocidad-de-procesamiento.md)                                         | M-4    | Alta      | 6    | En progreso |
-| RNF-19 | [Rendimiento de lectura](no-funcionales/RNF-19-rendimiento-de-lectura.md)                                                 | M-5    | Media     | 6    | En progreso   |
+| RNF-19 | [Rendimiento de lectura](no-funcionales/RNF-19-rendimiento-de-lectura.md)                                                 | M-5    | Media     | 6    | En progreso |
 
 ## Alcance del MVP (cierre 2026-10-19)
 
-El MVP incluye todo lo marcado **Hecho**. Siguen **En progreso**, a la espera de acciones de la usuaria (cuenta de prueba, primera ejecución en Actions): RNF-08 (rendimiento web) y RNF-10 (concurrencia). Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md) y [`docs/ESTADO.md`](../ESTADO.md).
+El MVP incluye todo lo marcado **Hecho**. Siguen **En progreso**, a la espera de acciones de la usuaria (cuenta de prueba, primera ejecución en Actions): RNF-08 (rendimiento web) y RNF-10 (concurrencia).
+
+Mejoras del 2026-10-20 (Fase 6 del plan): RF-46 a RF-50, RNF-18 y RNF-19 están implementados y probados en CI, pero siguen **En progreso** porque cada uno tiene al menos un criterio que solo la usuaria puede verificar (libro real de 167 páginas cronometrado, iPhone físico, libros subidos de nuevo para `sents`, sesión real de repaso). El detalle por criterio está en cada archivo. Detalle y limitaciones conocidas: [`docs/CIERRE-MVP.md`](../CIERRE-MVP.md) y [`docs/ESTADO.md`](../ESTADO.md).
 
 ## Plantilla para un requisito nuevo
 

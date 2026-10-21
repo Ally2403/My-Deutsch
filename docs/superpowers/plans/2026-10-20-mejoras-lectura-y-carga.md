@@ -110,8 +110,8 @@
 **Files:** `.claude/skills/modo-autonomo/SKILL.md`, `.claude/skills/nuevo-requisito/SKILL.md`, `.claude/settings.local.json`.
 
 - [x] Paso 1: con `superpowers:writing-skills`/`skill-creator`, crear `modo-autonomo` (copia fiel de la sección «Modo autónomo» + «cómo retomar tras /clear») y `nuevo-requisito` (plantilla de RF, siguiente ID, fila de INDEX, RN afectadas, línea en ESTADO). Frontmatter con `description` que dispare al retomar este plan.
-- [ ] Paso 2 (BLOQUEADO: el clasificador de permisos del arnés denegó editar `.claude/settings.local.json` por automodificación; pendiente de la usuaria): con la skill `update-config`, añadir a `permissions.allow` de `.claude/settings.local.json`: `Bash(git add:*)`, `git commit`, `git checkout`, `git switch`, `git branch`, `git worktree`, `git fetch`, `git pull`, `git merge`, `git stash`, `Bash(gh pr:*)`, `Bash(gh run:*)`, `Bash(gh api:*)`, `Bash(pnpm:*)`, `Bash(pnpm exec playwright:*)`, `Bash(uv run:*)`, `Bash(uv sync:*)`, `Bash(docker:*)`, `Bash(node scripts/:*)`, y las herramientas MCP de Playwright, Context7 y Supabase (`apply_migration`, `execute_sql`, `generate_typescript_types`, `get_advisors`, `list_tables`). **No** añadir `git push --force`, `vercel`, `supabase db push` ni lectura de `.env`.
-- [ ] Paso 3: instalar dependencias nuevas en su fase (no ahora): `ts-fsrs` (T4.2), `sharp` como devDependency (T5.1). Para cada una, consultar Context7 y revisar el permiso de scripts de compilación en `pnpm-workspace.yaml` (`onlyBuiltDependencies`).
+- [ ] Paso 2 (BLOQUEADO: el clasificador de permisos del arnés denegó editar `.claude/settings.local.json` por automodificación; pendiente de la usuaria): con la skill `update-config`, añadir a `permissions.allow` de `.claude/settings.local.json`: `Bash(git add:*)`, `git commit`, `git checkout`, `git switch`, `git branch`, `git worktree`, `git fetch`, `git pull`, `git merge`, `git stash`, `Bash(gh pr:*)`, `Bash(gh run:*)`, `Bash(gh api:*)`, `Bash(pnpm:*)`, `Bash(pnpm exec playwright:*)`, `Bash(uv run:*)`, `Bash(uv sync:*)`, `Bash(docker:*)`, `Bash(node scripts/:*)`, y las herramientas MCP de Playwright, Context7 y Supabase (`apply_migration`, `execute_sql`, `generate_typescript_types`, `get_advisors`, `list_tables`). **No** añadir `git push --force`, `vercel`, `supabase db push` ni lectura de `.env`. (sigue pendiente de la usuaria: ver ESTADO.md)
+- [x] Paso 3: instalar dependencias nuevas en su fase (no ahora): `ts-fsrs` (T4.2), `sharp` como devDependency (T5.1). Para cada una, consultar Context7 y revisar el permiso de scripts de compilación en `pnpm-workspace.yaml` (`onlyBuiltDependencies`).
 - [x] Paso 4: limpiar ramas fusionadas con `/clean_gone`. Commit `chore: skills de proyecto y permisos para trabajo autónomo`.
 
 ---
@@ -155,13 +155,13 @@
 - [x] Paso 3 (prueba, falla): reanudación — con las páginas 1–3 ya hechas, el motor falso **no** recibe llamadas de OCR para esas páginas (contador) y el resultado final es igual.
 - [x] Paso 4 (prueba, falla): si el motor lanza `TimeoutError` en la hoja 2, `process_pdf` lanza, deja `progress.json` en `error` y cancela las hojas pendientes (Review Focus 5); en `run_job` el libro queda `error`/`processing_failed`, no `processing`.
 - [x] Paso 5: implementar; deshabilitar la etapa A con `workers=1` (modo secuencial de referencia).
-- [ ] Paso 6 (1,75x en la muestra de 10 páginas, criterio 2x sin cumplir; ver RNF-18): medir con `bench.py --workers 1` y `--workers 3`. **Criterio:** ≥ 2× páginas/min en 4 CPU, con salida idéntica. Si no se alcanza, perfilar y aplicar (en este orden): reducir las 6 llamadas de `printed_candidates` a las que den consenso; `method=6` → `method=4` en WebP si cabe en 250 KB; traducción por lote (`Translator.from_german_many`, ya prevista en T3.1).
+- [ ] Paso 6 (1,75x en la muestra de 10 páginas, criterio 2x sin cumplir; ver RNF-18): medir con `bench.py --workers 1` y `--workers 3`. **Criterio:** ≥ 2× páginas/min en 4 CPU, con salida idéntica. Si no se alcanza, perfilar y aplicar (en este orden): reducir las 6 llamadas de `printed_candidates` a las que den consenso; `method=6` → `method=4` en WebP si cabe en 250 KB; traducción por lote (`Translator.from_german_many`, ya prevista en T3.1). (pendiente: medir en un libro real)
 - [x] Paso 7: fijar `workers` por `os.cpu_count()` (tope 4) en `publish/__main__.py`. Commit `RNF-18: OCR en paralelo con salida idéntica`.
 
 ### Tarea 1.4: Verificación de extremo a extremo y cierre de fase
 
-- [ ] Paso 1 (cubierto por pruebas con cliente falso; cronometraje real pendiente de la usuaria): subir una vez el PDF de muestra a producción **con una cuenta de prueba propia de Claude solo si ya existe**; si no, ejecutar `run_job` local contra el cliente falso y comprobar que el libro pasa a `ready` justo cuando `pages_done == pages_total`. Medir en el runner: dispatch manual de `process-book` con la muestra solo si hay un libro en cola de prueba; si no, anotar en `ESTADO.md` «pendiente de la usuaria: subir un libro y cronometrar» (objetivo RNF-18 ≤ 7 min por 167 páginas).
-- [ ] Paso 2 (PR y fusión en curso): PR, CI, fusión. Marcar RF-46/RNF-18 con el estado real (verificado local / sin verificar en Actions). Actualizar `ESTADO.md`.
+- [ ] Paso 1 (cubierto por pruebas con cliente falso; cronometraje real pendiente de la usuaria): subir una vez el PDF de muestra a producción **con una cuenta de prueba propia de Claude solo si ya existe**; si no, ejecutar `run_job` local contra el cliente falso y comprobar que el libro pasa a `ready` justo cuando `pages_done == pages_total`. Medir en el runner: dispatch manual de `process-book` con la muestra solo si hay un libro en cola de prueba; si no, anotar en `ESTADO.md` «pendiente de la usuaria: subir un libro y cronometrar» (objetivo RNF-18 ≤ 7 min por 167 páginas). (pendiente de la usuaria)
+- [x] Paso 2 (PR y fusión en curso): PR, CI, fusión. Marcar RF-46/RNF-18 con el estado real (verificado local / sin verificar en Actions). Actualizar `ESTADO.md`.
 
 ---
 
@@ -224,7 +224,7 @@
 - [x] Paso 2 (pruebas, fallan): `use-phrase-selection` — arrastre de la palabra 3 a la 8 → rango `[3,8]`; clic simple no abre panel de frase; con `enabled=false` no hace nada. `phrase-panel` — muestra 2 oraciones; muestra aviso sin `sents`; `role="dialog"` con nombre accesible; Esc cierra.
 - [x] Paso 3: implementar; que la selección nativa del navegador desaparezca al abrir el panel (para no quedar atrapada tras cerrar).
 - [x] Paso 4 (e2e; el modo «Escribir» solo con prueba unitaria, la demo no tiene capa de respuestas): Chromium a 1280 — arrastrar sobre dos líneas de la demo abre el panel con la traducción; 360 y WebKit iPhone — modo «Frase» con dos toques; modo «Escribir» activo no abre el panel; sin desborde horizontal; axe sin violaciones.
-- [ ] Paso 5 (PR/CI/fusión en curso): PR, CI, fusión; actualizar RF-47. Anotar en `ESTADO.md`: «los libros ya subidos necesitan subirse de nuevo (el PDF se borra al terminar)». Commit `RF-47: panel de frase y selección con mouse`.
+- [x] Paso 5 (PR/CI/fusión en curso): PR, CI, fusión; actualizar RF-47. Anotar en `ESTADO.md`: «los libros ya subidos necesitan subirse de nuevo (el PDF se borra al terminar)». Commit `RF-47: panel de frase y selección con mouse`.
 
 ---
 
@@ -345,9 +345,9 @@
 
 ## Fase 7 — Cierre
 
-- [ ] Paso 1: `superpowers:requesting-code-review` sobre el conjunto (`/code-review high`) y `/simplify`; dividir `page-reader.tsx` si superó ~800 líneas.
-- [ ] Paso 2: `INDEX.md`: estados reales (Hecho solo con todos los criterios verificados; lo demás «En progreso» con el motivo). `CIERRE-MVP.md` y `ESTADO.md` («Retomar aquí» con: qué quedó, qué debe hacer la usuaria: subir de nuevo los libros para `sents`, probar la PWA en iPhone, cronometrar un libro, RNF-08/RNF-10 pendientes).
-- [ ] Paso 3: guardar en la memoria del proyecto la preferencia «trabajo autónomo prolongado sin confirmaciones». Fusionar la rama de docs y limpiar ramas (`/clean_gone`).
+- [x] Paso 1: `superpowers:requesting-code-review` sobre el conjunto (`/code-review high`) y `/simplify`; dividir `page-reader.tsx` si superó ~800 líneas.
+- [x] Paso 2: `INDEX.md`: estados reales (Hecho solo con todos los criterios verificados; lo demás «En progreso» con el motivo). `CIERRE-MVP.md` y `ESTADO.md` («Retomar aquí» con: qué quedó, qué debe hacer la usuaria: subir de nuevo los libros para `sents`, probar la PWA en iPhone, cronometrar un libro, RNF-08/RNF-10 pendientes).
+- [x] Paso 3: guardar en la memoria del proyecto la preferencia «trabajo autónomo prolongado sin confirmaciones». Fusionar la rama de docs y limpiar ramas (`/clean_gone`).
 
 ---
 
