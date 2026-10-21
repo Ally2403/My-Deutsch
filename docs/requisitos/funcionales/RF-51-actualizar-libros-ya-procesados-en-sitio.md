@@ -38,4 +38,12 @@ Aprobado por pedido explícito de la usuaria, 2026-10-21 (diseño en sitio, sin 
 
 ## Verificación
 
-Ver el final de este archivo al cerrar la tarea.
+2026-10-21 (rama `feat/RF-51-actualizar-libros-en-sitio`):
+
+- Criterio 1: cumplido. Migración `20261021100000_version_del_pipeline.sql` aplicada en producción con `apply_migration` (aditiva); pgTAP `supabase/tests/pipeline_version.test.sql` 6/6 contra la base real en una transacción con rollback; `get_advisors` sin avisos nuevos. El worker escribe `PIPELINE_VERSION` (2) en `finish_book` (`worker/tests/test_upgrade_client.py`).
+- Criterios 2 a 4: cumplidos con datos sintéticos (`test_upgrade_page.py`, `test_upgrade_job.py`): añade `sents` válidos sin tocar el resto del JSON, omite páginas que ya los tienen, una falla de descarga/subida/JSON corrupto deja el libro en versión 1 y sigue con los demás, segunda ejecución sin escrituras, reanudación, `--dry-run` y `--book-id`. Segmentación real de spaCy comprobada en Docker (`sentence_starts` con `de_core_news_md`).
+- Criterio 5: cumplido en prueba (el registro no contiene texto, traducciones ni rutas).
+- Criterio 6: cumplido en pruebas de componente (`components/upload-book.test.tsx`). **No se verificó en el navegador** (Playwright no conectó en esta sesión).
+- **No se verificó:** la ejecución real del workflow `upgrade-books` sobre libros de producción (por indicación, no se tocaron libros reales) ni la calidad/tiempo de la traducción Opus-MT real en ese flujo.
+- Observación: la segmentación usa las mismas palabras que el pipeline original (sin la puntuación exterior), por lo que spaCy a veces no corta oraciones dentro de un párrafo; los límites de párrafo sí cortan. Es el mismo comportamiento de los libros nuevos.
+- Limitación: no detecta campos de ejercicio ni ilustraciones (ver arriba).

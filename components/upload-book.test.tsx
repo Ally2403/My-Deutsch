@@ -175,6 +175,35 @@ describe("UploadBook", () => {
     expect(screen.getByLabelText("Título")).toHaveValue("");
   });
 
+  it("RF-51: libro reutilizado muestra el aviso; uno nuevo no", async () => {
+    fetchMock.mockImplementationOnce(
+      async () =>
+        new Response(
+          JSON.stringify({ book_id: "b1", reused: true, status: "ready" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+    );
+    render(<UploadBook groupId="g1" />);
+    fill("Mi libro", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Este libro ya estaba en la biblioteca; se reutilizó.",
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("RF-51: libro nuevo no muestra el aviso de reutilizado", async () => {
+    render(<UploadBook groupId="g1" />);
+    fill("Mi libro", pdf());
+    submit();
+    await waitFor(() => expect(h.start).toHaveBeenCalled());
+    await finishUpload();
+    await waitFor(() => expect(h.refresh).toHaveBeenCalled());
+    expect(screen.queryByText(/se reutilizó/)).toBeNull();
+  });
+
   it("busy de la RPC muestra el texto exacto y conserva la subida hecha", async () => {
     h.rpc.mockResolvedValueOnce({
       data: null,
@@ -242,7 +271,9 @@ describe("UploadBook", () => {
     submit();
     await waitFor(() => expect(h.start).toHaveBeenCalled());
     await finishUpload();
-    expect(await screen.findByRole("alert")).toHaveTextContent("ya fue procesada");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "ya fue procesada",
+    );
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
@@ -286,31 +317,42 @@ describe("UploadBook", () => {
           headers: { "Content-Type": "text/html" },
         }),
     ],
-  ])("%s no se toma como éxito: conserva clave y formulario", async (_n, make) => {
-    fetchMock.mockResolvedValueOnce(make());
-    render(<UploadBook groupId="g1" />);
-    fill("Mi título", pdf());
-    submit();
-    await waitFor(() => expect(h.start).toHaveBeenCalled());
-    await finishUpload();
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Tu sesión caducó. Vuelve a iniciar sesión",
-    );
-    expect(localStorage.getItem(KEY)).toContain("sub-1");
-    expect(screen.getByLabelText("Título")).toHaveValue("Mi título");
-    expect(h.refresh).not.toHaveBeenCalled();
-  });
+  ])(
+    "%s no se toma como éxito: conserva clave y formulario",
+    async (_n, make) => {
+      fetchMock.mockResolvedValueOnce(make());
+      render(<UploadBook groupId="g1" />);
+      fill("Mi título", pdf());
+      submit();
+      await waitFor(() => expect(h.start).toHaveBeenCalled());
+      await finishUpload();
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "Tu sesión caducó. Vuelve a iniciar sesión",
+      );
+      expect(localStorage.getItem(KEY)).toContain("sub-1");
+      expect(screen.getByLabelText("Título")).toHaveValue("Mi título");
+      expect(h.refresh).not.toHaveBeenCalled();
+    },
+  );
 
   it("mientras finalizar tarda muestra «Verificando tu archivo…» y aria-busy", async () => {
     fetchMock.mockImplementationOnce(() => new Promise(() => undefined));
     const { container } = render(<UploadBook groupId="g1" />);
-    expect(container.querySelector("form")).not.toHaveAttribute("aria-busy", "true");
+    expect(container.querySelector("form")).not.toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
     fill("T", pdf());
     submit();
     await waitFor(() => expect(h.start).toHaveBeenCalled());
     await finishUpload();
-    expect(await screen.findByText("Verificando tu archivo…")).toBeInTheDocument();
-    expect(container.querySelector("form")).toHaveAttribute("aria-busy", "true");
+    expect(
+      await screen.findByText("Verificando tu archivo…"),
+    ).toBeInTheDocument();
+    expect(container.querySelector("form")).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
     expect(screen.getByRole("button", { name: "Subir libro" })).toBeDisabled();
   });
 
@@ -351,9 +393,7 @@ describe("UploadBook", () => {
     submit();
     await waitFor(() => expect(h.start).toHaveBeenCalled());
     await finishUpload();
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Reintentar",
-    );
+    expect(await screen.findByRole("alert")).toHaveTextContent("Reintentar");
     expect(h.refresh).toHaveBeenCalled();
     expect(localStorage.getItem(KEY)).toBeNull();
     expect(screen.getByLabelText("Título")).toHaveValue("");

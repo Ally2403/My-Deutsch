@@ -110,6 +110,7 @@ export type Database = {
           id: string;
           ocr_confidence: number | null;
           page_count: number | null;
+          pipeline_version: number;
           sha256: string;
           status: string;
           title: string;
@@ -122,6 +123,7 @@ export type Database = {
           id?: string;
           ocr_confidence?: number | null;
           page_count?: number | null;
+          pipeline_version?: number;
           sha256: string;
           status?: string;
           title: string;
@@ -134,6 +136,7 @@ export type Database = {
           id?: string;
           ocr_confidence?: number | null;
           page_count?: number | null;
+          pipeline_version?: number;
           sha256?: string;
           status?: string;
           title?: string;

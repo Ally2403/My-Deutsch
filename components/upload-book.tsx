@@ -85,6 +85,8 @@ function rpcMessage(code: string): string {
   return apiErrorMessage(RPC_KNOWN.has(code) ? code : "");
 }
 
+const REUSED_NOTICE = "Este libro ya estaba en la biblioteca; se reutilizó.";
+
 type Phase = "idle" | "uploading" | "saving";
 
 class Cancelled extends Error {}
@@ -99,6 +101,7 @@ export function UploadBook({ groupId }: { groupId: string }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const supabase = () => createClient();
 
@@ -144,6 +147,15 @@ export function UploadBook({ groupId }: { groupId: string }) {
       return;
     }
     if (res.ok) {
+      // RF-51 c6: el servidor reconoció el PDF (misma huella) y reutilizó el libro.
+      let reused = false;
+      try {
+        const body = (await res.json()) as { reused?: unknown };
+        reused = body.reused === true;
+      } catch {
+        // cuerpo no JSON: se trata como libro nuevo
+      }
+      setNotice(reused ? REUSED_NOTICE : null);
       clearPending(groupId);
       formRef.current?.reset();
       setProgress(0);
@@ -197,6 +209,7 @@ export function UploadBook({ groupId }: { groupId: string }) {
 
     inFlight.current = true;
     setError(null);
+    setNotice(null);
     setPhase("saving");
     try {
       const head = new Uint8Array(await file.slice(0, 5).arrayBuffer());
@@ -302,6 +315,11 @@ export function UploadBook({ groupId }: { groupId: string }) {
       {phase === "saving" && (
         <p role="status" className="text-sm">
           Verificando tu archivo…
+        </p>
+      )}
+      {notice && phase === "idle" && (
+        <p role="status" className="text-sm">
+          {notice}
         </p>
       )}
       {error && (
