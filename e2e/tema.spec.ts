@@ -21,20 +21,28 @@ test("RF-44 c1: el botón alterna sol/luna entre claro y oscuro y se recuerda al
   // Claro: el botón ofrece la luna.
   await page.getByRole("button", { name: "Cambiar a modo oscuro" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe("rgb(14, 16, 22)");
+  const bg = await page.evaluate(
+    () => getComputedStyle(document.body).backgroundColor,
+  );
+  expect(bg).toBe("rgb(16, 17, 20)");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
   // Oscuro: el botón ofrece el sol.
   await page.getByRole("button", { name: "Cambiar a modo claro" }).click();
   await expect(html).toHaveAttribute("data-theme", "light");
-  expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe("light");
+  expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe(
+    "light",
+  );
 });
 
-test("RF-44 c1: sin preferencia guardada el botón parte del tema del sistema", async ({ page }) => {
+test("RF-44 c1: sin preferencia guardada el botón parte del tema del sistema", async ({
+  page,
+}) => {
   await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/login");
-  await expect(page.getByRole("button", { name: "Cambiar a modo claro" })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Cambiar a modo claro" }),
+  ).toBeVisible();
 });
 
 test("RF-44 c2: «Sistema» sigue prefers-color-scheme", async ({ page }) => {
@@ -42,11 +50,11 @@ test("RF-44 c2: «Sistema» sigue prefers-color-scheme", async ({ page }) => {
   await page.goto("/login");
   expect(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
-  ).toBe("rgb(14, 16, 22)");
+  ).toBe("rgb(16, 17, 20)");
   await page.emulateMedia({ colorScheme: "light" });
   expect(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
-  ).toBe("rgb(246, 247, 251)");
+  ).toBe("rgb(241, 241, 237)");
 });
 
 test("RF-44 c2: el tema guardado se aplica antes de hidratar (sin destello)", async ({

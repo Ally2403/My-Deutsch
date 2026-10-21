@@ -64,10 +64,28 @@ jobs:
       - name: Instalar los modelos Opus-MT (revisión y huellas SHA-256 fijadas, ADR-007)
         run: uv run --extra opus --extra opus-convert python -m lexicon.opus provision
 
-      - name: Actualizar libros
+      # RNF-20 · ADR-009: `main` usa solo los secretos de producción; otra rama (`dev`), solo los de dev.
+      - name: Resolver entorno
+        working-directory: .
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PROD_URL: ${{ github.ref == 'refs/heads/main' && secrets.SUPABASE_URL || '' }}
+          PROD_KEY: ${{ github.ref == 'refs/heads/main' && secrets.SUPABASE_SERVICE_ROLE_KEY || '' }}
+          DEV_KEY: ${{ github.ref != 'refs/heads/main' && secrets.SUPABASE_SERVICE_ROLE_KEY_DEV || '' }}
+        run: |
+          if [ "$GITHUB_REF" = refs/heads/main ]; then
+            URL="$PROD_URL"; KEY="$PROD_KEY"
+          else
+            URL="https://eaanrkngazophdobzvzx.supabase.co"; KEY="$DEV_KEY"
+          fi
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "secretos del entorno incompletos para la rama $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "::add-mask::$KEY"
+          echo "SUPABASE_URL=$URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$KEY" >> "$GITHUB_ENV"
+
+      - name: Actualizar libros
         run: |
           args=()
           if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi

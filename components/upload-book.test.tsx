@@ -173,6 +173,10 @@ describe("UploadBook", () => {
     );
     expect(localStorage.getItem(KEY)).toBeNull();
     expect(screen.getByLabelText("Título")).toHaveValue("");
+    // RF-53 c1: aviso visible de que el libro quedó en cola
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Libro subido. Se está procesando",
+    );
   });
 
   it("RF-51: libro reutilizado muestra el aviso; uno nuevo no", async () => {

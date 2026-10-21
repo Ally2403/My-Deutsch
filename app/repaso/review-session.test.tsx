@@ -56,6 +56,15 @@ afterEach(() => {
 });
 
 describe("RF-48 sesión de repaso", () => {
+  it("muestra solo el primer significado, al frente y al reverso", () => {
+    setup([word(1, { glosses: ["casa", "hogar", "vivienda"] })]);
+    expect(screen.getByText("casa")).toBeTruthy();
+    expect(screen.queryByText(/hogar|vivienda/)).toBeNull();
+    fireEvent.keyDown(window, { key: " " });
+    expect(screen.getByText("casa")).toBeTruthy();
+    expect(screen.queryByText(/hogar|vivienda/)).toBeNull();
+  });
+
   it("voltea con Espacio y califica con la tecla 3: avanza y guarda la reseña", async () => {
     const { sync } = setup([word(1), word(2)]);
     expect(screen.getByText("1 de 2")).toBeTruthy();
@@ -120,6 +129,8 @@ describe("RF-48 sesión de repaso", () => {
   it("los filtros cambian la cola y quedan en la URL", () => {
     setup([word(1, { genders: ["m"] }), word(2, { genders: ["f"] })]);
     expect(screen.getByText("1 de 2")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^der/ })).toBeNull(); // cerrados por defecto
+    fireEvent.click(screen.getByRole("button", { name: "Filtros" }));
     fireEvent.click(screen.getByRole("button", { name: /^der/ }));
     expect(screen.getByText("1 de 1")).toBeTruthy();
     expect(window.location.search).toContain("genero=m");

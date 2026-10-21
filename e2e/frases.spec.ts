@@ -50,16 +50,40 @@ test("RF-47 c2: el modo «Frase» abre el panel con dos toques; un solo toque no
   await ready(page);
   const requests: string[] = [];
   page.on("request", (r) => requests.push(r.url()));
+  // El trozo se traduce al momento con un servicio externo; en la prueba se simula (RF-47).
+  const sent: string[] = [];
+  await page.route("**/api.mymemory.translated.net/**", (route) => {
+    sent.push(
+      decodeURIComponent(
+        new globalThis.URL(route.request().url()).searchParams.get("q") ?? "",
+      ),
+    );
+    return route.fulfill({
+      contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" },
+      body: JSON.stringify({
+        responseStatus: 200,
+        responseData: { translatedText: "mesa en casa" },
+      }),
+    });
+  });
   await page.getByRole("button", { name: "Frase", exact: true }).click();
   await word(page, "Tisch").click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await word(page, "Haus.").click();
   const dialog = page.getByRole("dialog", { name: /traducción de la frase/i });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("La mesa está en la casa.");
+  // Sale la traducción de lo elegido, sin pasar por «Ver la oración completa».
+  await expect(dialog).toContainText("mesa en casa");
   await expect(dialog).toContainText("Traducción automática");
+  await expect(
+    dialog.getByRole("button", { name: "Ver la oración completa" }),
+  ).toHaveCount(0);
   await expect(dialog.getByRole("button", { name: "Copiar" })).toBeVisible();
-  expect(requests).toEqual([]);
+  expect(sent.length).toBe(1);
+  expect(sent[0]).toMatch(/^Tisch .*Haus\.$/);
+  // Solo salió la consulta del trozo, nada más.
+  expect(requests.filter((u) => !u.includes("mymemory"))).toEqual([]);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

@@ -85,6 +85,8 @@ function rpcMessage(code: string): string {
   return apiErrorMessage(RPC_KNOWN.has(code) ? code : "");
 }
 
+const QUEUED_NOTICE =
+  "Libro subido. Se está procesando; lo verás en la lista de libros del grupo.";
 const REUSED_NOTICE = "Este libro ya estaba en la biblioteca; se reutilizó.";
 
 type Phase = "idle" | "uploading" | "saving";
@@ -155,7 +157,7 @@ export function UploadBook({ groupId }: { groupId: string }) {
       } catch {
         // cuerpo no JSON: se trata como libro nuevo
       }
-      setNotice(reused ? REUSED_NOTICE : null);
+      setNotice(reused ? REUSED_NOTICE : QUEUED_NOTICE);
       clearPending(groupId);
       formRef.current?.reset();
       setProgress(0);

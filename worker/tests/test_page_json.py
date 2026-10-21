@@ -360,6 +360,28 @@ def test_sents_cut_at_paragraph_boundary(lex):
     assert [s["r"] for s in p["sents"]] == [[0, 1], [2, 3]]
 
 
+def test_sents_split_at_sentence_punctuation_even_if_spacy_does_not(lex):
+    # spaCy recibe las palabras sin la puntuación exterior y a veces no corta: el punto sí corta
+    tokens = [tok("Er"), tok("kommt."), tok("Sie"), tok("geht!"), tok("Wir"), tok("bleiben.")]
+    p = page(tokens, _sent_analyzed([True, False, False, False, False, False]), lex)
+    assert [s["r"] for s in p["sents"]] == [[0, 1], [2, 3], [4, 5]]
+
+
+@pytest.mark.parametrize(
+    "words",
+    [
+        ["Das", "ist", "z.B.", "Brot", "oder", "Käse."],  # abreviatura
+        ["Am", "3.", "Mai", "regnet", "es."],  # ordinal
+        ["Er", "kommt.", "und", "geht", "dann."],  # siguiente en minúscula: no es otra oración
+        ["Herr", "A.", "Müller", "kommt."],  # inicial
+    ],
+)
+def test_sents_do_not_split_on_abbreviations_ordinals_or_lowercase(lex, words):
+    tokens = [tok(w) for w in words]
+    p = page(tokens, _sent_analyzed([True] + [False] * (len(words) - 1)), lex)
+    assert [s["r"] for s in p["sents"]] == [[0, len(words) - 1]]
+
+
 def test_sents_omitted_without_translation(lex):
     class Null:
         def from_german(self, text):
@@ -420,15 +442,8 @@ def test_sents_page_size_increase_is_small(lex):
         def from_german_many(self, texts):
             return ["El hombre va hoy a casa y compra pan, dice la frase número uno."] * len(texts)
 
-    base = build_page(
-        (1600, 2263),
-        tokens,
-        _sent_analyzed([False] * len(words)),
-        lex,
-        Realistic(),
-        LexRegistry(),
-    )
     full = build_page((1600, 2263), tokens, _sent_analyzed(starts), lex, Realistic(), LexRegistry())
+    base = {k: v for k, v in full.items() if k != "sents"}  # la v3 corta por puntuación siempre
     extra = len(json.dumps(full, ensure_ascii=False).encode()) - len(
         json.dumps(base, ensure_ascii=False).encode()
     )

@@ -23,6 +23,9 @@ export function PwaRegister() {
     if (typeof navigator === "undefined" || !("serviceWorker" in navigator))
       return;
     const sw = navigator.serviceWorker;
+    // «Versión nueva» solo si ya había un service worker al abrir la página: en la primera visita
+    // WebKit ya reporta controlador cuando termina de instalarse y no hay nada que actualizar.
+    const hadController = !!sw.controller;
     let userId: string | null = null;
 
     const sync = () => {
@@ -42,11 +45,11 @@ export function PwaRegister() {
         const watch = (worker: ServiceWorker | null) => {
           if (!worker) return;
           worker.addEventListener("statechange", () => {
-            if (worker.state === "installed" && sw.controller)
+            if (worker.state === "installed" && hadController)
               setWaiting(worker);
           });
         };
-        if (reg.waiting && sw.controller) setWaiting(reg.waiting);
+        if (reg.waiting && hadController) setWaiting(reg.waiting);
         reg.addEventListener("updatefound", () => watch(reg.installing));
       })
       .catch(() => {
@@ -73,13 +76,16 @@ export function PwaRegister() {
   return (
     <div
       role="status"
-      className="fixed inset-x-4 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-3 shadow-lg"
-      style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      className="fixed inset-x-4 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-card border border-border bg-surface p-3"
+      style={{
+        bottom: "max(1rem, env(safe-area-inset-bottom))",
+        boxShadow: "var(--shadow-pop)",
+      }}
     >
       <span className="text-sm">Hay una versión nueva</span>
       <button
         type="button"
-        className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent"
+        className="btn btn-primary !px-4 text-sm"
         onClick={() => {
           updating.current = true;
           waiting.postMessage({ type: "skip-waiting" });

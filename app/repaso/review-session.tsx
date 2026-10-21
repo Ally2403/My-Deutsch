@@ -159,7 +159,9 @@ function SessionInner({
   undoWindowMs = 6000,
 }: Props) {
   const [filters, setFilters] = useState<ReviewFilters>(() =>
-    filtersFromParams(new URLSearchParams(initialQuery ?? window.location.search)),
+    filtersFromParams(
+      new URLSearchParams(initialQuery ?? window.location.search),
+    ),
   );
   const [cardMap, setCardMap] = useState<Map<number, CardState>>(
     () =>
@@ -185,6 +187,7 @@ function SessionInner({
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [reverse, setReverse] = useState(false); // false: español → alemán
+  const [showFilters, setShowFilters] = useState(false);
   const [last, setLast] = useState<Last | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -422,48 +425,16 @@ function SessionInner({
 
   return (
     <div className="mt-5">
-      <div
-        className="flex flex-wrap gap-2"
-        role="group"
-        aria-label="Filtros del repaso"
-      >
-        {GENDERS.map((g) => (
-          <Chip
-            key={g.value}
-            active={filters.gender === g.value}
-            className={g.cls}
-            onClick={() => toggle("gender", g.value)}
-          >
-            {g.label}
-          </Chip>
-        ))}
-        {STATES.map((s) => (
-          <Chip
-            key={s.value}
-            active={filters.state === s.value}
-            onClick={() => toggle("state", s.value)}
-          >
-            {s.label}
-          </Chip>
-        ))}
-        {POS.map((p) => (
-          <Chip
-            key={p.value}
-            active={filters.pos === p.value}
-            onClick={() => toggle("pos", p.value)}
-          >
-            {p.label}
-          </Chip>
-        ))}
-        {bookIds.map((id) => (
-          <Chip
-            key={id}
-            active={filters.bookId === id}
-            onClick={() => toggle("bookId", id)}
-          >
-            {books[id]}
-          </Chip>
-        ))}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          className="chip"
+          aria-expanded={showFilters}
+          aria-controls="filtros-repaso"
+          onClick={() => setShowFilters((v) => !v)}
+        >
+          {anyFilter ? `Filtros · ${Object.keys(filters).length}` : "Filtros"}
+        </button>
         <Chip
           active={reverse}
           onClick={() => {
@@ -474,6 +445,52 @@ function SessionInner({
           Alemán → español
         </Chip>
       </div>
+      {showFilters && (
+        <div
+          id="filtros-repaso"
+          className="mt-2 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Filtros del repaso"
+        >
+          {GENDERS.map((g) => (
+            <Chip
+              key={g.value}
+              active={filters.gender === g.value}
+              className={g.cls}
+              onClick={() => toggle("gender", g.value)}
+            >
+              {g.label}
+            </Chip>
+          ))}
+          {STATES.map((s) => (
+            <Chip
+              key={s.value}
+              active={filters.state === s.value}
+              onClick={() => toggle("state", s.value)}
+            >
+              {s.label}
+            </Chip>
+          ))}
+          {POS.map((p) => (
+            <Chip
+              key={p.value}
+              active={filters.pos === p.value}
+              onClick={() => toggle("pos", p.value)}
+            >
+              {p.label}
+            </Chip>
+          ))}
+          {bookIds.map((id) => (
+            <Chip
+              key={id}
+              active={filters.bookId === id}
+              onClick={() => toggle("bookId", id)}
+            >
+              {books[id]}
+            </Chip>
+          ))}
+        </div>
+      )}
 
       {total === 0 && (
         <div className="card mt-5 p-6 text-center">
@@ -546,9 +563,7 @@ function SessionInner({
                   ¿Cómo se dice en alemán?
                 </p>
                 <p className="mt-3 break-words font-display text-3xl font-extrabold">
-                  {item.word.glosses.length > 0
-                    ? item.word.glosses.slice(0, 3).join("; ")
-                    : "(sin significado)"}
+                  {item.word.glosses[0] ?? "(sin significado)"}
                 </p>
                 {front && <p className="mt-5 text-lg text-muted">{front}</p>}
               </>
@@ -579,11 +594,7 @@ function SessionInner({
                 {item.word.plural && (
                   <p className="mt-1 text-muted">Plural: {item.word.plural}</p>
                 )}
-                <ul className="mt-3 list-inside list-disc text-lg">
-                  {item.word.glosses.slice(0, 4).map((g) => (
-                    <li key={g}>{g}</li>
-                  ))}
-                </ul>
+                <p className="mt-3 text-lg">{item.word.glosses[0]}</p>
                 {item.word.sentence && (
                   <blockquote className="mt-4 border-l-2 border-border pl-3 text-muted">
                     {item.word.sentence}
