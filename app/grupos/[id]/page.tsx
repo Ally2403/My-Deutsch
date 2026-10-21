@@ -2,12 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookCard } from "@/components/book-card";
-import { GroupAdminPanel, LeaveGroup, MemberActions } from "@/components/group-admin";
+import {
+  GroupAdminPanel,
+  LeaveGroup,
+  MemberActions,
+} from "@/components/group-admin";
 import { Icon } from "@/components/icons";
 import { ShareInvite } from "@/components/share-invite";
 import { Page } from "@/components/ui";
 import { UploadBook } from "@/components/upload-book";
-import { canRetry, isOwnerOrAdmin, resolvePageCount } from "@/lib/domain/book-status";
+import {
+  canRetry,
+  isOwnerOrAdmin,
+  resolvePageCount,
+} from "@/lib/domain/book-status";
 import { createClient } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -71,7 +79,9 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
           .in("id", bookIds),
         supabase
           .from("jobs")
-          .select("book_id, status, pages_done, pages_total, error, created_at, started_at")
+          .select(
+            "book_id, status, pages_done, pages_total, error, created_at, started_at",
+          )
           .in("book_id", bookIds)
           .order("created_at", { ascending: false }),
         supabase
@@ -108,18 +118,18 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
-      <h1 className="font-display text-3xl font-extrabold">{group.name}</h1>
+      <h1 className="text-3xl sm:text-4xl">{group.name}</h1>
 
       <div className="mt-6">
         <ShareInvite code={group.invite_code} groupName={group.name} />
       </div>
 
       <h2 className="mt-10 font-display text-xl font-bold">Libros</h2>
-      <div className="mt-3">
-        <UploadBook groupId={group.id} />
-      </div>
       {books.length === 0 ? (
-        <p className="card mt-4 p-5 text-center text-muted">Aún no hay libros en este grupo. Sube el primero con el botón de arriba.</p>
+        <p className="card mt-4 p-5 text-center text-muted">
+          Aún no hay libros en este grupo. Sube el primero con el formulario de
+          abajo.
+        </p>
       ) : (
         <ul className="mt-4 grid gap-3 md:grid-cols-2">
           {books.map((b) => {
@@ -169,6 +179,11 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
         </ul>
       )}
 
+      <h3 className="mt-8 text-lg">Subir un libro</h3>
+      <div className="mt-3">
+        <UploadBook groupId={group.id} />
+      </div>
+
       <h2 className="mt-10 font-display text-xl font-bold">
         Miembros ({members?.length ?? 0})
       </h2>
@@ -176,7 +191,10 @@ async function Grupo({ params }: { params: Promise<{ id: string }> }) {
         {(members ?? []).map((m) => {
           const p = byId.get(m.user_id);
           return (
-            <li key={m.user_id} className="flex min-h-14 flex-wrap items-center gap-3 py-2">
+            <li
+              key={m.user_id}
+              className="flex min-h-14 flex-wrap items-center gap-3 py-2"
+            >
               {p?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -227,10 +245,7 @@ export default function GrupoPage({
 }) {
   return (
     <Page width="wide">
-      <Link
-        href="/grupos"
-        className="back-link mb-3"
-      >
+      <Link href="/grupos" className="back-link mb-3">
         <Icon name="left" size={18} />
         Mis grupos
       </Link>

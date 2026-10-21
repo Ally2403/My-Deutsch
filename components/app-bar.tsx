@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nextStudyDayStart } from "@/lib/domain/review-queue";
 import { syncPrefsOnce } from "@/lib/prefs/client";
@@ -109,7 +109,9 @@ export function AppBar() {
           </span>
           <span className="max-[479px]:sr-only">My-Deutsch</span>
         </Link>
-        <Nav />
+        <Suspense fallback={null}>
+          <Nav />
+        </Suspense>
         <ThemeToggle />
       </div>
     </header>
