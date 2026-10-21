@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Sin conexión · My-Deutsch</title>
+    <style>
+      :root {
+        --background: #f6f7fb;
+        --foreground: #171a2b;
+        --muted: #596078;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #0e1016;
+          --foreground: #eef0f8;
+          --muted: #a4abc2;
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--background);
+        color: var(--foreground);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        padding: max(1.5rem, env(safe-area-inset-top)) 1rem 1.5rem;
+      }
+      main {
+        max-width: 32rem;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.875rem;
+        font-weight: 800;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        color: inherit;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Sin conexión</h1>
+      <p>
+        No hay internet y esta pantalla todavía no está guardada en tu
+        dispositivo. Las páginas que ya leíste siguen disponibles; vuelve a
+        intentarlo cuando tengas conexión.
+      </p>
+      <a href="/grupos">Reintentar</a>
+    </main>
+  </body>
+</html>

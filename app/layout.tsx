@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import { THEME_INIT_SCRIPT } from "@/lib/domain/theme";
+import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
 const body = Figtree({ variable: "--font-body", subsets: ["latin"] });
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
   title: "My-Deutsch",
   description:
     "Lee libros de alemán con el significado de cada palabra y los colores de género.",
+  // RF-50: PWA instalable (el manifiesto sale de app/manifest.ts).
+  appleWebApp: { capable: true, title: "My-Deutsch", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-180.png" },
 };
 
 export const viewport: Viewport = {
@@ -32,7 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">{children}
+        <PwaRegister />
+      </body>
     </html>
   );
 }
