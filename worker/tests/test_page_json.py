@@ -199,6 +199,20 @@ def test_render_webp_is_1600_wide_and_within_the_size_limit():
     assert webp_size(gray.shape) == (1600, 2200)
 
 
+def test_render_webp_shrinks_a_heavy_page_instead_of_failing():
+    # RF-46: una página cargada (foto) no baja de 250 KB con la calidad mínima a 1600 px.
+    from io import BytesIO
+
+    from PIL import Image
+
+    rng = np.random.default_rng(1)
+    heavy = np.clip(np.linspace(60, 200, 1600)[None, :] + rng.normal(0, 25, (2263, 1600)), 0, 255)
+    data = render_webp(heavy.astype(np.uint8))
+    assert len(data) <= 250 * 1024
+    w, h = Image.open(BytesIO(data)).size
+    assert w < 1600 and abs(h / w - 2263 / 1600) < 0.01
+
+
 def test_render_webp_fails_clearly_instead_of_writing_an_oversized_image():
     noise = np.random.default_rng(0).integers(0, 255, (2263, 1600), dtype=np.uint8)
     with pytest.raises(ValueError, match="excede"):
