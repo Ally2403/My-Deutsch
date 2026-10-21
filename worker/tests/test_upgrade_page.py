@@ -63,7 +63,7 @@ def test_page_with_sents_is_skipped():
 
 
 def test_paragraph_boundary_splits_even_without_spacy_start():
-    out = upgrade_page(page(), None, Tr(), starts=lambda t, n: [False] * len(t))
+    out = upgrade_page(page(), None, Tr(), starts=no_starts)
     assert [s["r"] for s in out["sents"]] == [[0, 2], [3, 5]]
 
 
@@ -87,3 +87,18 @@ def test_invalid_page_raises():
     p["tokens"][0]["b"] = [2, 2, 2, 2]
     with pytest.raises(UpgradeError):
         upgrade_page(p, None, Tr(), starts=starts)
+
+
+def no_starts(tokens, nlp):
+    return [False] * len(tokens)
+
+
+def test_page_with_sentences_merged_by_an_older_pipeline_is_resegmented():
+    old = [{"r": [0, 5], "es": "una sola"}]  # versión 2 juntaba las dos oraciones
+    out = upgrade_page(page(sents=old, paragraphs=[[0, 5]]), None, Tr(), starts=no_starts)
+    assert [s["r"] for s in out["sents"]] == [[0, 2], [3, 5]]
+
+
+def test_page_already_split_by_punctuation_is_skipped():
+    good = [{"r": [0, 2], "es": "a"}, {"r": [3, 5], "es": "b"}]
+    assert upgrade_page(page(sents=good, paragraphs=[[0, 5]]), None, Tr(), starts=no_starts) is None

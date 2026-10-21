@@ -44,3 +44,7 @@ Aprobado por pedido explícito de la usuaria, 2026-10-20. Plan: [`superpowers/pl
 - **No se pudo verificar:** la traducción real de oraciones con Opus-MT en un libro (el modelo no está instalado en este equipo; `pytest` de `test_opus` falla localmente por eso) ni el costo de tiempo por página (objetivo <= +20 %, `worker/tools/bench.py`). Es una sola llamada por lote por página, con `max_decoding_length` 256.
 - **Los libros ya subidos deben subirse de nuevo** para tener `sents` (el PDF se borra al terminar el procesamiento); mientras tanto el panel muestra las glosas y el aviso «Sube de nuevo el libro para traducir oraciones completas.».
 - Decisiones autónomas: la traducción es de la oración que contiene la selección (no del fragmento exacto); `sents` omite oraciones sin letras y se corta al llegar a 3 000 bytes; el arrastre con mouse solo se detecta sobre la capa de texto de la página (no en el modo lectura).
+
+## Corrección 2 (2026-10-21): oraciones que juntaban varias
+
+Con un libro real se vio que `sents` agrupaba párrafos enteros (hasta 72 tokens) porque spaCy recibe las palabras sin la puntuación exterior y no cortaba. Desde la versión 3 del pipeline (`PIPELINE_VERSION = 3`) las oraciones también se cortan por puntuación final (`. ! ?` seguida de mayúscula, salvo abreviaturas, iniciales y ordinales). El modo `upgrade` (RF-51) recalcula las páginas cuyas `sents` no coinciden con esa segmentación, conservando todo lo demás.
