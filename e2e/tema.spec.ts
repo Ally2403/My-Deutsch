@@ -22,7 +22,7 @@ test("RF-44 c1: el botón alterna sol/luna entre claro y oscuro y se recuerda al
   await page.getByRole("button", { name: "Cambiar a modo oscuro" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe("rgb(14, 16, 22)");
+  expect(bg).toBe("rgb(16, 17, 20)");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
   // Oscuro: el botón ofrece el sol.
@@ -42,7 +42,7 @@ test("RF-44 c2: «Sistema» sigue prefers-color-scheme", async ({ page }) => {
   await page.goto("/login");
   expect(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
-  ).toBe("rgb(14, 16, 22)");
+  ).toBe("rgb(16, 17, 20)");
   await page.emulateMedia({ colorScheme: "light" });
   expect(
     await page.evaluate(() => getComputedStyle(document.body).backgroundColor),
