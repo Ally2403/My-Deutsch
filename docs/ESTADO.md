@@ -1,3 +1,15 @@
+# Retomar aquí (2026-10-21, lista final de pendientes — leer primero)
+
+Todo el plan `2026-10-20-mejoras-lectura-y-carga.md` y RF-51 están fusionados en `main`. Lo que sigue es solo de la usuaria (reemplaza el punto 1 del bloque de la Fase 7):
+
+1. **Actualizar los libros ya subidos sin resubirlos:** Actions -> «upgrade-books» -> Run workflow, primero `dry_run = true`, revisar el resumen y luego `dry_run = false` (o `gh workflow run upgrade-books.yml -f dry_run=false`). Añade la traducción de oraciones conservando progreso y anotaciones. **No** hace falta quitar ni resubir el libro. Los campos de ejercicio (RF-34) e ilustraciones (RF-18) solo se obtienen subiendo un PDF nuevo (el PDF se borra al terminar y quitar un libro del grupo no lo borra: RN-02 lo vuelve a enlazar al mismo libro; hoy no existe forma de reprocesar desde el PDF).
+2. Cronometrar un libro real de 167 páginas (RNF-18) y comprobar que la barra llega a 100 % justo al terminar (RF-46).
+3. Probar la PWA en un iPhone real, una sesión real de repaso y el aviso «Este libro ya estaba en la biblioteca» (RF-50, RF-48, RF-51).
+4. Permisos: pegar la lista de la Tarea 0.2 en `.claude/settings.local.json` (ya hecho por la usuaria el 2026-10-21; verificar).
+5. RNF-08 (Lighthouse en Actions tras un despliegue de producción) y RNF-10 (k6 10 min) siguen pendientes.
+6. Deuda técnica: `components/reader/page-reader.tsx` (826 líneas) sin dividir; la revisión de la Fase 7 fue manual (no se corrieron `code-review` ni `simplify`); los logs de Vercel no son accesibles desde el MCP (403: otorgar acceso al equipo si se necesitan).
+7. Sin explicar: un primer intento de subida se quedó en «Verificando tu archivo…» (no hay rastro en la base). Si se repite, anotar cuánto se esperó.
+
 # Retomar aquí (2026-10-21, RF-51 — actualizar libros ya procesados en sitio)
 
 **Hecho (rama `feat/RF-51-actualizar-libros-en-sitio`):** `books.pipeline_version` (migración aditiva **ya aplicada en producción**; los libros existentes valen 1), modo `python -m upgrade` del worker (`worker/upgrade/`) que añade `sents` (spaCy + Opus-MT por lote, código de RF-47) al JSON de cada página de Storage sin el PDF, validando antes de sobreescribir y escribiendo la versión del libro solo si todas sus páginas quedaron al día; workflow manual `.github/workflows/upgrade-books.yml`; aviso «Este libro ya estaba en la biblioteca; se reutilizó.» en la subida. RF-51 queda **En progreso**.
