@@ -19,6 +19,7 @@ import {
   swipeDirection,
   type Direction,
 } from "@/lib/domain/paging";
+import { createPageCache } from "@/lib/domain/page-cache";
 import { pairOf } from "@/lib/domain/page-lookup";
 import { sentenceRangeOf, type TokenRange } from "@/lib/domain/phrase";
 import {
@@ -38,7 +39,7 @@ import {
 } from "@/lib/domain/zoom";
 import { Icon } from "@/components/icons";
 import type { AnnotationSync, SyncStatus } from "@/lib/annotations/sync";
-import { AnnotationLayer } from "./annotation-layer";
+import dynamic from "next/dynamic";
 import { ReadingProgress } from "./reading-progress";
 import { ReadingView } from "./reading-view";
 import { PhrasePanel } from "./phrase-panel";
@@ -79,6 +80,12 @@ type Props = {
   /** Identifica el libro para recordar los campos de ejercicio ocultos (RF-34). */
   bookKey?: string;
 };
+
+// RNF-19: la capa de anotaciones solo se descarga si el libro la usa.
+const AnnotationLayer = dynamic(
+  () => import("./annotation-layer").then((m) => m.AnnotationLayer),
+  { ssr: false },
+);
 
 const DEFAULT_ASPECT = 1600 / 2263;
 const NO_PAGES_READ: number[] = [];
@@ -141,7 +148,6 @@ export function PageReader({
     token: number;
     rect: DOMRect;
   } | null>(null);
-  const cache = useRef(new Map<number, Promise<PageData>>());
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
   // RF-19: zoom y ajuste de página.
@@ -180,18 +186,9 @@ export function PageReader({
     el.scrollTop = c.y * el.scrollHeight - el.clientHeight / 2;
   }, [zoom]);
 
-  const getPage = useCallback(
-    (n: number) => {
-      let p = cache.current.get(n);
-      if (!p) {
-        p = loadPage(n);
-        cache.current.set(n, p);
-        p.catch(() => cache.current.delete(n));
-      }
-      return p;
-    },
-    [loadPage],
-  );
+  // RNF-19: caché LRU de 5 páginas; cambiar de libro (loadPage) la vacía.
+  const pageCache = useMemo(() => createPageCache(loadPage, 5), [loadPage]);
+  const getPage = pageCache.get;
 
   const go = useCallback(
     (dir: Direction) =>
@@ -211,14 +208,14 @@ export function PageReader({
         if (!cancelled) setFailed({ n: page, attempt, message });
       },
     );
+    pageCache.prefetch(prefetchTargets(page, total));
     for (const n of prefetchTargets(page, total)) {
-      getPage(n).catch(() => {});
       new Image().src = imageUrl(n);
     }
     return () => {
       cancelled = true;
     };
-  }, [page, attempt, total, getPage, imageUrl]);
+  }, [page, attempt, total, getPage, pageCache, imageUrl]);
 
   useEffect(() => {
     const el = scroller.current;
@@ -633,7 +630,6 @@ export function PageReader({
                   type="button"
                   className="min-h-11 font-medium underline"
                   onClick={() => {
-                    cache.current.delete(page);
                     setFailed(null);
                     setAttempt((a) => a + 1);
                   }}
@@ -724,7 +720,6 @@ export function PageReader({
                   type="button"
                   className="min-h-11 font-medium underline"
                   onClick={() => {
-                    cache.current.delete(page);
                     setFailed(null);
                     setAttempt((a) => a + 1);
                   }}
