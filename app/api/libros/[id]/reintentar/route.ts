@@ -54,6 +54,7 @@ export async function POST(
     await dispatchProcessBook(r.book_id, {
       token: process.env.GITHUB_DISPATCH_TOKEN,
       repo: process.env.GITHUB_DISPATCH_REPO,
+      ref: process.env.GITHUB_DISPATCH_REF,
     });
   } catch (err) {
     if (err instanceof DispatchError) return fail("dispatch_failed", 502, { book_id: r.book_id });

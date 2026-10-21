@@ -50,6 +50,7 @@ function adminDeps(): FinalizeDeps {
       dispatchProcessBook(bookId, {
         token: process.env.GITHUB_DISPATCH_TOKEN,
         repo: process.env.GITHUB_DISPATCH_REPO,
+        ref: process.env.GITHUB_DISPATCH_REF,
       }),
   };
 }

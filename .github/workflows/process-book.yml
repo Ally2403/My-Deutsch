@@ -77,6 +77,8 @@ jobs:
 
       - name: Procesar y publicar
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # RNF-20 · ADR-009: la copia del workflow de `main` usa producción; la de `dev` usa la
+          # base «My Deutsch Dev» (URL pública; la clave está en el secreto SUPABASE_SERVICE_ROLE_KEY_DEV).
+          SUPABASE_URL: ${{ github.ref_name == 'main' && secrets.SUPABASE_URL || 'https://eaanrkngazophdobzvzx.supabase.co' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.ref_name == 'main' && secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
         run: uv run --extra opus python -m publish --book-id "$BOOK_ID" --lexicon .local/lexicon.sqlite

@@ -40,6 +40,16 @@ describe("dispatchProcessBook", () => {
     );
   });
 
+  it("RNF-20: usa la rama indicada (dev) y 'main' si es inválida o falta", async () => {
+    const f = vi.fn().mockResolvedValue(res(204));
+    await dispatchProcessBook(ID, { token: TOKEN, ref: "dev", fetchImpl: f });
+    expect(JSON.parse(f.mock.calls[0][1].body).ref).toBe("dev");
+    await dispatchProcessBook(ID, { token: TOKEN, ref: "../x y", fetchImpl: f });
+    expect(JSON.parse(f.mock.calls[1][1].body).ref).toBe("main");
+    await dispatchProcessBook(ID, { token: TOKEN, ref: "", fetchImpl: f });
+    expect(JSON.parse(f.mock.calls[2][1].body).ref).toBe("main");
+  });
+
   it("registra solo el estado HTTP cuando GitHub rechaza (sin token)", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const f = vi.fn().mockResolvedValue(res(403));
