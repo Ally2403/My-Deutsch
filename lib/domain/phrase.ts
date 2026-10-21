@@ -77,6 +77,28 @@ export function sentencesCovering(
   }));
 }
 
+/** Oraciones con traducción que la selección contiene por completo (ignorando la puntuación
+ * suelta de sus extremos). Solo de estas se muestra la traducción sin que la usuaria la pida:
+ * traducir la oración entera cuando solo se seleccionó un trozo se pasa de lo elegido. */
+export function sentencesFullyIn(
+  page: PageData,
+  range: TokenRange,
+): PhraseSentence[] {
+  const r = clip(page, range);
+  if (!r) return [];
+  const out: PhraseSentence[] = [];
+  for (const s of page.sents ?? []) {
+    let first = s.r[0];
+    let last = s.r[1];
+    while (first < last && bare(page.tokens[first].t) === "") first++;
+    while (last > first && bare(page.tokens[last].t) === "") last--;
+    if (r[0] <= first && r[1] >= last) {
+      out.push({ range: s.r, text: textOf(page, s.r), es: s.es });
+    }
+  }
+  return out;
+}
+
 /** Primer sentido de cada palabra de la selección que tiene entrada en el léxico. */
 export function glossesFor(page: PageData, range: TokenRange): Gloss[] {
   const r = clip(page, range);

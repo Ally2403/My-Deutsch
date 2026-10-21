@@ -56,6 +56,7 @@ test("RF-47 c2: el modo «Frase» abre el panel con dos toques; un solo toque no
   await word(page, "Haus.").click();
   const dialog = page.getByRole("dialog", { name: /traducción de la frase/i });
   await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Ver la oración completa" }).click();
   await expect(dialog).toContainText("La mesa está en la casa.");
   await expect(dialog).toContainText("Traducción automática");
   await expect(dialog.getByRole("button", { name: "Copiar" })).toBeVisible();
