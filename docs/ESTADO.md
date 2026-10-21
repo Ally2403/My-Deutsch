@@ -1,3 +1,20 @@
+# Retomar aquí (2026-10-21, tarde — subida a producción en curso)
+
+PR #63 (`dev` → `main`) abierto por orden de la usuaria («una vez eso funcione, sube a producción»). Sin migraciones nuevas.
+
+Hecho desde la mañana:
+- Procesamiento de libros en dev: `process-book.yml` y `upgrade-books.yml` eligen la base por rama (secreto `SUPABASE_SERVICE_ROLE_KEY_DEV`; en Vercel Preview/dev: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GITHUB_DISPATCH_TOKEN`, `GITHUB_DISPATCH_REF=dev`). Probado con un PDF real: libro «prueba» listo en dev.
+- RF-47 (corrección 2): las oraciones del libro juntaban párrafos enteros (spaCy recibe palabras sin puntuación). Pipeline v3 corta también por puntuación; `upgrade-books` recalcula las páginas. En dev: oración más larga de 72 a 20 tokens.
+- RF-47 (corrección 3): al seleccionar sale al instante la traducción del trozo exacto (MyMemory desde el navegador; solo el trozo; política de privacidad actualizada). Las oraciones completas siguen sin red.
+- RF-53: aviso «Libro subido. Se está procesando…» al terminar la subida.
+
+Pendiente tras el despliegue a producción:
+1. Ejecutar `upgrade-books` en `main`: primero `dry_run=true`, luego `false` (recorta las oraciones de los libros ya subidos).
+2. La usuaria debe probar en su iPhone: selección de frases, aviso de subida y el aviso de versión nueva.
+3. No verificado: refresco de la lista tras subir un libro (RF-53 c2), 2 pruebas del worker que ya fallaban antes (`test_opus`, `test_garbage_pdf`, por el entorno Windows).
+
+---
+
 # Retomar aquí (2026-10-21, entorno de desarrollo y rediseño — leer primero)
 
 **Se trabaja en la rama `dev` y en la base de dev; producción (`main`) no se tocó.** Ver [ADR-009](decisiones/ADR-009-entorno-de-desarrollo-separado.md) (incluye el procedimiento «subir a producción» y lo pendiente de Vercel).
