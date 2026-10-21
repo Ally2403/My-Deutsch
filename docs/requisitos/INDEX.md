@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8    | Ejercicios             |
 | M-T    | Transversal            |
 
-## Requerimientos funcionales (50)
+## Requerimientos funcionales (51)
 
 | ID    | Título                                                                                                                         | Módulo | Prioridad | Fase | Estado      |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | ---- | ----------- |
@@ -71,6 +71,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-48 | [Repaso con tarjetas (FSRS)](funcionales/RF-48-repaso-con-tarjetas.md)                                                         | M-7    | Alta      | 6    | En progreso |
 | RF-49 | [Indicador de avance de lectura](funcionales/RF-49-indicador-de-avance-de-lectura.md)                                          | M-5    | Media     | 6    | En progreso |
 | RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md)                        | M-T    | Alta      | 6    | En progreso |
+| RF-51 | [Actualizar libros ya procesados en sitio](funcionales/RF-51-actualizar-libros-ya-procesados-en-sitio.md)                      | M-4    | Alta      | 6    | En progreso |
 
 ## Requerimientos no funcionales (19)
 
