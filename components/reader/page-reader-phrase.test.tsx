@@ -1,5 +1,6 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { clearFragmentCache } from "@/lib/phrase-translate";
 import type { PageData } from "@/lib/domain/page";
 import { PageReader } from "./page-reader";
 
@@ -45,6 +46,24 @@ function setup() {
 }
 
 describe("PageReader: traducir frases (RF-47)", () => {
+  beforeEach(() => {
+    clearFragmentCache();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              responseStatus: 200,
+              responseData: { translatedText: "la mesa es" },
+            }),
+          ),
+        ),
+      ),
+    );
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
   it("en modo «Frase», dos toques abren el panel con la traducción", async () => {
     setup();
     await screen.findByRole("button", { name: "Tisch" });
@@ -56,12 +75,12 @@ describe("PageReader: traducir frases (RF-47)", () => {
       name: /traducción de la frase/i,
     });
     expect(dialog).toBeInTheDocument();
-    expect(screen.queryByText("La mesa está aquí.")).toBeNull(); // solo lo elegido
-    fireEvent.click(
-      screen.getByRole("button", { name: "Ver la oración completa" }),
-    );
-    expect(screen.getByText("La mesa está aquí.")).toBeInTheDocument();
-    expect(screen.getByText("Llueve.")).toBeInTheDocument();
+    // lo elegido se traduce solo, sin pasar por la oración completa
+    expect(await screen.findByText("la mesa es")).toBeInTheDocument();
+    expect(screen.queryByText("La mesa está aquí.")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Ver la oración completa" }),
+    ).toBeNull();
   });
 
   it("tocar de nuevo la palabra inicial cancela; Esc cierra el panel", async () => {
@@ -106,18 +125,31 @@ describe("PageReader: traducir frases (RF-47)", () => {
     expect(screen.getByText("La mesa está aquí.")).toBeInTheDocument();
   });
 
-  it("no hace peticiones de red al abrir el panel", async () => {
-    const fetchSpy = vi.fn(() => Promise.reject(new Error("sin red")));
+  it("la oración entera y las palabras no hacen peticiones; un trozo pide solo ese trozo", async () => {
+    const fetchSpy = vi.fn(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            responseStatus: 200,
+            responseData: { translatedText: "x" },
+          }),
+        ),
+      ),
+    );
     vi.stubGlobal("fetch", fetchSpy);
     setup();
-    fireEvent.click(await screen.findByRole("button", { name: "Frase" }));
-    fireEvent.click(screen.getByRole("button", { name: "Tisch" }));
-    fireEvent.click(screen.getByRole("button", { name: "hier." }));
+    fireEvent.click(await screen.findByRole("button", { name: "Tisch" }));
     fireEvent.click(
-      screen.getByRole("button", { name: "Ver la oración completa" }),
+      screen.getByRole("button", { name: "Traducir la oración" }),
     );
     expect(screen.getByText("La mesa está aquí.")).toBeInTheDocument();
     expect(fetchSpy).not.toHaveBeenCalled();
-    vi.unstubAllGlobals();
+    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.click(screen.getByRole("button", { name: "Frase" }));
+    fireEvent.click(screen.getByRole("button", { name: "Tisch" }));
+    fireEvent.click(screen.getByRole("button", { name: "hier." }));
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledTimes(1));
+    const calls = fetchSpy.mock.calls as unknown as [string][];
+    expect(decodeURIComponent(calls[0][0])).toContain("q=Tisch steht hier.");
   });
 });

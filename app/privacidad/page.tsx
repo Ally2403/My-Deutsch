@@ -9,12 +9,16 @@ const contact = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
 export default function Privacidad() {
   return (
     <Page>
-      <h1 className="font-display text-3xl font-extrabold">Política de privacidad</h1>
+      <h1 className="font-display text-3xl font-extrabold">
+        Política de privacidad
+      </h1>
       <p className="mt-2 text-sm text-muted">
         Última actualización: 17 de octubre de 2026
       </p>
 
-      <h2 className="mt-8 font-display text-xl font-bold">Qué datos guardamos</h2>
+      <h2 className="mt-8 font-display text-xl font-bold">
+        Qué datos guardamos
+      </h2>
       <ul className="mt-2 list-disc space-y-1 pl-5">
         <li>
           Tu correo, tu nombre y tu foto de perfil (si entras con Google).
@@ -26,7 +30,9 @@ export default function Privacidad() {
         </li>
       </ul>
 
-      <h2 className="mt-8 font-display text-xl font-bold">Quién puede verlos</h2>
+      <h2 className="mt-8 font-display text-xl font-bold">
+        Quién puede verlos
+      </h2>
       <ul className="mt-2 list-disc space-y-1 pl-5">
         <li>
           Los libros solo los ven los miembros de los grupos a los que se
@@ -39,12 +45,14 @@ export default function Privacidad() {
         <li>Los miembros de tus grupos ven tu nombre y tu foto.</li>
       </ul>
 
-      <h2 className="mt-8 font-display text-xl font-bold">Lectura sin conexión</h2>
+      <h2 className="mt-8 font-display text-xl font-bold">
+        Lectura sin conexión
+      </h2>
       <p className="mt-2">
-        Para poder leer sin internet, la app guarda en tu dispositivo las páginas
-        de los libros que ya abriste (imagen y texto). Esas copias son tuyas, no
-        se comparten y se borran cuando cierras sesión o entra otra persona en
-        el mismo dispositivo.
+        Para poder leer sin internet, la app guarda en tu dispositivo las
+        páginas de los libros que ya abriste (imagen y texto). Esas copias son
+        tuyas, no se comparten y se borran cuando cierras sesión o entra otra
+        persona en el mismo dispositivo.
       </p>
 
       <h2 className="mt-8 font-display text-xl font-bold">Qué no hacemos</h2>
@@ -53,7 +61,20 @@ export default function Privacidad() {
         Google solo recibimos tu correo, tu nombre y tu foto de perfil.
       </p>
 
-      <h2 className="mt-8 font-display text-xl font-bold">Eliminación de tus datos</h2>
+      <h2 className="mt-8 font-display text-xl font-bold">
+        Traducción de frases
+      </h2>
+      <p className="mt-2">
+        Cuando seleccionas un trozo de texto que no es una oración completa,
+        enviamos solo ese trozo a MyMemory, un servicio gratuito de traducción,
+        para mostrarte su traducción. No enviamos tu nombre, tu correo ni el
+        resto de la página. Las palabras sueltas y las oraciones completas se
+        traducen sin salir de la app.
+      </p>
+
+      <h2 className="mt-8 font-display text-xl font-bold">
+        Eliminación de tus datos
+      </h2>
       <p className="mt-2">
         Puedes pedir que borremos tu cuenta y todos tus datos escribiendo a{" "}
         {contact ? (
