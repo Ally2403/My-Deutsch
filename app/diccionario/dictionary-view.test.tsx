@@ -76,7 +76,9 @@ describe("DictionaryView (RF-30, RF-31, RF-29)", () => {
 
   it("muestra el artículo escrito además del color y la traducción principal", () => {
     setup([word(1, { lemma: "Frau", glosses: ["mujer"] })]);
-    expect(screen.getByRole("button", { name: /die Frau/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /die Frau/ }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/mujer/)).toBeInTheDocument();
   });
 
@@ -184,9 +186,12 @@ describe("DictionaryView (RF-30, RF-31, RF-29)", () => {
       return "blob:x";
     });
     URL.revokeObjectURL = vi.fn();
-    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => {});
     setup([word(1), word(2, { lemma: "Haus" })], "q=Haus");
     fireEvent.click(screen.getByRole("button", { name: "Exportar CSV" }));
+    await waitFor(() => expect(blob).toBeDefined());
     const text = await blob!.text();
     expect(click).toHaveBeenCalled();
     expect(text).toContain("Haus");
