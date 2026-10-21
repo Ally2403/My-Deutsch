@@ -34,4 +34,13 @@ Aprobado por pedido explícito de la usuaria, 2026-10-21.
 
 ## Verificación
 
-2026-10-21 (rama `dev`): pendiente de completar al cerrar el rediseño; ver `docs/ESTADO.md`.
+2026-10-21 (rama `dev`, base de dev):
+
+- Criterio 1: cumplido. Tokens en `app/globals.css` (claro, oscuro y «sistema»); `lib/domain/contrast.test.ts` sigue en verde con los géneros (verde de `das` oscurecido a `#166534` para ≥ 4,5:1 sobre el fondo gris-papel).
+- Criterio 2: cumplido. E2E `tema.spec.ts` (controles ≥ 44 px en rutas públicas) y `repaso.spec.ts` en 360, 768, 1280 y WebKit iPhone; el foco usa contorno de color de texto.
+- Criterio 3: cumplido (portada con página interactiva; subrayado sólido/punteado/doble + artículo escrito + color; axe sin violaciones serias en claro y oscuro).
+- Criterio 4: cumplido (`aria-current="page"` en la barra; comprobado a mano en grupos, diccionario, repaso y perfil con el usuario de prueba de dev).
+- Criterio 5: cumplido en 360, 768 y 1280 (e2e de desborde horizontal); revisión visual con capturas a 360 y 1280 de portada, acceso, lector de ejemplo, grupos, grupo, repaso, diccionario y perfil.
+- Criterio 6: 650 pruebas unitarias, `typecheck` y `build` en verde; e2e completo: 190 pasan en Chromium (360, 768, 1280) y WebKit de iPhone pasa tras corregir un falso aviso «Hay una versión nueva» en la primera visita (WebKit ya reporta controlador al instalarse; ahora solo se avisa si ya había service worker al abrir).
+- **No se pudo verificar:** iPhone físico; la pantalla del libro con páginas reales (el libro de prueba de dev no tiene páginas procesadas); la vista previa de Vercel (sin acceso al equipo).
+- Decisiones autónomas: sin acento de marca (el color son los tres géneros); selección de la portada en gris neutro y no amarillo (contraste en oscuro); filtros del repaso plegados tras un botón «Filtros»; en la página de un grupo, los libros van antes del formulario de subida.
