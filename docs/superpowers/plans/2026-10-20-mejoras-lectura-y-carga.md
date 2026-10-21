@@ -294,8 +294,8 @@
 
 **Valores:** `name: "My-Deutsch"`, `short_name: "My-Deutsch"`, `lang: "es"`, `display: "standalone"`, `start_url: "/grupos"`, `scope: "/"`, `theme_color` y `background_color` tomados de los tokens claros; `<meta name="theme-color">` con variantes `media="(prefers-color-scheme: dark)"`; `appleWebApp: { capable: true, statusBarStyle: 'default' }`; íconos generados desde un SVG del logo actual.
 
-- [ ] Paso 1 (prueba, falla): vitest — `manifest()` devuelve íconos 192/512/maskable y `start_url` autenticable; e2e — `/manifest.webmanifest` responde 200 y los PNG existen con el tamaño declarado.
-- [ ] Paso 2: implementar y generar los íconos; revisar áreas seguras (`env(safe-area-inset-*)`) en `display: standalone`. Commit `RF-50: manifiesto e íconos`.
+- [x] Paso 1 (prueba, falla): vitest — `manifest()` devuelve íconos 192/512/maskable y `start_url` autenticable; e2e — `/manifest.webmanifest` responde 200 y los PNG existen con el tamaño declarado.
+- [x] Paso 2: implementar y generar los íconos; revisar áreas seguras (`env(safe-area-inset-*)`) en `display: standalone`. Commit `RF-50: manifiesto e íconos`.
 
 ### Tarea 5.2: Service worker propio
 
@@ -309,17 +309,17 @@
 - Todo lo demás (Supabase REST/Auth, `POST`, `/auth/*`, `/api/cuenta/*`): **solo red**, nunca caché.
 - Al cerrar sesión (y al cambiar de usuaria) se envía `postMessage({type:'purge'})` y el SW borra los cachés de datos (Review Focus 4). Versión del SW en una constante; al haber nueva versión se muestra «Hay una versión nueva · Actualizar» (sin recargar a la fuerza).
 
-- [ ] Paso 1 (pruebas, fallan): `routeFor` para cada caso anterior, incluyendo que `/api/libros/<id>/…` **de otro usuario** no se sirve tras `purge`.
-- [ ] Paso 2: implementar; registrar solo en producción (`process.env.NODE_ENV === 'production'`) para no ensuciar `pnpm dev`.
-- [ ] Paso 3 (e2e Chromium con `serviceWorkers: 'allow'`): visitar el lector de la demo, poner el contexto sin conexión, recargar → se ve la página; navegar a otra ruta no visitada → `/offline`; cerrar sesión → los cachés de datos quedan vacíos. WebKit: el SW se registra.
-- [ ] Paso 4: actualizar `app/privacidad/page.tsx` (las páginas leídas se guardan en el dispositivo y se borran al cerrar sesión). Commit `RF-50: service worker con lectura sin conexión`.
+- [x] Paso 1 (pruebas, fallan): `routeFor` para cada caso anterior, incluyendo que `/api/libros/<id>/…` **de otro usuario** no se sirve tras `purge`.
+- [x] Paso 2: implementar; registrar solo en producción (`process.env.NODE_ENV === 'production'`) para no ensuciar `pnpm dev`.
+- [x] Paso 3 (e2e Chromium con `serviceWorkers: 'allow'`): visitar el lector de la demo, poner el contexto sin conexión, recargar → se ve la página; navegar a otra ruta no visitada → `/offline`; cerrar sesión → los cachés de datos quedan vacíos. WebKit: el SW se registra.
+- [x] Paso 4: actualizar `app/privacidad/page.tsx` (las páginas leídas se guardan en el dispositivo y se borran al cerrar sesión). Commit `RF-50: service worker con lectura sin conexión`.
 
 ### Tarea 5.3: Ayuda de instalación
 
 **Files:** `app/perfil/…` (tarjeta «Instalar en tu celular»), prueba de componente.
 
-- [ ] Paso 1: Android/Chrome — botón con `beforeinstallprompt`; iPhone — pasos «Compartir → Añadir a pantalla de inicio» (no existe el evento en iOS); ya instalada (`display-mode: standalone`) — se oculta.
-- [ ] Paso 2: comprobar que el inicio de sesión con Google (redirección) vuelve dentro del alcance `/`; registrar en `ESTADO.md` «pendiente de la usuaria: probar instalar y entrar con Google en un iPhone real» (criterio sin marcar). Actualizar RNF-15 c2 y ADR-008. PR, CI, fusión. Commit `RF-50: ayuda para instalar`.
+- [x] Paso 1: Android/Chrome — botón con `beforeinstallprompt`; iPhone — pasos «Compartir → Añadir a pantalla de inicio» (no existe el evento en iOS); ya instalada (`display-mode: standalone`) — se oculta.
+- [x] Paso 2: comprobar que el inicio de sesión con Google (redirección) vuelve dentro del alcance `/`; registrar en `ESTADO.md` «pendiente de la usuaria: probar instalar y entrar con Google en un iPhone real» (criterio sin marcar). Actualizar RNF-15 c2 y ADR-008. PR, CI, fusión. Commit `RF-50: ayuda para instalar`.
 
 ---
 

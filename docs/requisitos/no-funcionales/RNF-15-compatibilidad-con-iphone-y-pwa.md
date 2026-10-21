@@ -29,3 +29,6 @@ La usuaria decidió que la app sea solo web (sin PWA instalable) para terminar a
 ## Cierre del MVP (2026-10-19)
 Estado: **Hecho**. Verificación: pruebas automáticas (463 unitarias, e2e en Chromium 360/768/1280 y WebKit iPhone, CI) y, según la usuaria, prueba manual en producción (ingreso con correo y con Google, sesión, libro real y iPhone real) sin problemas.
 - Alcance: solo web, sin PWA instalable (decisión de la usuaria). Ingreso con Google por redirección y lector probados por la usuaria en iPhone real.
+
+## Actualización 2026-10-20 (RF-50)
+El criterio 2 vuelve a estar activo: PWA instalable con manifiesto, íconos y service worker propio ([RF-50](../funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md), [ADR-008](../../decisiones/ADR-008-pwa-con-service-worker-propio.md)). Verificado: manifiesto e íconos, service worker registrado en Chromium y WebKit iPhone (emulado), lectura sin conexión en Chromium, y el inicio de sesión con Google sigue por redirección dentro del alcance `/`. **Sin verificar (pendiente de la usuaria):** instalar en un iPhone real y entrar con Google desde el ícono.

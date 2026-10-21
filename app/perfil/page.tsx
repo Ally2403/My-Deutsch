@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { OutlineButton, Page } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { parsePrefs } from "@/lib/domain/prefs";
+import { InstallCard } from "./install-card";
 import { PrefsForm } from "./prefs-form";
 import { DeleteAccount, ProfileForm } from "./profile-form";
 
@@ -28,6 +29,7 @@ async function Perfil() {
       />
       <h2 className="mt-10 font-display text-lg font-bold">Preferencias de lectura</h2>
       <PrefsForm initial={parsePrefs(profile?.prefs)} />
+      <InstallCard />
       <form action="/auth/signout" method="post" className="mt-6">
         <OutlineButton type="submit">Cerrar sesión</OutlineButton>
       </form>
