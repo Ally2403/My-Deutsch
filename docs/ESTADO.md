@@ -1,6 +1,6 @@
-# Retomar aquí (2026-10-21, tarde — subida a producción en curso)
+# Retomar aquí (2026-10-21, tarde — subido a producción)
 
-PR #63 (`dev` → `main`) abierto por orden de la usuaria («una vez eso funcione, sube a producción»). Sin migraciones nuevas.
+PR #63 (`dev` → `main`) fusionado por orden de la usuaria («una vez eso funcione, sube a producción»). Sin migraciones nuevas.
 
 Hecho desde la mañana:
 - Procesamiento de libros en dev: `process-book.yml` y `upgrade-books.yml` eligen la base por rama (secreto `SUPABASE_SERVICE_ROLE_KEY_DEV`; en Vercel Preview/dev: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GITHUB_DISPATCH_TOKEN`, `GITHUB_DISPATCH_REF=dev`). Probado con un PDF real: libro «prueba» listo en dev.
@@ -9,7 +9,7 @@ Hecho desde la mañana:
 - RF-53: aviso «Libro subido. Se está procesando…» al terminar la subida.
 
 Pendiente tras el despliegue a producción:
-1. Ejecutar `upgrade-books` en `main`: primero `dry_run=true`, luego `false` (recorta las oraciones de los libros ya subidos).
+1. Hecho: `upgrade-books` en `main` (simulacro y real): 4 libros, 300 páginas actualizadas, 0 errores.
 2. La usuaria debe probar en su iPhone: selección de frases, aviso de subida y el aviso de versión nueva.
 3. No verificado: refresco de la lista tras subir un libro (RF-53 c2), 2 pruebas del worker que ya fallaban antes (`test_opus`, `test_garbage_pdf`, por el entorno Windows).
 
