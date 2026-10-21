@@ -1,3 +1,17 @@
+# Retomar aquí (2026-10-21, noche — libro real fallaba en producción, ya corregido)
+
+«Das Leben B1» (166 hojas, 314 páginas) fallaba al subirlo a producción. Tres PR directos a `main` (RF-46), todos con CI verde:
+- #64 y #66: el log de fallo del worker (`pipeline/run.py`) ahora indica archivo:línea, marcos propios y el mensaje de los `ValueError` propios (sin contenido del libro).
+- #65: página 56, WebP de 305 786 B con q40 a 1600 px (límite 256 000). `render_webp` prueba anchos 1400/1200/1000/800 antes de fallar.
+- #67: página 76, `FzErrorArgument`: el pie era una banda negra desde su primera fila y `footer_band` quedaba vacía; `printed_candidates` la omite.
+- Resultado: libro `ready` en producción (314 páginas, OCR 89,7 %, pipeline v3). Ella confirmó que la página 56 se ve bien.
+- Para relanzar se dejó el libro en cola con SQL (equivale a «Reintentar») y `gh workflow run process-book.yml --ref main -f book_id=<id>`.
+- `dev` ya incluye estos cambios (merge de `main`).
+
+Pendiente: la usuaria prueba en iPhone real (selección de frases, aviso de subida, aviso de versión nueva, refresco de la lista tras subir). Si otra página rara falla, el log dice dónde. Resto de pendientes: ver el bloque siguiente.
+
+---
+
 # Retomar aquí (2026-10-21, tarde — subido a producción)
 
 PR #63 (`dev` → `main`) fusionado por orden de la usuaria («una vez eso funcione, sube a producción»). Sin migraciones nuevas.
