@@ -7,7 +7,7 @@
 | **Módulo**            | M-5 Lector                                                                         |
 | **Prioridad**         | Alta                                                                               |
 | **Fase**              | 6                                                                                  |
-| **Estado**            | En curso                                                                           |
+| **Estado**            | En progreso                                                                           |
 | **Dependencias**      | [RF-21](RF-21-consultar-palabra.md), [RF-43](RF-43-calidad-de-las-traducciones.md) |
 | **Reglas de negocio** | —                                                                                  |
 

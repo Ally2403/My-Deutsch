@@ -7,7 +7,7 @@
 | **Módulo**            | M-5 Lector                      |
 | **Prioridad**         | Media                           |
 | **Fase**              | 6                               |
-| **Estado**            | En curso                        |
+| **Estado**            | En progreso                        |
 | **Dependencias**      | [RF-16](RF-16-pasar-paginas.md) |
 | **Reglas de negocio** | RN-14                           |
 
