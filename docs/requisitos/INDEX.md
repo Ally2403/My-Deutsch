@@ -17,7 +17,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | M-8    | Ejercicios             |
 | M-T    | Transversal            |
 
-## Requerimientos funcionales (51)
+## Requerimientos funcionales (52)
 
 | ID    | Título                                                                                                                         | Módulo | Prioridad | Fase | Estado      |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | ---- | ----------- |
@@ -72,8 +72,9 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RF-49 | [Indicador de avance de lectura](funcionales/RF-49-indicador-de-avance-de-lectura.md)                                          | M-5    | Media     | 6    | En progreso |
 | RF-50 | [PWA instalable con lectura sin conexión](funcionales/RF-50-pwa-instalable-con-lectura-sin-conexion.md)                        | M-T    | Alta      | 6    | En progreso |
 | RF-51 | [Actualizar libros ya procesados en sitio](funcionales/RF-51-actualizar-libros-ya-procesados-en-sitio.md)                      | M-4    | Alta      | 6    | En progreso |
+| RF-52 | [Rediseño visual profesional](funcionales/RF-52-rediseno-visual-profesional.md)                                                | M-1    | Alta      | 6    | En progreso |
 
-## Requerimientos no funcionales (19)
+## Requerimientos no funcionales (20)
 
 | ID     | Título                                                                                                                    | Módulo | Prioridad | Fase | Estado      |
 | ------ | ------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | ---- | ----------- |
@@ -96,6 +97,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-17 | [Límite de intentos de código de invitación](no-funcionales/RNF-17-limite-de-intentos-de-codigo-de-invitacion.md)         | M-2    | Alta      | 3    | Hecho       |
 | RNF-18 | [Velocidad de procesamiento](no-funcionales/RNF-18-velocidad-de-procesamiento.md)                                         | M-4    | Alta      | 6    | En progreso |
 | RNF-19 | [Rendimiento de lectura](no-funcionales/RNF-19-rendimiento-de-lectura.md)                                                 | M-5    | Media     | 6    | En progreso |
+| RNF-20 | [Entorno de desarrollo aislado de producción](no-funcionales/RNF-20-entorno-de-desarrollo-aislado.md)                     | M-T    | Alta      | 6    | En progreso |
 
 ## Alcance del MVP (cierre 2026-10-19)
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { nextStudyDayStart } from "@/lib/domain/review-queue";
@@ -52,6 +53,7 @@ function useDueCount(signedIn: boolean) {
 }
 
 function Nav() {
+  const pathname = usePathname() ?? "";
   const signedIn = useSignedIn();
   const due = useDueCount(signedIn);
   if (!signedIn) return null;
@@ -60,25 +62,33 @@ function Nav() {
       aria-label="Principal"
       className="order-3 flex w-full items-center justify-between border-t border-border sm:order-none sm:ml-auto sm:w-auto sm:justify-end sm:border-t-0"
     >
-      {LINKS.map((l) => (
-        <Link
-          key={l.href}
-          href={l.href}
-          prefetch={false}
-          className="pressable inline-flex min-h-11 items-center rounded-full px-2.5 text-sm font-medium text-muted hover:text-foreground sm:px-3.5 sm:text-base"
-        >
-          {l.label}
-          {l.href === "/repaso" && due > 0 && (
-            <span
-              data-testid="due-badge"
-              className="ml-1.5 rounded-full bg-accent px-1.5 text-xs font-semibold text-on-accent"
-            >
-              {due > 99 ? "99+" : due}
-              <span className="sr-only"> vencidas</span>
-            </span>
-          )}
-        </Link>
-      ))}
+      {LINKS.map((l) => {
+        const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
+        return (
+          <Link
+            key={l.href}
+            href={l.href}
+            prefetch={false}
+            aria-current={active ? "page" : undefined}
+            className={`relative inline-flex min-h-11 items-center px-2.5 text-sm font-medium transition-colors after:absolute after:inset-x-2.5 after:bottom-0 after:h-0.5 after:rounded-full sm:px-3.5 sm:text-[0.9375rem] ${
+              active
+                ? "text-foreground after:bg-foreground"
+                : "text-muted hover:text-foreground after:bg-transparent"
+            }`}
+          >
+            {l.label}
+            {l.href === "/repaso" && due > 0 && (
+              <span
+                data-testid="due-badge"
+                className="ml-1.5 rounded-full bg-foreground px-1.5 text-xs font-semibold tabular-nums text-background"
+              >
+                {due > 99 ? "99+" : due}
+                <span className="sr-only"> vencidas</span>
+              </span>
+            )}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
@@ -86,17 +96,16 @@ function Nav() {
 /** RF-44: barra superior común: marca, navegación (solo con sesión) y selector de tema. */
 export function AppBar() {
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-surface/85 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-2 px-3 sm:px-6">
         <Link
           href="/"
-          className="pressable inline-flex min-h-11 min-w-11 items-center justify-center gap-2 font-display text-lg font-extrabold tracking-tight"
+          className="inline-flex min-h-11 min-w-11 items-center gap-2.5 font-display text-xl font-semibold tracking-tight"
         >
-          <span
-            aria-hidden="true"
-            className="flex size-7 items-center justify-center rounded-lg bg-accent text-sm text-on-accent"
-          >
-            D
+          <span aria-hidden="true" className="flex h-5 items-end gap-[3px]">
+            <span className="h-5 w-[5px] rounded-[1px] bg-gender-m" />
+            <span className="h-3.5 w-[5px] rounded-[1px] bg-gender-n" />
+            <span className="h-[1.125rem] w-[5px] rounded-[1px] bg-gender-f" />
           </span>
           <span className="max-[479px]:sr-only">My-Deutsch</span>
         </Link>

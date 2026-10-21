@@ -5,38 +5,41 @@
    fondo de cada tema. `data-theme` lo fija el selector; sin él se sigue al sistema. */
 :root {
   color-scheme: light;
-  --background: #f6f7fb;
+  --background: #f1f1ed;
   --surface: #ffffff;
-  --foreground: #171a2b;
-  --muted: #596078;
-  --border: #e2e5ef;
-  --accent: #4f46e5;
-  --accent-soft: #eef0ff;
+  --foreground: #15171c;
+  --muted: #565b66;
+  --border: #d9d9d2;
+  --accent: #15171c;
+  --accent-soft: #e6e6df;
   --on-accent: #ffffff;
   --danger: #b42318;
   --danger-soft: #fef0ee;
-  --success: #15803d;
+  --success: #166534;
   --gender-m: #1d4ed8;
-  --gender-n: #15803d;
+  --gender-n: #166534;
   --gender-f: #b91c1c;
   --gender-none: #525252;
   --plural: #eab308;
-  --radius-card: 1rem;
-  --radius-control: 0.75rem;
-  --shadow-card: 0 1px 2px rgb(23 26 43 / 0.05), 0 8px 24px -12px rgb(79 70 229 / 0.18);
-  --shadow-press: 0 1px 1px rgb(23 26 43 / 0.08);
+  --mark: #f2c230;
+  --radius-card: 0.875rem;
+  --radius-control: 0.625rem;
+  --shadow-card: 0 1px 0 rgb(21 23 28 / 0.04);
+  --shadow-press: 0 0 0 transparent;
+  --shadow-pop:
+    0 12px 32px -12px rgb(21 23 28 / 0.28), 0 2px 6px rgb(21 23 28 / 0.08);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: #0e1016;
-  --surface: #171a23;
-  --foreground: #eceef7;
-  --muted: #a3a9bf;
-  --border: #2a2f40;
-  --accent: #a5b4fc;
-  --accent-soft: #1e2340;
-  --on-accent: #0e1016;
+  --background: #101114;
+  --surface: #181a1f;
+  --foreground: #eeeef0;
+  --muted: #a0a4ae;
+  --border: #2b2e36;
+  --accent: #eeeef0;
+  --accent-soft: #24262d;
+  --on-accent: #101114;
   --danger: #fda4af;
   --danger-soft: #3a1a20;
   --success: #86efac;
@@ -45,22 +48,23 @@
   --gender-f: #fca5a5;
   --gender-none: #a3a3a3;
   --plural: #facc15;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
-  --shadow-press: 0 1px 1px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.3);
+  --shadow-press: 0 0 0 transparent;
+  --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.4);
 }
 
 /* «Sistema»: mismos valores que data-theme="dark" cuando el sistema es oscuro. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
     color-scheme: dark;
-    --background: #0e1016;
-    --surface: #171a23;
-    --foreground: #eceef7;
-    --muted: #a3a9bf;
-    --border: #2a2f40;
-    --accent: #a5b4fc;
-    --accent-soft: #1e2340;
-    --on-accent: #0e1016;
+    --background: #101114;
+    --surface: #181a1f;
+    --foreground: #eeeef0;
+    --muted: #a0a4ae;
+    --border: #2b2e36;
+    --accent: #eeeef0;
+    --accent-soft: #24262d;
+    --on-accent: #101114;
     --danger: #fda4af;
     --danger-soft: #3a1a20;
     --success: #86efac;
@@ -69,8 +73,10 @@
     --gender-f: #fca5a5;
     --gender-none: #a3a3a3;
     --plural: #facc15;
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
-    --shadow-press: 0 1px 1px rgb(0 0 0 / 0.4);
+    --shadow-card: 0 1px 0 rgb(0 0 0 / 0.3);
+    --shadow-press: 0 0 0 transparent;
+    --shadow-pop:
+      0 16px 40px -12px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.4);
   }
 }
 
@@ -94,6 +100,7 @@
   --radius-card: var(--radius-card);
   --radius-control: var(--radius-control);
   --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
 }
 
 /* Superficie elevada para tarjetas y filas de lista. */
@@ -118,11 +125,60 @@
 }
 
 :focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--accent) 70%, white);
+  outline: 2px solid var(--foreground);
   outline-offset: 2px;
 }
 
-/* Controles reutilizables (RF-42/RF-44): todos ≥ 44 px de alto y de ancho. */
+/* Botones (RF-42/RF-44): todos ≥ 44 px de alto. Primario en tinta; el color queda para el género. */
+.btn {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    opacity 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 86%, var(--background));
+}
+.btn-secondary {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+}
+.btn-secondary:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--foreground) 35%, var(--border));
+}
+.btn-lg {
+  min-height: 3rem;
+  padding-inline: 1.5rem;
+}
+
+/* Chips y conmutadores. */
 .chip {
   display: inline-flex;
   min-height: 2.75rem;
@@ -131,12 +187,12 @@
   justify-content: center;
   gap: 0.5rem;
   border: 1px solid var(--border);
-  border-radius: 9999px;
+  border-radius: var(--radius-control);
   background: var(--surface);
-  padding-inline: 1rem;
+  padding-inline: 0.875rem;
   font-size: 0.875rem;
   font-weight: 500;
-  box-shadow: var(--shadow-press);
+  cursor: pointer;
   transition:
     background-color 120ms ease,
     border-color 120ms ease,
@@ -144,27 +200,32 @@
     transform 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-.chip:active {
-  transform: scale(0.96);
+.chip:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--foreground) 35%, var(--border));
 }
-/* Interruptor: punto vacío → lleno de color al activarse. */
+.chip:active {
+  transform: translateY(1px);
+}
+/* Interruptor: cuadrito vacío → relleno al activarse. */
 .chip[aria-pressed]::before {
   content: "";
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 9999px;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 0.2rem;
   border: 1.5px solid var(--muted);
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 }
 .chip[aria-pressed="true"] {
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  background: var(--accent-soft);
-  color: var(--accent);
+  border-color: var(--foreground);
+  background: var(--surface);
+  color: var(--foreground);
   font-weight: 600;
 }
 .chip[aria-pressed="true"]::before {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--foreground);
+  border-color: var(--foreground);
 }
 .chip:disabled {
   opacity: 0.4;
@@ -174,64 +235,66 @@
   padding-inline: 0;
 }
 
-/* Botón circular de página anterior/siguiente. */
+/* Botón de página anterior/siguiente. */
 .btn-round {
   display: inline-flex;
   width: 3rem;
   height: 3rem;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: var(--radius-control);
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: var(--shadow-card);
-  transition: transform 120ms ease, opacity 120ms ease;
+  transition:
+    transform 120ms ease,
+    opacity 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .btn-round:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
 }
 .btn-round:disabled {
   background: var(--accent-soft);
   color: var(--muted);
-  box-shadow: none;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 /* «Ir» a una página. */
 .btn-go {
   min-height: 2.75rem;
   min-width: 2.75rem;
-  border-radius: 9999px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--foreground);
   padding-inline: 1rem;
   font-weight: 600;
   transition: transform 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .btn-go:active {
-  transform: scale(0.95);
+  transform: translateY(1px);
 }
 
-/* Enlace de «volver»: píldora con flecha. */
+/* Enlace de «volver». */
 .back-link {
   display: inline-flex;
   min-height: 2.75rem;
   align-items: center;
   gap: 0.25rem;
-  border: 1px solid var(--border);
-  border-radius: 9999px;
-  background: var(--surface);
-  padding-inline: 0.75rem 1rem;
-  font-size: 0.875rem;
+  border-radius: var(--radius-control);
+  padding-inline: 0.5rem 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  box-shadow: var(--shadow-press);
-  transition: transform 120ms ease, background-color 120ms ease;
+  color: var(--muted);
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-.back-link:active {
-  transform: scale(0.96);
+.back-link:hover {
+  color: var(--foreground);
+  background: var(--accent-soft);
 }
 
 @keyframes spin {
@@ -302,9 +365,25 @@ body {
 
 h1,
 h2,
+h3,
+.font-display {
+  font-family: var(--font-heading), Georgia, serif;
+  letter-spacing: -0.015em;
+}
+/* La serif de título pide menos peso que la sans anterior. */
+h1.font-display,
+h1 {
+  font-weight: 650;
+}
+h2.font-display,
+h3.font-display,
+h2,
 h3 {
-  font-family: var(--font-heading), system-ui, sans-serif;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--mark) 55%, transparent);
 }
 
 /* Lector (RF-16, RF-17): capa de texto sobre la imagen de la página. */
@@ -360,12 +439,12 @@ h3 {
 
 /* RF-47: rango de frase seleccionado. */
 .reader-word-phrase {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-  box-shadow: 0 2px 0 var(--accent);
+  background: color-mix(in srgb, var(--mark) 40%, transparent);
+  box-shadow: 0 2px 0 var(--foreground);
 }
 
 .reader-word-active {
-  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  background: color-mix(in srgb, var(--mark) 45%, transparent);
   border-radius: 2px;
 }
 
@@ -381,19 +460,35 @@ h3 {
   border-radius: 3px;
 }
 .hl-m {
-  background: color-mix(in srgb, var(--gender-m) calc(var(--highlight-alpha) * 100%), transparent);
+  background: color-mix(
+    in srgb,
+    var(--gender-m) calc(var(--highlight-alpha) * 100%),
+    transparent
+  );
 }
 .hl-n {
-  background: color-mix(in srgb, var(--gender-n) calc(var(--highlight-alpha) * 100%), transparent);
+  background: color-mix(
+    in srgb,
+    var(--gender-n) calc(var(--highlight-alpha) * 100%),
+    transparent
+  );
 }
 .hl-f {
-  background: color-mix(in srgb, var(--gender-f) calc(var(--highlight-alpha) * 100%), transparent);
+  background: color-mix(
+    in srgb,
+    var(--gender-f) calc(var(--highlight-alpha) * 100%),
+    transparent
+  );
 }
 
 /* Plurales (RF-41): fondo amarillo con opacidad ≤ 0.35. Va después de .hl-*: si coinciden, gana el
    amarillo; el género sigue en el artículo escrito del panel. */
 .pl-mark {
-  background: color-mix(in srgb, var(--plural) calc(var(--highlight-alpha) * 100%), transparent);
+  background: color-mix(
+    in srgb,
+    var(--plural) calc(var(--highlight-alpha) * 100%),
+    transparent
+  );
 }
 
 /* Etiqueta «plural» del panel: texto oscuro sobre amarillo sólido (≥ 4,5:1 en ambos temas). */
