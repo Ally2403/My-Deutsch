@@ -44,6 +44,7 @@ test("RF-48 c3: voltear, calificar con el intervalo, deshacer y terminar", async
 
 test("RF-48 c4: los filtros quedan en la URL", async ({ page }) => {
   await ready(page);
+  await page.getByRole("button", { name: "Filtros" }).click();
   await page.getByRole("button", { name: "der", exact: true }).click();
   await expect(page.getByText("1 de 1")).toBeVisible();
   await expect(page).toHaveURL(/genero=m/);
