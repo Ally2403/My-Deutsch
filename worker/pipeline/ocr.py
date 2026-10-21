@@ -57,6 +57,8 @@ def printed_candidates(page: np.ndarray, env: dict[str, str] | None = None) -> l
     for k in (2, 3):
         for threshold in (90, 110, 130):
             band = footer_band(downscale(page, k), threshold)
+            if band.size == 0:
+                continue  # el pie es una banda negra desde su primera fila: no hay número que leer
             text = tesseract(to_png(band), "--psm", "11", "-c", digits, env=env)
             found += [int(t) for t in text.split() if t.isdigit() and len(t) <= 4]
     return found
