@@ -141,7 +141,7 @@ if (
         await cache.delete(request);
       }
       return res;
-    } catch {
+    } catch (e) {
       const hit = await cache.match(request);
       if (hit) return hit;
       throw e;
