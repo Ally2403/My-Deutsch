@@ -44,17 +44,13 @@ function Word({
       type="button"
       onClick={() => onPick(noun)}
       aria-pressed={on}
-      className={`relative cursor-pointer rounded-sm px-0.5 font-semibold transition-colors ${n.cls} ${
-        on ? "bg-[color-mix(in_srgb,var(--mark)_45%,transparent)]" : ""
+      className={`inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md px-1 align-middle font-semibold transition-colors ${n.cls} ${
+        on ? "bg-accent-soft" : ""
       }`}
     >
       <span className={`border-b-[3px] ${n.line} border-current pb-px`}>
         {noun}
       </span>
-      <span
-        className="absolute inset-x-0 top-1/2 -z-10 h-11 -translate-y-1/2"
-        aria-hidden="true"
-      />
     </button>
   );
 }

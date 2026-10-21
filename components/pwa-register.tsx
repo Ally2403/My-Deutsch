@@ -73,13 +73,16 @@ export function PwaRegister() {
   return (
     <div
       role="status"
-      className="fixed inset-x-4 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-3 shadow-lg"
-      style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      className="fixed inset-x-4 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-card border border-border bg-surface p-3"
+      style={{
+        top: "calc(env(safe-area-inset-top) + 3.75rem)",
+        boxShadow: "var(--shadow-pop)",
+      }}
     >
       <span className="text-sm">Hay una versión nueva</span>
       <button
         type="button"
-        className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent"
+        className="btn btn-primary !px-4 text-sm"
         onClick={() => {
           updating.current = true;
           waiting.postMessage({ type: "skip-waiting" });

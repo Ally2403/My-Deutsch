@@ -56,6 +56,7 @@ test("RF-48 c6: el género se ve en color y en texto, sin desborde ni controles 
   page,
 }) => {
   await ready(page);
+  await page.getByRole("button", { name: "Filtros" }).click();
   await page.getByRole("button", { name: "die", exact: true }).click();
   await page.getByRole("button", { name: "Mostrar respuesta" }).click();
   const article = page.getByTestId("card-article");

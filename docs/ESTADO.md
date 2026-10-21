@@ -1,3 +1,17 @@
+# Retomar aquí (2026-10-21, entorno de desarrollo y rediseño — leer primero)
+
+**Se trabaja en la rama `dev` y en la base de dev; producción (`main`) no se tocó.** Ver [ADR-009](decisiones/ADR-009-entorno-de-desarrollo-separado.md) (incluye el procedimiento «subir a producción» y lo pendiente de Vercel).
+
+Hecho en `dev` (sin subir a producción):
+- RNF-20: proyecto Supabase «My Deutsch Dev» con las 13 migraciones y RLS; rama `dev`.
+- RF-47: el panel de frase ya no traduce más allá de lo seleccionado (la oración completa queda tras un botón).
+- RF-48: el repaso muestra solo el primer significado; filtros plegados para que la tarjeta quede a la vista.
+- RF-52: rediseño visual (tokens, tipografía Source Serif 4 + Geist, botones, barra con sección activa, portada con página interactiva, libros antes del formulario de subida).
+
+Para probar en local contra dev (sin escribir `.env`): `NEXT_PUBLIC_SUPABASE_URL=https://eaanrkngazophdobzvzx.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<clave publicable de dev> pnpm dev`. Usuario de prueba: `dev@mydeutsch.test` / `DevPass-2026!` (solo en dev).
+
+---
+
 # Retomar aquí (2026-10-21, lista final de pendientes — leer primero)
 
 Todo el plan `2026-10-20-mejoras-lectura-y-carga.md` y RF-51 están fusionados en `main`. Lo que sigue es solo de la usuaria (reemplaza el punto 1 del bloque de la Fase 7):
