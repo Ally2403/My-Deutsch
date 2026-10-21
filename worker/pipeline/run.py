@@ -295,7 +295,9 @@ def process_pdf(
         # Diagnóstico sin contenido del libro: solo el mensaje de nuestros propios ValueError (son
         # genéricos: tamaños, ids) y el archivo:línea donde se lanzó.
         frames = traceback.extract_tb(exc.__traceback__)
-        where = f"{Path(frames[-1].filename).name}:{frames[-1].lineno}" if frames else "?"
+        # Hasta 3 marcos propios (no de librerías) para ubicar qué operación del worker falló.
+        own = [f for f in frames if "site-packages" not in f.filename.replace("\\", "/")]
+        where = " > ".join(f"{Path(f.filename).name}:{f.lineno}:{f.name}" for f in own[-3:]) or "?"
         detail = str(exc) if isinstance(exc, ValueError) else ""
         log.error("falló en la página %d: %s en %s %s", n, type(exc).__name__, where, detail)
         raise
