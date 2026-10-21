@@ -94,7 +94,7 @@ Fases: 2 = spike técnico · 3 = MVP · 4 = aprendizaje · 5 = pulido.
 | RNF-16 | [Despliegue de la app en Vercel](no-funcionales/RNF-16-despliegue-de-la-app-en-vercel.md)                                 | M-T    | Alta      | 3    | Hecho       |
 | RNF-17 | [Límite de intentos de código de invitación](no-funcionales/RNF-17-limite-de-intentos-de-codigo-de-invitacion.md)         | M-2    | Alta      | 3    | Hecho       |
 | RNF-18 | [Velocidad de procesamiento](no-funcionales/RNF-18-velocidad-de-procesamiento.md)                                         | M-4    | Alta      | 6    | En progreso |
-| RNF-19 | [Rendimiento de lectura](no-funcionales/RNF-19-rendimiento-de-lectura.md)                                                 | M-5    | Media     | 6    | Pendiente   |
+| RNF-19 | [Rendimiento de lectura](no-funcionales/RNF-19-rendimiento-de-lectura.md)                                                 | M-5    | Media     | 6    | En progreso   |
 
 ## Alcance del MVP (cierre 2026-10-19)
 

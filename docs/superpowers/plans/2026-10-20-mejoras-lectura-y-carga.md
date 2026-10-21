@@ -331,15 +331,15 @@
 
 **Interfaces:** `createPageCache(fetchPage: (n: number) => Promise<PageData>, max = 5)` con `get(n)`, `prefetch(ns: number[])`, deduplicación de peticiones en vuelo y expulsión LRU; el cambio de libro lo vacía.
 
-- [ ] Paso 1: medir con Playwright (marcas de rendimiento) el cambio de página en la demo y con red lenta simulada: línea base en `RNF-19`.
-- [ ] Paso 2 (pruebas, fallan): una página precargada no vuelve a pedirse; dos `get` simultáneos hacen una sola petición; LRU expulsa la más antigua; un error de red no envenena la caché.
-- [ ] Paso 3: implementar; **criterio:** pasar a la página siguiente ya precargada ≤ 100 ms hasta el texto tocable y RNF-02 sigue verde. Commit `RNF-19: precarga del JSON de páginas`.
+- [x] Paso 1: medir con Playwright (marcas de rendimiento) el cambio de página en la demo y con red lenta simulada: línea base en `RNF-19`.
+- [x] Paso 2 (pruebas, fallan): una página precargada no vuelve a pedirse; dos `get` simultáneos hacen una sola petición; LRU expulsa la más antigua; un error de red no envenena la caché.
+- [x] Paso 3: implementar; **criterio:** pasar a la página siguiente ya precargada ≤ 100 ms hasta el texto tocable y RNF-02 sigue verde. Commit `RNF-19: precarga del JSON de páginas`.
 
 ### Tarea 6.2: Menos JavaScript al abrir el lector
 
-- [ ] Paso 1: con `vercel:performance-optimizer` revisar la salida de `next build` (solo si no hay `pnpm dev` abierto; si lo hay, usar el job de build del CI) y listar las 3 rutas con más JS inicial.
-- [ ] Paso 2: `next/dynamic` para lo que no se usa al abrir (capa de anotaciones fuera del modo «Escribir», exportación CSV, `ts-fsrs` solo en `/repaso`); sin cambiar comportamiento.
-- [ ] Paso 3: volver a correr Lighthouse local en `/`, `/login`, `/lector/demo` (umbrales 85/90/90 de `lighthouserc.json`) y e2e completos. Commit `RNF-19: carga diferida de módulos secundarios`. PR, CI, fusión.
+- [x] Paso 1: con `vercel:performance-optimizer` revisar la salida de `next build` (solo si no hay `pnpm dev` abierto; si lo hay, usar el job de build del CI) y listar las 3 rutas con más JS inicial.
+- [x] Paso 2: `next/dynamic` para lo que no se usa al abrir (capa de anotaciones fuera del modo «Escribir», exportación CSV, `ts-fsrs` solo en `/repaso`); sin cambiar comportamiento.
+- [x] Paso 3: volver a correr Lighthouse local en `/`, `/login`, `/lector/demo` (umbrales 85/90/90 de `lighthouserc.json`) y e2e completos. Commit `RNF-19: carga diferida de módulos secundarios`. PR, CI, fusión.
 
 ---
 

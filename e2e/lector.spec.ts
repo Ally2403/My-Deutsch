@@ -849,3 +849,46 @@ for (const theme of ["light", "dark"] as const) {
     ).toEqual([]);
   });
 }
+
+test("RNF-19: pasar a una página ya precargada llega al texto tocable en ≤ 100 ms", async ({
+  page,
+  browserName,
+}) => {
+  await ready(page);
+  await page.waitForTimeout(1500); // deja que la precarga termine
+  const times = await page.evaluate(async () => {
+    const out: number[] = [];
+    for (const [key, want] of [
+      ["ArrowRight", 2],
+      ["ArrowLeft", 1],
+    ] as const) {
+      const t0 = performance.now();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key }));
+      await new Promise<void>((resolve, reject) => {
+        const tick = () => {
+          const label = document.querySelector(
+            "nav[aria-label='Páginas'] [aria-live]",
+          );
+          const word = document.querySelector(
+            ".reader-text-layer [data-token]",
+          );
+          if (label?.textContent?.startsWith(`página ${want} `) && word)
+            resolve();
+          else if (performance.now() - t0 > 5000)
+            reject(new Error(`página ${want} sin texto tocable`));
+          else requestAnimationFrame(tick);
+        };
+        tick();
+      });
+      out.push(performance.now() - t0);
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    return out;
+  });
+  console.log(
+    `RNF-19 cambio a página precargada = ${times.map((t) => t.toFixed(1)).join(", ")} ms`,
+  );
+  // WebKit emulado en modo dev mide 100–340 ms (ruidoso): solo se registra; Chromium juzga.
+  if (browserName === "chromium")
+    for (const t of times) expect(t).toBeLessThanOrEqual(100);
+});
