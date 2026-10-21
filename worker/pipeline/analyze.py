@@ -195,3 +195,17 @@ def analyze(tokens: list[RawToken], nlp, lex: Lexicon) -> list[Analyzed]:
             old = result[idx]
             result[idx] = Analyzed(compound, "verb", old.form, other)
     return [replace(a, sent_start=s) for a, s in zip(result, starts, strict=True)]
+
+
+def sentence_starts(tokens: list[RawToken], nlp) -> list[bool]:
+    """RF-51: solo la segmentación en oraciones de spaCy, con las mismas palabras que `analyze`
+    (un token por palabra del OCR, sin puntuación exterior). No necesita el léxico."""
+    if not tokens:
+        return []
+    from spacy.tokens import Doc
+
+    cores = [_core(t.text) for t in tokens]
+    doc = Doc(nlp.vocab, words=cores, spaces=[True] * len(cores))
+    for _, proc in nlp.pipeline:
+        doc = proc(doc)
+    return [t.is_sent_start is True or t.i == 0 for t in doc]

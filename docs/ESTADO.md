@@ -1,3 +1,11 @@
+# Retomar aquí (2026-10-21, RF-51 — actualizar libros ya procesados en sitio)
+
+**Hecho (rama `feat/RF-51-actualizar-libros-en-sitio`):** `books.pipeline_version` (migración aditiva **ya aplicada en producción**; los libros existentes valen 1), modo `python -m upgrade` del worker (`worker/upgrade/`) que añade `sents` (spaCy + Opus-MT por lote, código de RF-47) al JSON de cada página de Storage sin el PDF, validando antes de sobreescribir y escribiendo la versión del libro solo si todas sus páginas quedaron al día; workflow manual `.github/workflows/upgrade-books.yml`; aviso «Este libro ya estaba en la biblioteca; se reutilizó.» en la subida. RF-51 queda **En progreso**.
+
+**Cómo disparar el upgrade (no se ha ejecutado sobre libros reales):** Actions -> «upgrade-books» -> Run workflow. Primero con `dry_run = true` (valor por omisión; traduce pero no escribe nada) y mira el resumen («Actualizados / con error / páginas nuevas»); luego con `dry_run = false`. `book_id` vacío = todos los libros `ready` con versión menor; con un UUID, solo ese libro. Es idempotente y reanudable: si falla, se vuelve a lanzar. Equivale a `gh workflow run upgrade-books.yml -f dry_run=false`.
+
+**Falta:** ejecutarlo de verdad (verificar traducción real y tiempo); campos de ejercicio (RF-34) e ilustraciones (RF-18) no se pueden derivar sin el PDF: esos libros deben subirse de nuevo. Verificación en navegador del aviso de reutilizado pendiente (Playwright no conectó).
+
 # Retomar aquí (2026-10-20, Fase 7 — cierre del plan de mejoras, rama `docs/cierre-mejoras`)
 
 **Qué quedó:** Fases 0 a 6 fusionadas en `main` (PR #49 a #57): RF-46 (progreso fiel), RNF-18 (procesamiento en paralelo), RF-47 (traducir frases), RF-48 (repaso FSRS, migración `card_state`/`review_log` ya aplicada), RF-49 (indicador de avance), RF-50 (PWA con service worker propio, ADR-008) y RNF-19 (rendimiento de lectura). Todos quedan **En progreso** en `INDEX.md`: el código y el CI están en verde, pero cada uno tiene criterios que solo la usuaria puede verificar.
@@ -5,6 +13,7 @@
 **Revisión de código (Fase 7):** sin defectos críticos. Revisados `public/sw.js` (cachés por usuaria, purga al cambiar de usuaria y al ver `POST /auth/signout`, nada de `/auth/*`, `/api/cuenta/*` ni RSC), la migración de repaso (RLS por `auth.uid()` en ambas tablas, `revoke` a `anon`, claves e índices correctos, `review_log` idempotente por `id`), el guardado de reseñas (cola en `localStorage` con clave por usuaria) y el pipeline paralelo (`pool.shutdown(wait=True, cancel_futures=True)`, error de hilo propagado al hilo principal, tiempo máximo por Tesseract, manifiesto determinista). Único cambio: en `public/sw.js` los `catch {` pasaron a `catch (_err)` porque el archivo se sirve sin transpilar y así funciona en Safari antiguos. **No se dividió `components/reader/page-reader.tsx` (826 líneas, un solo componente con ~30 estados):** dividirlo sin Playwright disponible en esta sesión no era seguro; queda como deuda técnica para una tarea propia con e2e.
 
 **Qué debe hacer la usuaria (en este orden):**
+
 1. **Subir de nuevo los libros** que quiera ver con traducción de frases (`sents`), campos de ejercicio e ilustraciones: el PDF se borra al terminar y no se pueden reprocesar (RF-47, RF-34, RF-18).
 2. **Cronometrar un libro de 167 páginas** en Actions (RNF-18: meta >= 2x y <= 7 min; en la muestra de 10 páginas salió 1,75x) y comprobar que la barra llega a 100 % justo al terminar (RF-46).
 3. **Probar la PWA en un iPhone real:** «Compartir -> Añadir a pantalla de inicio», abrir desde el ícono, entrar con Google, leer una página sin conexión, cerrar sesión y confirmar que no queda nada (RF-50 c6, RNF-15).

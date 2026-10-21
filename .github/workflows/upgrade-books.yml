@@ -1,0 +1,75 @@
+# RF-51: actualiza en sitio los libros ya procesados con una versión anterior del pipeline
+# (añade `sents`, RF-47). Solo manual. No necesita el PDF: lee el JSON de cada página de Storage.
+# Idempotente y reanudable; una falla en un libro no detiene los demás. El repositorio es
+# público: el registro lleva solo conteos y códigos (nunca texto de los libros).
+name: upgrade-books
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Simulacro: no escribe nada (true/false)"
+        required: false
+        default: "true"
+      book_id:
+        description: "UUID de un solo libro (vacío = todos los pendientes)"
+        required: false
+        default: ""
+
+concurrency:
+  group: upgrade-books
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    defaults:
+      run:
+        working-directory: worker
+    env:
+      DRY_RUN: ${{ inputs.dry_run }}
+      BOOK_ID: ${{ inputs.book_id }}
+    steps:
+      - name: Validar entradas
+        working-directory: .
+        run: |
+          if [[ "$DRY_RUN" != "true" && "$DRY_RUN" != "false" ]]; then
+            echo "dry_run debe ser true o false"
+            exit 1
+          fi
+          if [[ -n "$BOOK_ID" ]] && ! [[ "$BOOK_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
+            echo "book_id inválido"
+            exit 1
+          fi
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+
+      - name: Caché de los modelos de traducción (ya convertidos)
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.local/share/mydeutsch-models
+          key: opus-${{ hashFiles('worker/lexicon/opus.py') }}
+
+      - name: Instalar dependencias
+        run: uv sync --extra opus --extra opus-convert
+
+      - name: Instalar los modelos Opus-MT (revisión y huellas SHA-256 fijadas, ADR-007)
+        run: uv run --extra opus --extra opus-convert python -m lexicon.opus provision
+
+      - name: Actualizar libros
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          args=()
+          if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          if [[ -n "$BOOK_ID" ]]; then args+=(--book-id "$BOOK_ID"); fi
+          uv run --extra opus python -m upgrade "${args[@]}"

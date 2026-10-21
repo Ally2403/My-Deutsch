@@ -11,6 +11,8 @@ from pathlib import Path
 
 import httpx
 
+from pipeline.version import PIPELINE_VERSION
+
 LEXICON_BATCH = 500
 ATTEMPTS = 3
 
@@ -167,6 +169,7 @@ class Supabase:
                 "page_count": page_count,
                 "ocr_confidence": ocr_confidence,
                 "upload_path": None,
+                "pipeline_version": PIPELINE_VERSION,  # RF-51
             },
         )
         self._patch(
@@ -183,6 +186,56 @@ class Supabase:
             "jobs",
             {"book_id": f"eq.{book_id}", "status": "in.(queued,processing)"},
             {"status": "error", "error": code, "finished_at": _now()},
+        )
+
+    # --- RF-51: actualizar en sitio libros ya procesados ---------------------------------------
+
+    def books_to_upgrade(self, version: int) -> list[str]:
+        resp = self._request(
+            "books_to_upgrade",
+            "GET",
+            "/rest/v1/books",
+            params={
+                "status": "eq.ready",
+                "pipeline_version": f"lt.{version}",
+                "select": "id",
+                "order": "created_at.asc",
+                "limit": "1000",
+            },
+        )
+        return [row["id"] for row in resp.json()]
+
+    def list_pages(self, book_id: str) -> list[dict]:
+        resp = self._request(
+            "list_pages",
+            "GET",
+            "/rest/v1/pages",
+            params={
+                "book_id": f"eq.{book_id}",
+                "select": "number,tokens_path",
+                "order": "number.asc",
+                "limit": "1000",
+            },
+        )
+        return resp.json()
+
+    def download_page_json(self, path: str) -> bytes:
+        return self._request(
+            "download_page_json", "GET", f"/storage/v1/object/pages/{path}"
+        ).content
+
+    def upload_page_json(self, path: str, data: bytes) -> None:
+        self._request(
+            "upload_page_json",
+            "POST",
+            f"/storage/v1/object/pages/{path}",
+            content=data,
+            headers={"Content-Type": "application/json", "x-upsert": "true"},
+        )
+
+    def set_pipeline_version(self, book_id: str, version: int) -> None:
+        self._patch(
+            "set_pipeline_version", "books", {"id": f"eq.{book_id}"}, {"pipeline_version": version}
         )
 
     def delete_upload(self, upload_path: str) -> None:
